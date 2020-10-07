@@ -7,8 +7,7 @@
 
 /// [MS-OXCMSG] 2.2.1.8 PidTagMessageStatus Property
 /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-/// Specifies the status of a message in a contents table. Contains a bitwise OR of zero or more of the
-/// following values.
+/// Specifies the status of a message in a contents table. Contains a bitwise OR of zero or more of the following values.
 public struct MessageStatus: OptionSet {
     public let rawValue: UInt32
 

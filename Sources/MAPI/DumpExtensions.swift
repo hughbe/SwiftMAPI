@@ -57,10 +57,10 @@ extension RawRepresentable where RawValue == UInt32 {
     }
 }
 
-public func dump(properties: [UInt16: Any?]) {
+public func propertiesString(properties: [UInt16: Any?], namedProperties: [NamedProperty: UInt16]?) -> String {
     func keyString(key: UInt16, value: Any?) -> String {
-        if key >= 0x8000 {
-            return "Named Property: \(key.hexString)"
+        if key >= 0x8000, let kvp = namedProperties?.first(where: { $0.value == key - 0x8000 })?.key {
+            return kvp.description
         }
 
         if let type = PstPropertyId(rawValue: key) {
@@ -181,5 +181,5 @@ public func dump(properties: [UInt16: Any?]) {
         s += "- \(keyString(key: prop.key, value: prop.value)): \(valueString(key: prop.key, value: prop.value))\n"
     }
     
-    print(s)
+    return s
 }
