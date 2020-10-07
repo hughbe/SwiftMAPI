@@ -3717,6 +3717,18 @@ public enum PropertyId: UInt16 {
     case unknown0x36F8 = 0x36F8
     
     // case unknown0x36F8 = 0x36F9
+    
+    case unknown0x36FA = 0x36FA
+    
+    // case unknown0x36FB = 0x36FB
+
+    // case unknown0x36FC = 0x36FC
+
+    // case unknown0x36FD = 0x36FD
+
+    // case unknown0x36FE = 0x36FE
+    
+    // case unknown0x36FF = 0x36FF
 
     case PR_ATTACHMENT_X400_PARAMETERS = 0x3700
 
@@ -8923,6 +8935,12 @@ public enum PropertyId: UInt16 {
     case tagAddressBookObjectDistinguishedName = 0x803C
 
     // case unknown0x803D = 0x803D
+    
+    // case unknown0x80B0 = 0x80B0
+    
+    case unknown0x80B1 = 0x80B1
+    
+    // case unknown0x80B2 = 0x80B2
 
     // case unknown0x8C56 = 0x8C56
 
