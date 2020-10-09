@@ -33,8 +33,7 @@ public struct StoreObjectEntryID {
             throw MAPIError.corrupted
         }
         
-        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used
-        /// to route EntryIDs to the correct provider and MUST be set to
+        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct provider and MUST be set to
         /// %x38.A1.BB.10.05.E5.10.1A.A1.BB.08.00.2B.2A.56.C2.
         self.providerUid = try dataStream.read(type: UUID.self)
         

@@ -94,6 +94,15 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [Named
                     key == PropertyId.tagReceivedRepresentingEntryId.rawValue {
                 let entryId = try! getEntryID(dataStream: &dataStream)
                 return "\(entryId)"
+            } else if key == PropertyId.tagRemindersOnlineEntryId.rawValue ||
+                key == PropertyId.tagIpmDraftsEntryId.rawValue ||
+                key == PropertyId.tagIpmAppointmentEntryId.rawValue ||
+                key == PropertyId.tagIpmContactEntryId.rawValue ||
+                key == PropertyId.tagIpmJournalEntryId.rawValue ||
+                key == PropertyId.tagIpmTaskEntryId.rawValue ||
+                key == PropertyId.tagIpmNoteEntryId.rawValue {
+                let entryId = try! GeneralEntryID(dataStream: &dataStream)
+                return "\(entryId)"
             } else if key == PropertyId.tagStoreEntryId.rawValue || key == PropertyId.tagWlinkStoreEntryId.rawValue {
                 let entryId = try! StoreEntryID(dataStream: &dataStream)
                 return "\(entryId)"
