@@ -10,17 +10,13 @@ import Foundation
 
 /// [MS-OXCDATA] 2.2.5 Recipient EntryID Structures
 /// [MS-OXCDATA] 2.2.5.1 One-Off EntryID Structure
-/// A One-Off EntryID structure specifies a set of data representing recipients (1) that do not exist in
-/// the directory. All information about a one-off recipient (1) is contained in the EntryID.
+/// A One-Off EntryID structure specifies a set of data representing recipients (1) that do not exist in the directory. All information about a one-off recipient (1) is contained in the EntryID.
 /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/one-off-entry-identifiers
-public struct OneOffEntryID {
-    public var idType: UInt8
-    public var reserved1: UInt8
-    public var reserved2: UInt8
-    public var reserved3: UInt8
+public struct OneOffEntryID: EntryID {
+    public var flags: UInt32
     public var providerUid: UUID
     public var version: UInt16
-    public var flags: OneOffEntryFlags
+    public var entryFlags: OneOffEntryFlags
     public var displayName: String
     public var addressType: String
     public var emailAddress: String
@@ -29,19 +25,8 @@ public struct OneOffEntryID {
         /// Flags (4 bytes): This value is set to 0x00000000. Bits in this field indicate under what circumstances
         /// a short-term EntryID is valid. However, in any EntryID stored in a property value, these 4 bytes
         /// are zero, indicating a long-term EntryID.
-        /// ID Type (1 byte): The type of this ID. The value is the constant 0x00. The server uses the presence
-        self.idType = try dataStream.read()
-        
-        /// R1 (1 byte): Reserved. All clients and servers MUST set this value to the constant 0x00.
-        self.reserved1 = try dataStream.read()
-        
-        /// R2 (1 byte): Reserved. All clients and servers MUST set this value to the constant 0x00.
-        self.reserved2 = try dataStream.read()
-        
-        /// R3(1 byte): Reserved. All clients and servers MUST set this value to the constant 0x00.
-        self.reserved3 = try dataStream.read()
-        
-        if self.idType != 0x00000000 {
+        self.flags = try dataStream.read(endianess: .littleEndian)
+        if self.flags != 0x00000000 {
             throw MAPIError.corrupted
         }
         
@@ -90,12 +75,12 @@ public struct OneOffEntryID {
         /// address book. If b'1', server cannot look up this user's email address in the address book. If b'0',
         /// server can look up this user's email address in the address book.
         /// Pad (4 bits): (mask 0x000F) Reserved. This value is set to b'0000'.
-        self.flags = OneOffEntryFlags(rawValue: try dataStream.read(endianess: .littleEndian))
+        self.entryFlags = OneOffEntryFlags(rawValue: try dataStream.read(endianess: .littleEndian))
         
         /// DisplayName (variable): The recipient's display name (in the recipient table, the
         /// PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5)) as a null-terminated string.
         /// If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
-        if self.flags.contains(.unicode) {
+        if self.entryFlags.contains(.unicode) {
             self.displayName = try dataStream.readUTF16LEString()!
         } else {
             self.displayName = try dataStream.readAsciiString()!
@@ -104,7 +89,7 @@ public struct OneOffEntryID {
         /// AddressType (variable): The recipient's email address type (in the recipient table, the
         /// PidTagAddressType property ([MS-OXOABK] section 2.2.3.13)) as a null-terminated string. If
         /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
-        if self.flags.contains(.unicode) {
+        if self.entryFlags.contains(.unicode) {
             self.addressType = try dataStream.readUTF16LEString()!
         } else {
             self.addressType = try dataStream.readAsciiString()!
@@ -113,7 +98,7 @@ public struct OneOffEntryID {
         /// EmailAddress (variable): The recipient's email address (in the recipient table, the
         /// PidTagEmailAddress property ([MS-OXOABK] section 2.2.3.14)) as a null-terminated string. If
         /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
-        if self.flags.contains(.unicode) {
+        if self.entryFlags.contains(.unicode) {
             self.emailAddress = try dataStream.readUTF16LEString()!
         } else {
             self.emailAddress = try dataStream.readAsciiString()!

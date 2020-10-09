@@ -3717,6 +3717,18 @@ public enum PropertyId: UInt16 {
     case unknown0x36F8 = 0x36F8
     
     // case unknown0x36F8 = 0x36F9
+    
+    case unknown0x36FA = 0x36FA
+    
+    // case unknown0x36FB = 0x36FB
+
+    // case unknown0x36FC = 0x36FC
+
+    // case unknown0x36FD = 0x36FD
+
+    // case unknown0x36FE = 0x36FE
+    
+    // case unknown0x36FF = 0x36FF
 
     case PR_ATTACHMENT_X400_PARAMETERS = 0x3700
 
@@ -5080,6 +5092,32 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x3A72 = 0x3A72
 
+    // case unknown0x3A73 = 0x3A73
+    
+    // case unknown0x3A74 = 0x3A74
+    
+    // case unknown0x3A75 = 0x3A75
+    
+    case unknown0x3A76 = 0x3A76
+    
+    // case unknown0x3A77 = 0x3A77
+    
+    // case unknown0x3A78 = 0x3A78
+    
+    // case unknown0x3A79 = 0x3A79
+    
+    // case unknown0x3A7A = 0x3A7A
+    
+    case unknown0x3A7B = 0x3A7B
+    
+    // case unknown0x3A7C = 0x3A7C
+    
+    // case unknown0x3A7D = 0x3A7D
+    
+    // case unknown0x3A7E = 0x3A7E
+    
+    // case unknown0x3A7F = 0x3A7F
+    
     // case unknown0x3CFF = 0x3CFF
 
     /// PidTagStoreProviders
@@ -5803,7 +5841,13 @@ public enum PropertyId: UInt16 {
     /// Not documented in specification - removed
     case tagIncrSyncStateEnd = 0x403B
 
-    // case unknown0x403C
+    // case unknown0x403C = 0x403C
+    
+    case PR_ORG_ADDR_TYPE = 0x403D
+    
+    case PR_ORG_EMAIL_ADDR = 0x403E
+    
+    // case unknown0x403F = 0x403F
 
     /// Not documented in specification - known on internet
     case creatorFlag = 0x4059
@@ -6462,6 +6506,34 @@ public enum PropertyId: UInt16 {
     // case unknown0x65FE = 0x65FE
 
     // case unknown0x65FF = 0x65FF
+    
+    // case unknown0x6603 = 0x6603
+    
+    case PR_PROFILE_CONNECT_FLAGS = 0x6604
+    
+    // case unknown0x6605 = 0x6605
+    
+    // case unknown0x660F = 0x660F
+    
+    /// PidTagContactAddressBookFolderEntryId
+    /// Not documented in specification but known on internet
+    /// Contains an identifier for the Contacts folder in the message store where mail users are kept.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontactaddressbookfolderentryid-canonical-property
+    case tagContactAddressBookFolderEntryId = 0x6610
+    
+    // case unknown0x6611 = 0x6611
+    
+    // case unknown0x6612 = 0x6612
+    
+    // case unknown0x6613 = 0x6613
+    
+    // case unknown0x6614 = 0x6614
+    
+    // case unknown0x6615 = 0x6615
+    
+    // case unknown0x6616 = 0x6616
+    
+    // case unknown0x6617 = 0x6617
 
     // case unknown0x6618 = 0x6618
 
@@ -6813,6 +6885,16 @@ public enum PropertyId: UInt16 {
     case tagRuleFolderEntryId = 0x6651
 
     // case unknown0x6652 = 0x6652
+    
+    // case unknown0x6661 = 0x6661
+    
+    /// PidTagRecipientNumber
+    /// Not documented in specification but known on internet
+    /// Represents the recipient number of a recipient on the message.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagrecipientnumber-canonical-property
+    case tagRecipientNumber = 0x6662
+    
+    // case unknown0x6663 = 0x6663
 
     // case unknown0x6669 = 0x6669
 
@@ -8923,6 +9005,12 @@ public enum PropertyId: UInt16 {
     case tagAddressBookObjectDistinguishedName = 0x803C
 
     // case unknown0x803D = 0x803D
+    
+    // case unknown0x80B0 = 0x80B0
+    
+    case unknown0x80B1 = 0x80B1
+    
+    // case unknown0x80B2 = 0x80B2
 
     // case unknown0x8C56 = 0x8C56
 
@@ -9045,6 +9133,54 @@ public enum PropertyId: UInt16 {
     case tagAddressBookNetworkAddress = 0x8170
 
     // case unknown0x8171 = 0x8171
+    
+    // case unknown0x81AD = 0x81AD
+    
+    case unknown0x81AE = 0x81AE
+    
+    case unknown0x81AF = 0x81AF
+    
+    case unknown0x81B0 = 0x81B0
+    
+    case unknown0x81B1 = 0x81B1
+    
+    case unknown0x81B2 = 0x81B2
+    
+    case unknown0x81B3 = 0x81B3
+    
+    // case unknown0x81B3 = 0x81B3
+    
+    case unknown0x81B4 = 0x81B4
+    
+    case unknown0x81B5 = 0x81B5
+    
+    case unknown0x81B6 = 0x81B6
+    
+    case unknown0x81B7 = 0x81B7
+    
+    case unknown0x81B8 = 0x81B8
+    
+    case unknown0x81B9 = 0x81B9
+    
+    case unknown0x81BA = 0x81BA
+    
+    case unknown0x81BB = 0x81BB
+    
+    case unknown0x81BC = 0x81BC
+    
+    case unknown0x81BD = 0x81BD
+    
+    case unknown0x81BE = 0x81BE
+    
+    case unknown0x81BF = 0x81BF
+    
+    case unknown0x81C0 = 0x81C0
+    
+    case unknown0x81C1 = 0x81C1
+    
+    case unknown0x81C2 = 0x81C2
+    
+    // case unknown0x81C3 = 0x81C3
 
     // case unknown0x8C69 = 0x8C69
 

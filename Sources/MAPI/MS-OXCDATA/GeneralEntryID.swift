@@ -11,7 +11,7 @@ import Foundation
 /// [MS-OXCDATA] 2.2.3 General EntryID Structure
 /// A General EntryID structure is used to identify and access an object. Note that the length of an
 /// EntryID is specified externally, not in the structure itself.
-public struct GeneralEntryID {
+public struct GeneralEntryID: EntryID {
     public var flags: UInt32
     public var providerUid: UUID
     public var providerData: [UInt8]

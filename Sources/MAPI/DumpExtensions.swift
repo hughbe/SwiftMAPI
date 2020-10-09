@@ -57,10 +57,10 @@ extension RawRepresentable where RawValue == UInt32 {
     }
 }
 
-public func dump(properties: [UInt16: Any?]) {
+public func propertiesString(properties: [UInt16: Any?], namedProperties: [NamedProperty: UInt16]?) -> String {
     func keyString(key: UInt16, value: Any?) -> String {
-        if key >= 0x8000 {
-            return "Named Property: \(key.hexString)"
+        if key >= 0x8000, let kvp = namedProperties?.first(where: { $0.value == key - 0x8000 })?.key {
+            return kvp.description
         }
 
         if let type = PstPropertyId(rawValue: key) {
@@ -69,8 +69,10 @@ public func dump(properties: [UInt16: Any?]) {
             return "\(type)"
         }
 
-        fatalError("Unknown property ID: \(key.hexString) with value \(valueString(key: key, value: value))")
-        //return key.hexString
+        if key < 0x8000 {
+            fatalError("Unknown property ID: \(key.hexString) with value \(valueString(key: key, value: value))")
+        }
+        return key.hexString
     }
     
     func valueString(key: UInt16, value: Any?) -> String {
@@ -79,16 +81,20 @@ public func dump(properties: [UInt16: Any?]) {
         }
         
         if let binary = value as? Data {
+            var dataStream = DataStream(data: binary)
             if key == PropertyId.tagPredecessorChangeList.rawValue {
-                var dataStream = DataStream(data: binary)
                 let changeList = try! PredecessorChangeList(dataStream: &dataStream)
                 return changeList.description
             } else if key == PropertyId.tagChangeKey.rawValue {
-                var dataStream = DataStream(data: binary)
                 let changeKey = try! XID(dataStream: &dataStream, size: dataStream.count)
                 return changeKey.description
+            } else if key == PropertyId.tagReceivedByEntryId.rawValue ||
+                    key == PropertyId.tagSenderEntryId.rawValue ||
+                    key == PropertyId.tagSentRepresentingEntryId.rawValue ||
+                    key == PropertyId.tagReceivedRepresentingEntryId.rawValue {
+                let entryId = try! getEntryID(dataStream: &dataStream)
+                return "\(entryId)"
             } else if key == PropertyId.tagStoreEntryId.rawValue || key == PropertyId.tagWlinkStoreEntryId.rawValue {
-                var dataStream = DataStream(data: binary)
                 let entryId = try! StoreEntryID(dataStream: &dataStream)
                 return "\(entryId)"
             }
@@ -177,9 +183,12 @@ public func dump(properties: [UInt16: Any?]) {
     }
     
     var s = ""
-    for prop in properties {
-        s += "- \(keyString(key: prop.key, value: prop.value)): \(valueString(key: prop.key, value: prop.value))\n"
+    for entry in properties.enumerated() {
+        s += "- \(keyString(key: entry.element.key, value: entry.element.value)): \(valueString(key: entry.element.key, value: entry.element.value))"
+        if entry.offset != properties.count - 1 {
+            s += "\n"
+        }
     }
     
-    print(s)
+    return s
 }

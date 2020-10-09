@@ -42,16 +42,13 @@ public struct NamedProperty: Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        var s = "NamedProperty(Guid: \(guid), "
+        let setName = CommonlyUsedPropertySet(uuid: guid)?.description ?? guid.description
         switch kind {
         case .numericalNamed:
-            s += "LID: \(lid!.hexString)"
+            return "\(lid!.hexString) (\(setName))"
         case .stringNamed:
-            s += "Name: \(name!)"
+            return "\"\(name!)\" (\(setName))"
         }
-        
-        s += ")"
-        return s
     }
 
     public enum Kind {
