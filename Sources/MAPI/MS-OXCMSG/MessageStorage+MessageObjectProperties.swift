@@ -114,12 +114,12 @@ public extension MessageStorage {
     /// MAILUSER 0x00000006 A mail user, or any Address Book object that is not a distribution list or forum.
     /// DISTLIST 0x00000008 A distribution list.
     /// folder 0x00000003 A messaging forum, such as a bulletin board service or a public or shared folder.
-    var objectType: MessageObjectType? {
+    var objectType: ObjectType? {
         guard let rawValue: UInt32 = getProperty(id: .tagObjectType) else {
             return nil
         }
         
-        return MessageObjectType(rawValue: rawValue)
+        return ObjectType(rawValue: rawValue)
     }
     
     /// [MS-OXCMSG] 2.2.1.1 General Properties
@@ -1129,8 +1129,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagRecipientEntryId property ([MS-OXPROPS] section 2.900) contains an EntryID that
     /// identifies the Address Book object associated with a recipient (2).
-    var recipientEntryId: Data? {
-        return getProperty(id: .tagRecipientEntryId)
+    var recipientEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagRecipientEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXCMSG] 2.2.1.56 Body Properties

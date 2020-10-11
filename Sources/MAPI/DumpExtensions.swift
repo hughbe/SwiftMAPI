@@ -88,10 +88,12 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [Named
             } else if key == PropertyId.tagChangeKey.rawValue {
                 let changeKey = try! XID(dataStream: &dataStream, size: dataStream.count)
                 return changeKey.description
-            } else if key == PropertyId.tagReceivedByEntryId.rawValue ||
+            } else if key == PropertyId.tagEntryId.rawValue ||
+                    key == PropertyId.tagReceivedByEntryId.rawValue ||
                     key == PropertyId.tagSenderEntryId.rawValue ||
                     key == PropertyId.tagSentRepresentingEntryId.rawValue ||
-                    key == PropertyId.tagReceivedRepresentingEntryId.rawValue {
+                    key == PropertyId.tagReceivedRepresentingEntryId.rawValue ||
+                    key == PropertyId.tagRecipientEntryId.rawValue {
                 let entryId = try! getEntryID(dataStream: &dataStream)
                 return "\(entryId)"
             } else if key == PropertyId.tagRemindersOnlineEntryId.rawValue ||
@@ -180,6 +182,33 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [Named
                     (.template, ".template"),
                     (.addressTemplate, ".addressTemplate"),
                     (.searchTemplate, ".searchTemplate")
+                ])
+            } else if key == PstPropertyId.tagRecipientType.rawValue, let recipientType = RecipientType(rawValue: valueAsUInt32) {
+                return recipientType.dump(cases: [
+                    (.originator, ".originator"),
+                    (.primaryRecipient, ".primaryRecipient"),
+                    (.ccRecipient, ".ccRecipient"),
+                    (.bccRecipient, ".bccRecipient")
+                ])
+            } else if key == PropertyId.tagRecipientFlags.rawValue {
+                let recipientType = RecipientFlags(rawValue: valueAsUInt32)
+                return recipientType.dump(cases: [
+                    (.sendable, ".sendable"),
+                    (.organizer, ".organizer"),
+                    (.exceptionalResponse, ".exceptionalResponse"),
+                    (.exceptionalDeleted, ".exceptionalDeleted"),
+                    (.original, ".original")
+                ])
+            } else if key == PstPropertyId.tagObjectType.rawValue, let objectType = ObjectType(rawValue: valueAsUInt32) {
+                return objectType.dump(cases: [
+                    (.storeObject, ".storeObject"),
+                    (.addressBookObject, ".addressBookObject"),
+                    (.folder, ".folder"),
+                    (.addressBookContainer, ".addressBookContainer"),
+                    (.message, ".message"),
+                    (.mailUser, ".mailUser"),
+                    (.attachment, ".attachment"),
+                    (.distributionList, ".distributionList")
                 ])
             }
             

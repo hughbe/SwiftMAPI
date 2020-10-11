@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 27/08/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXCPERM] 2.2 Message Syntax
@@ -72,10 +73,14 @@ public extension MessageStorage {
     ///  PidTagParentEntryId, as specified in section 2.2.1.4.
     ///  PidTagEntryId, as specified in section 2.2.1.5.
     /// [MS-OXPFOAB] 2.2.1.5 PidTagEntryId
-    /// This property contains the entry ID for the OAB public folder message. For details, see [MS-OXPROPS]
-    /// section 2.674.<3>
-    var entryId: Data? {
-        return getProperty(id: .tagEntryId)
+    /// This property contains the entry ID for the OAB public folder message. For details, see [MS-OXPROPS] section 2.674.<3>
+    var entryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream)
     }
 
     /// [MS-OXCPERM] 2.2.5 PidTagMemberId Property
