@@ -14,8 +14,8 @@ public extension Sequence where Element: FixedWidthInteger {
     }
 }
 
-private extension OptionSet where RawValue: FixedWidthInteger {
-    func elements() -> AnySequence<Self> {
+public extension OptionSet where RawValue: FixedWidthInteger {
+    private func elements() -> AnySequence<Self> {
         var remainingBits = rawValue
         var bitMask: RawValue = 1
         return AnySequence {
@@ -33,7 +33,7 @@ private extension OptionSet where RawValue: FixedWidthInteger {
         }
     }
 
-    func dump(cases: [(value: Self.Element, name: String)]) -> String {
+    func stringRepresentation(cases: [(value: Self.Element, name: String)]) -> String {
         var strings: [String] = []
         for enumCase in cases {
             if contains(enumCase.value) {
@@ -45,8 +45,8 @@ private extension OptionSet where RawValue: FixedWidthInteger {
     }
 }
 
-extension RawRepresentable where RawValue == UInt32 {
-    func dump(cases: [(value: Self, name: String)]) -> String {
+public extension RawRepresentable where RawValue == UInt32 {
+    func stringRepresentation(cases: [(value: Self, name: String)]) -> String {
         for enumCase in cases {
             if rawValue == enumCase.value.rawValue {
                 return enumCase.name
@@ -55,6 +55,193 @@ extension RawRepresentable where RawValue == UInt32 {
         
         return rawValue.hexString
     }
+}
+
+public extension RetentionFlags {
+    static let caseNames: [(RetentionFlags, String)] = [
+        (.explicitTag, ".explicitTag"),
+        (.userOverride, ".userOverride"),
+        (.autoTag, ".autoTag"),
+        (.personalTag, ".personalTag"),
+        (.explicitArchiveTag, ".explicitArchiveTag"),
+        (.keepInPlace, ".keepInPlace"),
+        (.systemData, ".systemData"),
+        (.needsRescan, ".needsRescan"),
+        (.pendingRescan, ".pendingRescan")
+    ]
+}
+
+public extension DisplayType {
+    static let caseNames: [(DisplayType, String)] = [
+        (.mailUser, ".mailUser"),
+        (.distributionList, ".distributionList"),
+        (.forum, ".forum"),
+        (.agent, ".agent"),
+        (.organization, ".organization"),
+        (.privateDistributionList, ".privateDistributionList"),
+        (.remoteMailUser, ".remoteMailUser"),
+        (.container, ".container"),
+        (.template, ".template"),
+        (.addressTemplate, ".addressTemplate"),
+        (.searchTemplate, ".searchTemplate")
+    ]
+}
+
+public extension MessageStatus {
+    static let caseNames: [(MessageStatus, String)] = [
+        (.remoteDownload, ".remoteDownload"),
+        (.inConflict, ".inConflict"),
+        (.remoteDelete, ".remoteDelete")
+    ]
+}
+
+public extension MessageFlags {
+    static let caseNames: [(MessageFlags, String)] = [
+        (.read, ".read"),
+        (.unsent, ".unsent"),
+        (.resend, ".resend"),
+        (.unmodified, ".unmodified"),
+        (.submitted, ".submitted"),
+        (.hasAttachment, ".hasAttachment"),
+        (.fromMe, ".fromMe"),
+        (.fai, ".fai"),
+        (.notifyRead, ".notifyRead"),
+        (.notifyUnread, ".notifyUnread"),
+        (.notifyEverRead, ".notifyEverRead"),
+        (.internet, ".internet"),
+        (.untrusted, ".untrusted")
+    ]
+}
+
+public extension MessageSensitivity {
+    static let caseNames: [(MessageSensitivity, String)] = [
+        (.normal, ".normal"),
+        (.personal, ".personal"),
+        (.`private`, ".`private`"),
+        (.confidential, ".confidential")
+    ]
+}
+
+public extension MessageImportance {
+    static let caseNames: [(MessageImportance, String)] = [
+        (.low, ".low"),
+        (.normal, ".normal"),
+        (.high, ".high")
+    ]
+}
+
+public extension ResolveMethod {
+    static let caseNames: [(ResolveMethod, String)] = [
+        (.`default`, ".default"),
+        (.lastWriterWins, ".lastWriterWins"),
+        (.noConflictNotification, ".noConflictNotification")
+    ]
+}
+
+public extension ObjectType {
+    static let caseNames: [(ObjectType, String)] = [
+        (.storeObject, ".storeObject"),
+        (.addressBookObject, ".addressBookObject"),
+        (.folder, ".folder"),
+        (.addressBookContainer, ".addressBookContainer"),
+        (.message, ".message"),
+        (.mailUser, ".mailUser"),
+        (.attachment, ".attachment"),
+        (.distributionList, ".distributionList")
+    ]
+}
+
+public extension OneOffEntryFlags {
+    static let caseNames: [(OneOffEntryFlags, String)] = [
+        (.noRichInfo, ".noRichInfo"),
+        (.unicode, ".unicode")
+    ]
+}
+
+public extension AddressBookEntryType {
+    static let caseNames: [(AddressBookEntryType, String)] = [
+        (.localMailUser, ".localMailUser"),
+        (.distributionList, ".distributionList"),
+        (.bulletinBoardOrPublicFolder, ".bulletinBoardOrPublicFolder"),
+        (.automatedMailbox, ".automatedMailbox"),
+        (.organizationalMailbox, ".organizationalMailbox"),
+        (.privateDistributionList, ".privateDistributionList"),
+        (.remoteMailUser, ".remoteMailUser"),
+        (.container, ".container"),
+        (.template, ".template"),
+        (.oneOffUser, ".oneOffUser"),
+        (.search, ".search")
+    ]
+}
+
+public extension MessagePriority {
+    static let caseNames: [(MessagePriority, String)] = [
+        (.urgent, ".urgent"),
+        (.normal, ".normal"),
+        (.notUrgent, ".notUrgent")
+    ]
+}
+
+public extension MessageNativeBody {
+    static let caseNames: [(MessageNativeBody, String)] = [
+        (.undefined, ".undefined"),
+        (.plainText, ".plainText"),
+        (.rtf, ".rtf"),
+        (.html, ".html"),
+        (.clearSigned, ".clearSigned")
+    ]
+}
+
+public extension RecipientFlags {
+    static let caseNames: [(RecipientFlags, String)] = [
+        (.sendable, ".sendable"),
+        (.organizer, ".organizer"),
+        (.exceptionalResponse, ".exceptionalResponse"),
+        (.exceptionalDeleted, ".exceptionalDeleted"),
+        (.original, ".original")
+    ]
+}
+
+public extension RecipientType {
+    static let caseNames: [(RecipientType, String)] = [
+        (.originator, ".originator"),
+        (.primaryRecipient, ".primaryRecipient"),
+        (.ccRecipient, ".ccRecipient"),
+        (.bccRecipient, ".bccRecipient")
+    ]
+}
+
+public extension MessageEditorFormat {
+    static let caseNames: [(MessageEditorFormat, String)] = [
+        (.dontKnow, ".dontKnow"),
+        (.plainText, ".plainText"),
+        (.html, ".html"),
+        (.rtf, ".rtf")
+    ]
+}
+
+public extension ValidFolderMask {
+    static let caseNames: [(ValidFolderMask, String)] = [
+        (.ipmSubtreeValid, ".ipmSubtreeValid"),
+        (.ipmInboxValid, ".ipmInboxValid"),
+        (.ipmOutboxValid, ".ipmOutboxValid"),
+        (.ipmWasteBasketValid, ".ipmWasteBasketValid"),
+        (.ipmSentMailValid, ".ipmSentMailValid"),
+        (.viewsValid, ".viewsValid"),
+        (.commonViewsValid, ".commonViewsValid"),
+        (.finderValid, ".finderValid")
+    ]
+}
+
+public extension ResponseStatus {
+    static let caseNames: [(ResponseStatus, String)] = [
+        (.none, ".none"),
+        (.organized, ".organized"),
+        (.tentative, ".tentative"),
+        (.accepted, ".accepted"),
+        (.declined, ".declined"),
+        (.notResponded, ".notResponded")
+    ]
 }
 
 public func propertiesString(properties: [UInt16: Any?], namedProperties: [NamedProperty: UInt16]?) -> String {
@@ -121,95 +308,29 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [Named
             return s
         } else if let valueAsUInt32 = value as? UInt32 {
             if key == PropertyId.tagImportance.rawValue, let importance = MessageImportance(rawValue: valueAsUInt32) {
-                return importance.dump(cases: [
-                    (.low, ".low"),
-                    (.normal, ".normal"),
-                    (.high, ".high")
-                ])
+                return importance.stringRepresentation(cases: MessageImportance.caseNames)
             } else if key == PropertyId.tagSensitivity.rawValue, let sensitivity = MessageSensitivity(rawValue: valueAsUInt32) {
-                return sensitivity.dump(cases: [
-                    (.normal, ".normal"),
-                    (.personal, ".personal"),
-                    (.`private`, ".`private`"),
-                    (.confidential, ".confidential")
-                ])
+                return sensitivity.stringRepresentation(cases: MessageSensitivity.caseNames)
             } else if key == PropertyId.tagValidFolderMask.rawValue {
                 let mask = ValidFolderMask(rawValue: valueAsUInt32)
-                return mask.dump(cases: [
-                    (.ipmSubtreeValid, ".ipmSubtreeValid"),
-                    (.ipmInboxValid, ".ipmInboxValid"),
-                    (.ipmOutboxValid, ".ipmOutboxValid"),
-                    (.ipmWasteBasketValid, ".ipmWasteBasketValid"),
-                    (.ipmSentMailValid, ".ipmSentMailValid"),
-                    (.viewsValid, ".viewsValid"),
-                    (.commonViewsValid, ".commonViewsValid"),
-                    (.finderValid, ".finderValid")
-                ])
+                return mask.stringRepresentation(cases: ValidFolderMask.caseNames)
             } else if key == PstPropertyId.tagMessageFlags.rawValue {
                 let flags = MessageFlags(rawValue: valueAsUInt32)
-                return flags.dump(cases: [
-                    (.read, ".read"),
-                    (.unsent, ".unsent"),
-                    (.resend, ".resend"),
-                    (.unmodified, ".unmodified"),
-                    (.submitted, ".submitted"),
-                    (.hasAttachment, ".hasAttachment"),
-                    (.fromMe, ".fromMe"),
-                    (.fai, ".fai"),
-                    (.notifyRead, ".notifyRead"),
-                    (.notifyUnread, ".notifyUnread"),
-                    (.notifyEverRead, ".notifyEverRead"),
-                    (.internet, ".internet"),
-                    (.untrusted, ".untrusted")
-                ])
+                return flags.stringRepresentation(cases: MessageFlags.caseNames)
             } else if key == PstPropertyId.tagMessageStatus.rawValue {
                 let flags = MessageStatus(rawValue: valueAsUInt32)
-                return flags.dump(cases: [
-                    (.remoteDownload, ".remoteDownload"),
-                    (.inConflict, ".inConflict"),
-                    (.remoteDelete, ".remoteDelete")
-                ])
+                return flags.stringRepresentation(cases: MessageStatus.caseNames)
             } else if key == PstPropertyId.tagDisplayType.rawValue, let displayType = DisplayType(rawValue: valueAsUInt32) {
-                return displayType.dump(cases: [
-                    (.mailUser, ".mailUser"),
-                    (.distributionList, ".distributionList"),
-                    (.forum, ".forum"),
-                    (.agent, ".agent"),
-                    (.organization, ".organization"),
-                    (.privateDistributionList, ".privateDistributionList"),
-                    (.remoteMailUser, ".remoteMailUser"),
-                    (.container, ".container"),
-                    (.template, ".template"),
-                    (.addressTemplate, ".addressTemplate"),
-                    (.searchTemplate, ".searchTemplate")
-                ])
+                return displayType.stringRepresentation(cases: DisplayType.caseNames)
             } else if key == PstPropertyId.tagRecipientType.rawValue, let recipientType = RecipientType(rawValue: valueAsUInt32) {
-                return recipientType.dump(cases: [
-                    (.originator, ".originator"),
-                    (.primaryRecipient, ".primaryRecipient"),
-                    (.ccRecipient, ".ccRecipient"),
-                    (.bccRecipient, ".bccRecipient")
-                ])
+                return recipientType.stringRepresentation(cases: RecipientType.caseNames)
             } else if key == PropertyId.tagRecipientFlags.rawValue {
-                let recipientType = RecipientFlags(rawValue: valueAsUInt32)
-                return recipientType.dump(cases: [
-                    (.sendable, ".sendable"),
-                    (.organizer, ".organizer"),
-                    (.exceptionalResponse, ".exceptionalResponse"),
-                    (.exceptionalDeleted, ".exceptionalDeleted"),
-                    (.original, ".original")
-                ])
+                let recipientFlags = RecipientFlags(rawValue: valueAsUInt32)
+                return recipientFlags.stringRepresentation(cases: RecipientFlags.caseNames)
             } else if key == PstPropertyId.tagObjectType.rawValue, let objectType = ObjectType(rawValue: valueAsUInt32) {
-                return objectType.dump(cases: [
-                    (.storeObject, ".storeObject"),
-                    (.addressBookObject, ".addressBookObject"),
-                    (.folder, ".folder"),
-                    (.addressBookContainer, ".addressBookContainer"),
-                    (.message, ".message"),
-                    (.mailUser, ".mailUser"),
-                    (.attachment, ".attachment"),
-                    (.distributionList, ".distributionList")
-                ])
+                return objectType.stringRepresentation(cases: ObjectType.caseNames)
+            } else if key == PropertyId.tagResolveMethod.rawValue, let resolveMethod = ResolveMethod(rawValue: valueAsUInt32) {
+                return resolveMethod.stringRepresentation(cases: ResolveMethod.caseNames)
             }
             
             return "\(valueAsUInt32.hexString)"

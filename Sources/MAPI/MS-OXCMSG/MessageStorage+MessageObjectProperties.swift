@@ -862,8 +862,13 @@ public extension MessageStorage {
     /// The PidTagLastModifierEntryId property ([MS-OXPROPS] section 2.765) specifies the last user to
     /// modify the contents of the message according to their address book EntryID. The format of an
     /// address book EntryID data type is specified in [MS-OXCDATA] section 2.2.5.2.
-    var lastModifierEntryId: Data? {
-        return getProperty(id: .tagLastModifierEntryId)
+    var lastModifierEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagLastModifierEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXCMSG] 2.2.1.33 PidLidAgingDontAgeMe Property
@@ -1119,16 +1124,14 @@ public extension MessageStorage {
     
     /// [MS-OXCMSG] 2.2.1.54 PidTagRecipientDisplayName Property
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagRecipientDisplayName property ([MS-OXPROPS] section 2.899) specifies the display
-    /// name of a recipient (2).
-    var recipientDisplayName: UInt32? {
+    /// The PidTagRecipientDisplayName property ([MS-OXPROPS] section 2.899) specifies the display name of a recipient (2).
+    var recipientDisplayName: String? {
         return getProperty(id: .tagRecipientDisplayName)
     }
     
     /// [MS-OXCMSG] 2.2.1.55 PidTagRecipientEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagRecipientEntryId property ([MS-OXPROPS] section 2.900) contains an EntryID that
-    /// identifies the Address Book object associated with a recipient (2).
+    /// The PidTagRecipientEntryId property ([MS-OXPROPS] section 2.900) contains an EntryID that identifies the Address Book object associated with a recipient (2).
     var recipientEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagRecipientEntryId) else {
             return nil
@@ -1449,12 +1452,12 @@ public extension MessageStorage {
     /// be present on both Message objects and folders and can be set by both client and server.
     /// The value of the PidTagRetentionFlags property is a bitwise OR of zero or more of the values from
     /// the following table.
-    var retentionFlags: MessageRetentionFlags? {
+    var retentionFlags: RetentionFlags? {
         guard let rawValue: UInt32 = getProperty(id: .tagRetentionFlags) else {
             return nil
         }
         
-        return MessageRetentionFlags(rawValue: rawValue)
+        return RetentionFlags(rawValue: rawValue)
     }
     
     /// [MS-OXCMSG] 2.2.1.58 Retention and Archive Properties

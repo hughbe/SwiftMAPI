@@ -9,7 +9,7 @@ import DataStream
 
 /// [MS-OXCDATA] 2.9 PropertyTag Structure
 /// A property tag both identifies a property and gives the data type its value.
-public struct PropertyTag {
+public struct PropertyTag: CustomStringConvertible {
     public let type: PropertyType
     public let id: UInt16
 
@@ -36,7 +36,7 @@ public struct PropertyTag {
         }
     }
     
-    public var debugDescription: String {
-        return "\(idString) (\(type)"
+    public var description: String {
+        return "\(idString) (\(type))"
     }
 }

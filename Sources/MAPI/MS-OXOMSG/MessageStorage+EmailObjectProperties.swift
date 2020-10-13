@@ -634,13 +634,13 @@ public extension MessageStorage {
     /// specified in the EntryID field of the RecipientRow structure ([MS-OXCDATA] section 2.8.3.2). If the
     /// receiving mailbox owner receives the e-mail message on his or her own behalf, this property is set to
     /// the value of the PidTagReceivedByEntryId property (section 2.2.1.38).
-    var receivedRepresentingEntryId: OneOffEntryID? {
+    var receivedRepresentingEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagReceivedRepresentingEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.26 PidTagReceivedRepresentingName Property
@@ -776,13 +776,13 @@ public extension MessageStorage {
     /// EntryID that contains the e-mail message receiver of the E-mail object. The address book EntryID
     /// data format is specified by the EntryID field of the RecipientRow structure ([MS-OXCDATA] section
     /// 2.8.3.2).
-    var receivedByEntryId: OneOffEntryID? {
+    var receivedByEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagReceivedByEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.39 PidTagReceivedByName Property
@@ -976,13 +976,13 @@ public extension MessageStorage {
     /// The following properties are specified in [MS-OXOMSG] to represent the sender of an E-mail object.
     /// They are used in this protocol to represent the creator of a Post object:
     ///  PidTagSenderEntryId ([MS-OXOMSG] section 2.2.1.50)
-    var senderEntryId: OneOffEntryID? {
+    var senderEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagSenderEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.51 PidTagSenderName Property
@@ -1068,13 +1068,13 @@ public extension MessageStorage {
     /// that contains the identifier of the end user who is represented by the sending mailbox owner. If the
     /// sending mailbox owner is sending on his or her own behalf, this property is set to the value of the
     /// PidTagSenderEntryId property (section 2.2.1.50).
-    var sentRepresentingEntryId: OneOffEntryID? {
+    var sentRepresentingEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagSentRepresentingEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.57 PidTagSentRepresentingName Property
@@ -1451,8 +1451,13 @@ public extension MessageStorage {
     /// The following properties are specified in [MS-OXOMSG] to represent the sender of an E-mail object.
     /// They are used in this protocol to represent the creator of a Post object:
     ///  PidTagSentRepresentingEntryId ([MS-OXOMSG] section 2.2.1.56)
-    var originalSentRepresentingEntryId: Data? {
-        return getProperty(id: .tagOriginalSentRepresentingEntryId)
+    var originalSentRepresentingEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagOriginalSentRepresentingEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.2.14 PidTagOriginalSentRepresentingName Property
