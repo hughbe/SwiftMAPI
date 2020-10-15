@@ -901,7 +901,7 @@ public extension MessageStorage {
     /// The PidTagAlternateRecipientAllowed property ([MS-OXPROPS] section 2.577) specifies whether
     /// the sender permits the message to be autoforwarded. This property is set to "TRUE" if autoforwarding
     /// is allowed.
-    var alternativeRecipientAllowed: Bool? {
+    var alternateRecipientAllowed: Bool? {
         return getProperty(id: .tagAlternateRecipientAllowed)
     }
     
@@ -1539,7 +1539,7 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAttachDataBinary property ([MS-OXPROPS] section 2.589) contains the contents of the
     /// file to be attached.
-    var attachBinaryData: Data? {
+    var attachDataBinary: Data? {
         return getProperty(id: .tagAttachDataBinary)
     }
     

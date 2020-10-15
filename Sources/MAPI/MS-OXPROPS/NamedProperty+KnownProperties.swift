@@ -1309,8 +1309,6 @@ public extension NamedProperty {
     /// Alternate names: dispidDLStream
     static let lidDistributionListStream = NamedProperty(set: .address,
                                                                        lid: 0x00008064)
-    
-    // TODO: 2.100-2.130
 
     /// [MS-OXPROPS] 2.100 PidLidEmail1AddressType
     /// Canonical name: PidLidEmail1AddressType

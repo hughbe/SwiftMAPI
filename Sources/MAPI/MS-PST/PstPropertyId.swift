@@ -980,7 +980,7 @@ public enum PstPropertyId: UInt16 {
     /// The basic property schema of a general Message object is specified in [MS-OXCMSG] and [MSOXPROPS]. From the PST perspective, the following properties MUST be present in any valid
     /// Attachment object PC.
     /// 0x370B PtypInteger32 PidTagRenderingPosition Rendering position of Attachment object.
-    case tagRenderingPosition = 0x370A
+    case tagRenderingPosition = 0x370B
     
     /// [MS-PST] 2.4.4.5 Contents Table
     /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.

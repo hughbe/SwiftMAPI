@@ -33,12 +33,18 @@ public extension OptionSet where RawValue: FixedWidthInteger {
         }
     }
 
-    func stringRepresentation(cases: [(value: Self.Element, name: String)]) -> String {
+    func stringRepresentation(caseNames: [(value: Self.Element, name: String)]) -> String {
         var strings: [String] = []
-        for enumCase in cases {
-            if contains(enumCase.value) {
-                strings.append(enumCase.name)
+        var remaining = self
+        for enumCase in caseNames {
+            if self.contains(enumCase.0) {
+                strings.append(enumCase.1)
+                remaining.remove(enumCase.0)
             }
+        }
+        
+        if !remaining.isEmpty {
+            strings.append("\(Self.self)(rawValue: \(remaining.rawValue.hexString))")
         }
         
         return "[\(strings.joined(separator: ", "))]"
@@ -46,8 +52,8 @@ public extension OptionSet where RawValue: FixedWidthInteger {
 }
 
 public extension RawRepresentable where RawValue == UInt32 {
-    func stringRepresentation(cases: [(value: Self, name: String)]) -> String {
-        for enumCase in cases {
+    func stringRepresentation(caseNames: [(value: Self, name: String)]) -> String {
+        for enumCase in caseNames {
             if rawValue == enumCase.value.rawValue {
                 return enumCase.name
             }
@@ -244,6 +250,77 @@ public extension ResponseStatus {
     ]
 }
 
+public extension StoreSupportMask {
+    static let caseNames: [(StoreSupportMask, String)] = [
+        (.unicodeOk, ".unicodeOk")
+    ]
+}
+
+public extension MessageAccessLevel {
+    static let caseNames: [(MessageAccessLevel, String)] = [
+        (.readOnly, ".readOnly"),
+        (.modify, ".modify")
+    ]
+}
+
+public extension MessageAccess {
+    static let caseNames: [(MessageAccess, String)] = [
+        (.modify, ".modify"),
+        (.read, ".read"),
+        (.delete, ".delete"),
+        (.createHierachyTable, ".createHierachyTable"),
+        (.createContentsTable, ".createContentsTable"),
+        (.createAssociatedContentsTable, ".createAssociatedContentsTable")
+    ]
+}
+
+public extension AttachMethod {
+    static let caseNames: [(AttachMethod, String)] = [
+        (.none, ".none"),
+        (.byValue, ".byValue"),
+        (.byReference, ".byReference"),
+        (.byReferenceOnly, ".byReferenceOnly"),
+        (.embeddedMessage, ".embeddedMessage"),
+        (.storage, ".storage"),
+        (.byWebReference, ".byWebReference"),
+    ]
+}
+
+public extension AttachFlags {
+    static let caseNames: [(AttachFlags, String)] = [
+        (.invisibleInHtml, ".invisibleInHtml"),
+        (.invisibleInRtf, ".invisibleInRtf"),
+        (.renderedInBody, ".renderedInBody")
+    ]
+}
+
+public extension TaskMode {
+    static let caseNames: [(TaskMode, String)] = [
+        (.notAssigned, ".notAssigned"),
+        (.embeddedInTaskRequest, ".embeddedInTaskRequest"),
+        (.acceptedByAssignee, ".acceptedByAssignee"),
+        (.rejectedByAssignee, ".rejectedByAssignee"),
+        (.embeddedInTaskUpdate, ".embeddedInTaskUpdate"),
+        (.assignedToTaskAssigner, ".assignedToTaskAssigner")
+    ]
+}
+
+public extension MessageSideEffects {
+    static let caseNames: [(MessageSideEffects, String)] = [
+        (.openToDelete, ".openToDelete"),
+        (.noFrame, ".noFrame"),
+        (.coerceToInbox, ".coerceToInbox"),
+        (.openToCopy, ".openToCopy"),
+        (.openToMove, ".openToMove"),
+        (.openForContextMenu, ".openForContextMenu"),
+        (.cannotUndoDelete, ".cannotUndoDelete"),
+        (.cannotUndoCopy, ".cannotUndoCopy"),
+        (.cannotUndoMove, ".cannotUndoMove"),
+        (.hasScript, ".hasScript"),
+        (.openToPermanentlyDelete, ".openToPermanentlyDelete")
+    ]
+}
+
 public func propertiesString(properties: [UInt16: Any?], namedProperties: [NamedProperty: UInt16]?) -> String {
     func keyString(key: UInt16, value: Any?) -> String {
         if key >= 0x8000, let kvp = namedProperties?.first(where: { $0.value == key - 0x8000 })?.key {
@@ -308,29 +385,42 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [Named
             return s
         } else if let valueAsUInt32 = value as? UInt32 {
             if key == PropertyId.tagImportance.rawValue, let importance = MessageImportance(rawValue: valueAsUInt32) {
-                return importance.stringRepresentation(cases: MessageImportance.caseNames)
+                return importance.stringRepresentation(caseNames: MessageImportance.caseNames)
             } else if key == PropertyId.tagSensitivity.rawValue, let sensitivity = MessageSensitivity(rawValue: valueAsUInt32) {
-                return sensitivity.stringRepresentation(cases: MessageSensitivity.caseNames)
+                return sensitivity.stringRepresentation(caseNames: MessageSensitivity.caseNames)
+            } else if key == PropertyId.tagStoreSupportMask.rawValue {
+                let mask = StoreSupportMask(rawValue: valueAsUInt32)
+                return mask.stringRepresentation(caseNames: StoreSupportMask.caseNames)
             } else if key == PropertyId.tagValidFolderMask.rawValue {
                 let mask = ValidFolderMask(rawValue: valueAsUInt32)
-                return mask.stringRepresentation(cases: ValidFolderMask.caseNames)
+                return mask.stringRepresentation(caseNames: ValidFolderMask.caseNames)
             } else if key == PstPropertyId.tagMessageFlags.rawValue {
                 let flags = MessageFlags(rawValue: valueAsUInt32)
-                return flags.stringRepresentation(cases: MessageFlags.caseNames)
+                return flags.stringRepresentation(caseNames: MessageFlags.caseNames)
             } else if key == PstPropertyId.tagMessageStatus.rawValue {
                 let flags = MessageStatus(rawValue: valueAsUInt32)
-                return flags.stringRepresentation(cases: MessageStatus.caseNames)
+                return flags.stringRepresentation(caseNames: MessageStatus.caseNames)
             } else if key == PstPropertyId.tagDisplayType.rawValue, let displayType = DisplayType(rawValue: valueAsUInt32) {
-                return displayType.stringRepresentation(cases: DisplayType.caseNames)
+                return displayType.stringRepresentation(caseNames: DisplayType.caseNames)
             } else if key == PstPropertyId.tagRecipientType.rawValue, let recipientType = RecipientType(rawValue: valueAsUInt32) {
-                return recipientType.stringRepresentation(cases: RecipientType.caseNames)
+                return recipientType.stringRepresentation(caseNames: RecipientType.caseNames)
             } else if key == PropertyId.tagRecipientFlags.rawValue {
                 let recipientFlags = RecipientFlags(rawValue: valueAsUInt32)
-                return recipientFlags.stringRepresentation(cases: RecipientFlags.caseNames)
+                return recipientFlags.stringRepresentation(caseNames: RecipientFlags.caseNames)
             } else if key == PstPropertyId.tagObjectType.rawValue, let objectType = ObjectType(rawValue: valueAsUInt32) {
-                return objectType.stringRepresentation(cases: ObjectType.caseNames)
+                return objectType.stringRepresentation(caseNames: ObjectType.caseNames)
             } else if key == PropertyId.tagResolveMethod.rawValue, let resolveMethod = ResolveMethod(rawValue: valueAsUInt32) {
-                return resolveMethod.stringRepresentation(cases: ResolveMethod.caseNames)
+                return resolveMethod.stringRepresentation(caseNames: ResolveMethod.caseNames)
+            } else if key == PropertyId.tagAccessLevel.rawValue, let accessLevel = MessageAccessLevel(rawValue: valueAsUInt32) {
+                return accessLevel.stringRepresentation(caseNames: MessageAccessLevel.caseNames)
+            } else if key == PropertyId.tagAccess.rawValue {
+                let access = MessageAccess(rawValue: valueAsUInt32)
+                return access.stringRepresentation(caseNames: MessageAccess.caseNames)
+            } else if key == PropertyId.tagAttachMethod.rawValue, let attachMethod = AttachMethod(rawValue: valueAsUInt32) {
+                return attachMethod.stringRepresentation(caseNames: AttachMethod.caseNames)
+            } else if key == PropertyId.tagAttachFlags.rawValue {
+                let flags = AttachFlags(rawValue: valueAsUInt32)
+                return flags.stringRepresentation(caseNames: AttachFlags.caseNames)
             }
             
             return "\(valueAsUInt32.hexString)"
