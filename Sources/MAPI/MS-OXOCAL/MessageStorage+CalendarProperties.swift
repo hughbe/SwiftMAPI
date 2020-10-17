@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 03/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXOCAL] 2.2 Message Syntax
@@ -701,8 +702,13 @@ public extension MessageStorage {
     /// associated PidLidTimeZoneStruct structure, the values in the PidLidTimeZoneStruct property are
     /// used to determine the effective time zone rule.<10>
     /// The fields in this structure are encoded in little-endian byte order.
-    var appointmentTimeZoneDefinitionRecur: Data? {
-        return getProperty(name: .lidAppointmentTimeZoneDefinitionRecur)
+    var appointmentTimeZoneDefinitionRecur: AppointmentTimeZoneDefinition? {
+        guard let data: Data = getProperty(name: .lidAppointmentTimeZoneDefinitionRecur) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.42 PidLidAppointmentTimeZoneDefinitionStartDisplay Property
@@ -715,8 +721,13 @@ public extension MessageStorage {
     /// TZRule flags field is not set (for example, if the TZRule structure is the effective rule (2), the value
     /// of the field TZRule flags field is TZRULE_FLAG_EFFECTIVE_TZREG (0x0002); otherwise, it will be
     /// 0x0000).
-    var appointmentTimeZoneDefinitionStartDisplay: Data? {
-        return getProperty(name: .lidAppointmentTimeZoneDefinitionStartDisplay)
+    var appointmentTimeZoneDefinitionStartDisplay: AppointmentTimeZoneDefinition? {
+        guard let data: Data = getProperty(name: .lidAppointmentTimeZoneDefinitionStartDisplay) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.43 PidLidAppointmentTimeZoneDefinitionEndDisplay Property
@@ -725,8 +736,13 @@ public extension MessageStorage {
     /// specifies time zone information that indicates the time zone of the PidLidAppointmentEndWhole
     /// property (section 2.2.1.6). The format, constraints, and computation of this property are the same as
     /// specified for the PidLidAppointmentTimeZoneDefinitionStartDisplay property (section 2.2.1.42).
-    var appointmentTimeZoneDefinitionEndDisplay: Data? {
-        return getProperty(name: .lidAppointmentTimeZoneDefinitionEndDisplay)
+    var appointmentTimeZoneDefinitionEndDisplay: AppointmentTimeZoneDefinition? {
+        guard let data: Data = getProperty(name: .lidAppointmentTimeZoneDefinitionEndDisplay) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.44 PidLidAppointmentRecur Property
@@ -1208,7 +1224,7 @@ public extension MessageStorage {
     /// The PidLidAppointmentProposalNumber property ([MS-OXPROPS] section 2.18) specifies the
     /// number of attendees who have sent counter proposals that have not been accepted or rejected by
     /// the organizer.
-    var appointmentProposalNumber: Date? {
+    var appointmentProposalNumber: UInt32? {
         return getProperty(name: .lidAppointmentProposalNumber)
     }
     
@@ -1216,7 +1232,7 @@ public extension MessageStorage {
     /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
     /// When set to TRUE (0x00000001), the PidLidAppointmentCounterProposal property ([MSOXPROPS] section 2.10) indicates to the organizer that there are counter proposals that have not
     /// been accepted or rejected (by the organizer). This property has no meaning for an attendee.
-    var appointmentCounterProposal: Date? {
+    var appointmentCounterProposal: Bool? {
         return getProperty(name: .lidAppointmentCounterProposal)
     }
     

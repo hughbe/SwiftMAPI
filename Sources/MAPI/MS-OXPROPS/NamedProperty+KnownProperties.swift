@@ -2822,7 +2822,7 @@ public extension NamedProperty {
     /// Consuming references: [MS-OXCDATA], [MS-OXOSFLD], [MS-OXWAVLS], [MS-XWDCAL]
     /// Alternate names: dispidRecurring
     static let lidRecurring = NamedProperty(set: .appointment,
-                                                          lid: 0x000085BD)
+                                                          lid: 0x00008223)
 
     /// [MS-OXPROPS] 2.217 PidLidReferenceEntryId
     /// Canonical name: PidLidReferenceEntryId

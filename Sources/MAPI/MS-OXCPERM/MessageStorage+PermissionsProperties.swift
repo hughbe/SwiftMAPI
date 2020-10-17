@@ -80,7 +80,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXCPERM] 2.2.5 PidTagMemberId Property

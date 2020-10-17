@@ -13,7 +13,7 @@ public protocol EntryID {
     var providerUid: UUID { get }
 }
 
-public func getEntryID(dataStream: inout DataStream) throws -> EntryID {
+public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryID {
     let position = dataStream.position
 
     /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what
@@ -21,7 +21,7 @@ public func getEntryID(dataStream: inout DataStream) throws -> EntryID {
     /// these 4 bytes MUST be zero, indicating a long-term EntryID.
     let flags: UInt32 = try dataStream.read()
     if flags != 0x00000000 {
-        throw MAPIError.corrupted
+        //throw MAPIError.corrupted
     }
     
     /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used
@@ -43,6 +43,10 @@ public func getEntryID(dataStream: inout DataStream) throws -> EntryID {
     case UUID(uuid: uuid_t(0xFE, 0x42, 0xAA, 0x0A, 0x18, 0xC7, 0x1A, 0x10, 0xE8, 0x85, 0x0B, 0x65, 0x1C, 0x24, 0x00, 0x00)):
         return try ContactAddressEntryID(dataStream: &dataStream)
     default:
-        fatalError("NYI: \(providerUid)")
+        if size == 46 {
+            return try FolderEntryID(dataStream: &dataStream)
+        }
+
+        return try GeneralEntryID(dataStream: &dataStream)
     }
 }

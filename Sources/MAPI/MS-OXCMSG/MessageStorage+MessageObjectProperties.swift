@@ -853,8 +853,13 @@ public extension MessageStorage {
     /// The PidTagCreatorEntryId property ([MS-OXPROPS] section 2.655) specifies the original author of
     /// the message according to their address book EntryID. The format of an address book EntryID data
     /// type is specified in [MS-OXCDATA] section 2.2.5.2.
-    var creatorEntryId: Data? {
-        return getProperty(id: .tagCreatorEntryId)
+    var creatorEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagCreatorEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCMSG] 2.2.1.32 PidTagLastModifierEntryId Property
@@ -868,7 +873,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCMSG] 2.2.1.33 PidLidAgingDontAgeMe Property
@@ -1138,7 +1143,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCMSG] 2.2.1.56 Body Properties
@@ -1302,8 +1307,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidLidContactLinkEntry property ([MS-OXPROPS] section 2.70) contains the list of address
     /// book EntryIDs linked to by this Message object.
-    var contactLinkEntry: Data? {
-        return getProperty(name: .lidContactLinkEntry)
+    var contactLinkEntry: ContactLinkEntry? {
+        guard let data: Data = getProperty(name: .lidContactLinkEntry) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ContactLinkEntry(dataStream: &dataStream)
     }
     
     /// [MS-OXCMSG] 2.2.1.57 Contact Linking Properties
@@ -1786,7 +1796,7 @@ public extension MessageStorage {
     /// The PidTagAttachRendering property ([MS-OXPROPS] section 2.607) contains a Windows Metafile
     /// Format (WMF) metafile as specified in [MS-WMF] for the Attachment object.
     var attachRendering: Data? {
-        return getProperty(id: .tagAttachTag)
+        return getProperty(id: .tagAttachRendering)
     }
 
     /// [MS-OXCMSG] 2.2.2.18 PidTagAttachFlags Property
@@ -1807,7 +1817,7 @@ public extension MessageStorage {
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAttachTransportName property ([MS-OXPROPS] section 2.610) contains the name of an
     /// attachment file, modified so that it can be correlated with TNEF messages, as specified in [MSOXTNEF].
-    var transportName: String? {
+    var attachTransportName: String? {
         return getProperty(id: .tagAttachTransportName)
     }
     
@@ -1819,7 +1829,7 @@ public extension MessageStorage {
     /// attachment content, which is the value of the PidTagAttachDataBinary property (section 2.2.2.7),
     /// MUST be encoded in the MacBinary format, as specified in [MS-OXCMAIL]. Clients SHOULD<10>
     /// correctly detect MacBinary I, MacBinaryII, and MacBinary III formats.
-    var encoding: Data? {
+    var attachEncoding: Data? {
         return getProperty(id: .tagAttachEncoding)
     }
     
@@ -1830,17 +1840,16 @@ public extension MessageStorage {
     /// PidTagAttachEncoding property is set, the PidTagAttachAdditionalInformation property MUST
     /// be set to a string of the format ":CREA:TYPE", where ":CREA" is the four-letter Macintosh file creator
     /// code, and ":TYPE" is a four-letter Macintosh type code.
-    var additionalInformation: Data? {
+    var attachAdditionalInformation: Data? {
         return getProperty(id: .tagAttachAdditionalInformation)
     }
     
     /// [MS-OXCMSG] 2.2.2.22 PidTagAttachmentLinkId Property
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachmentLinkId property ([MS-OXPROPS] section 2.600) is the type of Message
-    /// object to which this attachment is linked. This property MUST be set to 0x00000000 unless
-    /// overridden by other protocols that extend the Message and Attachment Object Protocol as noted in
-    /// section 1.4.
-    var linkId: UInt32? {
+    /// The PidTagAttachmentLinkId property ([MS-OXPROPS] section 2.600) is the type of Message object to which this attachment is linked.
+    /// This property MUST be set to 0x00000000 unless overridden by other protocols that extend the Message and Attachment Object
+    /// Protocol as noted in section 1.4.
+    var attachmentLinkId: UInt32? {
         return getProperty(id: .tagAttachmentLinkId)
     }
     
@@ -1865,19 +1874,12 @@ public extension MessageStorage {
     /// The PidTagAttachmentHidden property ([MS-OXPROPS] section 2.599) is set to TRUE (0x01) if this
     /// Attachment object is hidden from the end user.
     /// [MS-OXOCAL] 2.2.10.1 Exception Attachment Object
-    /// The Exception Attachment object MUST have the properties listed in sections 2.2.10.1.1 through
-    /// 2.2.10.1.6.
+    /// The Exception Attachment object MUST have the properties listed in sections 2.2.10.1.1 through 2.2.10.1.6.
     /// [MS-OXOCAL] 2.2.10.1.1 PidTagAttachmentHidden Property
     /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
-    /// The value of the PidTagAttachmentHidden property ([MS-OXCMSG] section 2.2.2.24) MUST be
-    /// TRUE.
-    var hidden: Bool {
-        // Attachments are not hidden by default
-        guard let hidden: Bool = getProperty(id: .tagAttachmentHidden) else {
-            return false
-        }
-        
-        return hidden
+    /// The value of the PidTagAttachmentHidden property ([MS-OXCMSG] section 2.2.2.24) MUST be TRUE.
+    var attachmentHidden: Bool? {
+        return getProperty(id: .tagAttachmentHidden)
     }
     
     /// [MS-OXCMSG] 2.2.2.25 PidTagTextAttachmentCharset Property
@@ -1998,7 +2000,7 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.606)
     /// The GUID of the software application that can display the contents of the message.
     var attachPayloadProviderGuidString: String? {
-        return getProperty(id: .tagAttachPayloadClass)
+        return getProperty(id: .tagAttachPayloadProviderGuidString)
     }
 
     /// [MS-OXCMSG] 2.2.2.29 MIME Properties

@@ -685,7 +685,7 @@ public extension MessageStorage {
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAssistant property ([MS-OXOABK] section 2.2.4.8) specifies the name of the contact's
     /// assistant. This property is optional.
-    var asssitant: String? {
+    var assistant: String? {
         return getProperty(id: .tagAssistant)
     }
 

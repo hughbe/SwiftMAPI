@@ -640,7 +640,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.26 PidTagReceivedRepresentingName Property
@@ -782,7 +782,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.39 PidTagReceivedByName Property
@@ -838,8 +838,13 @@ public extension MessageStorage {
     /// structure of recipient (2) EntryIDs, as specified in [MS-OXCDATA] section 2.3.3.
     /// The PidTagReplyRecipientEntries property and the PidTagReplyRecipientNames property MUST
     /// be set in a way that they contain the same number of recipients (2) in the same order.
-    var replyRecipientEntries: Data? {
-        return getProperty(id: .tagReplyRecipientEntries)
+    var replyRecipientEntries: FlatEntryList? {
+        guard let data: Data = getProperty(id: .tagReplyRecipientEntries) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? FlatEntryList(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.45 PidTagReplyRequested Property
@@ -982,7 +987,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.51 PidTagSenderName Property
@@ -1074,7 +1079,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.57 PidTagSentRepresentingName Property
@@ -1176,7 +1181,7 @@ public extension MessageStorage {
     /// is absent, implementers of this protocol MUST NOT include TNEF on the message.
     /// This property is set by either the client or the server, depending on which one is performing the
     /// conversion. For information about conversions involving TNEF and MIME, see [MS-OXTNEF] and [MSOXCMAIL].
-    var useTnef: String? {
+    var useTnef: Bool? {
         return getProperty(name: .lidUseTnef)
     }
 
@@ -1186,12 +1191,12 @@ public extension MessageStorage {
     /// the processing of voting and tracking for e-mail messages. The property can be absent, in which case
     /// the default value of 0x00000000 is used. If set, this property is set to one of the values in the
     /// following table.
-    var autoProcessState: MessageAutoProcessState? {
+    var autoProcessState: AutoProcessState? {
         guard let rawValue: UInt32 = getProperty(name: .lidAutoProcessState) else {
             return nil
         }
         
-        return MessageAutoProcessState(rawValue: rawValue)
+        return AutoProcessState(rawValue: rawValue)
     }
 
     /// [MS-OXOMSG] 2.2.1.74 PidLidVerbStream Property
@@ -1199,8 +1204,13 @@ public extension MessageStorage {
     /// The PidLidVerbStream property ([MS-OXPROPS] section 2.350) specifies what voting responses the
     /// user can make in response to the message. The format is of this property is shown in the following
     /// diagram.
-    var verbStream: Data? {
-        return getProperty(name: .lidVerbStream)
+    var verbStream: VerbStream? {
+        guard let data: Data = getProperty(name: .lidVerbStream) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? VerbStream(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.1.75 PidLidVerbResponse Property
@@ -1457,7 +1467,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? getEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.2.14 PidTagOriginalSentRepresentingName Property
@@ -1552,8 +1562,13 @@ public extension MessageStorage {
     /// the PidTagResponseRequested property (section 2.2.1.46) set to 0x01 or the
     /// PidTagReplyRequested property (section 2.2.1.45) set to 0x01, then the property is set on the
     /// original E-mail object by using the following format.
-    var reportTag: Data? {
-        return getProperty(id: .tagReportTag)
+    var reportTag: ReportTag? {
+        guard let data: Data = getProperty(id: .tagReportTag) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ReportTag(dataStream: &dataStream)
     }
     
     /// [MS-OXOMSG] 2.2.2.23 PidTagReportText Property
@@ -1590,8 +1605,13 @@ public extension MessageStorage {
     /// absent, in which case, the value of the PidTagReportEntryId property (section 2.2.2.19) is used as
     /// an alternative value. If neither property is present, the value of the PidTagSenderEntryId property
     /// (section 2.2.1.50) is used to identify the user who receives the read receipt.
-    var readReceiptEntryId: Data? {
-        return getProperty(id: .tagReadReceiptEntryId)
+    var readReceiptEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagReadReceiptEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.2.27 PidTagReadReceiptName Property

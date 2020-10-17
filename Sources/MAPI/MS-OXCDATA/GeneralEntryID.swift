@@ -22,7 +22,7 @@ public struct GeneralEntryID: EntryID {
         /// these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read()
         if self.flags != 0x00000000 {
-            throw MAPIError.corrupted
+            //throw MAPIError.corrupted
         }
         
         /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used

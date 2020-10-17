@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 26/08/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXOCNTC] 2.2 Message Syntax
@@ -402,8 +403,13 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email1OrginalEntryId: Data? {
-        return getProperty(name: .lidEmail1OriginalEntryId)
+    var email1OrginalEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidEmail1OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXOCNCT] 2.2.1.2.5 PidLidEmail2OriginalEntryId
@@ -412,8 +418,13 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email2OrginalEntryId: Data? {
-        return getProperty(name: .lidEmail2OriginalEntryId)
+    var email2OrginalEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidEmail2OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXOCNCT] 2.2.1.2.5 PidLidEmail3OriginalEntryId
@@ -422,8 +433,13 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email3OrginalEntryId: Data? {
-        return getProperty(name: .lidEmail3OriginalEntryId)
+    var email3OrginalEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidEmail3OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNCT] 2.2.1.2.6 PidTagBusinessFaxNumber
@@ -553,8 +569,13 @@ public extension MessageStorage {
     /// PidLidFax2OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10), and
     /// PidLidFax3OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10) properties specify the
     /// one-off EntryID corresponding to this fax address.
-    var fax1OriginalEntryId: Data? {
-        return getProperty(name: .lidFax1OriginalEntryId)
+    var fax1OriginalEntryId: OneOffEntryID? {
+        guard let data: Data = getProperty(name: .lidFax1OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? OneOffEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNCT] 2.2.1.2.10 PidLidFax2OriginalEntryId
@@ -563,8 +584,13 @@ public extension MessageStorage {
     /// PidLidFax2OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10), and
     /// PidLidFax3OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10) properties specify the
     /// one-off EntryID corresponding to this fax address.
-    var fax2OriginalEntryId: Data? {
-        return getProperty(name: .lidFax2OriginalEntryId)
+    var fax2OriginalEntryId: OneOffEntryID? {
+        guard let data: Data = getProperty(name: .lidFax2OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? OneOffEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNCT] 2.2.1.2.10 PidLidFax3OriginalEntryId
@@ -573,8 +599,13 @@ public extension MessageStorage {
     /// PidLidFax2OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10), and
     /// PidLidFax3OriginalEntryId property ([MS-OXOCNTC] section 2.2.1.2.10) properties specify the
     /// one-off EntryID corresponding to this fax address.
-    var fax3OriginalEntryId: Data? {
-        return getProperty(name: .lidFax3OriginalEntryId)
+    var fax3OriginalEntryId: OneOffEntryID? {
+        guard let data: Data = getProperty(name: .lidFax3OriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? OneOffEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNCTC] 2.2.1.2.11 PidLidAddressBookProviderEmailList Property
@@ -984,8 +1015,13 @@ public extension MessageStorage {
     /// PidLidContactLinkEntry ([MS-OXCMSG] section 2.2.1.57.1), PidLidContactLinkSearchKey ([MSOXCMSG] section 2.2.1.57.4), and PidLidContactLinkName ([MS-OXCMSG] section 2.2.1.57.3)
     /// properties, as specified in [MS-OXCMSG] section 2.2.1.57.
     /// For details about Appointment objects, see [MS-OXOCAL].
-    var birthdayEventEntryId: Data? {
-        return getProperty(name: .lidBirthdayEventEntryId)
+    var birthdayEventEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidBirthdayEventEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? GeneralEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNTC] 2.2.1.5.4 PidTagWeddingAnniversary Property
@@ -1013,8 +1049,13 @@ public extension MessageStorage {
     /// ([MS-OXCMSG] section 2.2.1.57.1), PidLidContactLinkSearchKey ([MS-OXCMSG] section
     /// 2.2.1.57.4), and PidLidContactLinkName ([MS-OXCMSG] section 2.2.1.57.3), as specified in [MSOXCMSG] section 2.2.1.57.
     /// For details about Appointment objects, see [MS-OXOCAL].
-    var anniversaryEventEntryId: Data? {
-        return getProperty(name: .lidAnniversaryEventEntryId)
+    var anniversaryEventEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidAnniversaryEventEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? GeneralEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNTC] 2.2.1.6.4 PidTagDepartment Property
@@ -1148,8 +1189,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidLidContactLinkedGlobalAddressListEntryId property ([MS-OXPROPS] section 2.70)
     /// specifies the EntryID of the GAL contact to which the duplicate contact is linked.<6>
-    var contactLinkedGlobalAddressListEntryId: Data? {
-        return getProperty(name: .lidContactLinkedGlobalAddressListEntryId)
+    var contactLinkedGlobalAddressListEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidContactLinkedGlobalAddressListEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNTC] 2.2.1.9.2 PidLidContactLinkGlobalAddressListLinkId Property
@@ -1212,8 +1258,13 @@ public extension MessageStorage {
     /// The PidLidReferenceEntryId property ([MS-OXPROPS] section 2.218) contains a value that is equal
     /// to the value of the EntryID of the Contact object unless the Contact object is a copy of an earlier
     /// original.
-    var referenceEntryId: Data? {
-        return getProperty(name: .lidReferenceEntryId)
+    var referenceEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidReferenceEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? GeneralEntryID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNTC] 2.2.1.10.2 PidTagHobbies Property

@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 27/08/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXCFOLD] 2.2.2 Folder Object Properties
@@ -61,8 +62,13 @@ public extension MessageStorage {
     /// The PidTagAddressBookEntryId property ([MS-OXPROPS] section 2.515) contains an Address
     /// Book EntryID structure, as specified in [MS-OXCDATA] section 2.2.5.2, that specifies the nameservice entry ID of a directory object that refers to a public folder. This property is set only for
     /// public folders.<10> For details about public folders, see [MS-OXCSTOR] section 1.3.1.
-    var addressBookEntryId: Data? {
-        return getProperty(id: .tagAddressBookEntryId)
+    var addressBookEntryId: AddressBookEntryID? {
+        guard let data: Data = getProperty(id: .tagAddressBookEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? AddressBookEntryID(dataStream: &dataStream)
     }
 
     /// [MS-OXCFOLD] 2.2.2.2.1.5 PidTagFolderFlags Property
@@ -117,8 +123,13 @@ public extension MessageStorage {
     /// [MS-OXPFOAB] 2.2.1.4 PidTagParentEntryId
     /// This property contains the entry ID for a folder that contains the offline address book (OAB) public
     /// folder message. For details, see [MS-OXPROPS] section 2.849.<2>
-    var parentEntryId: Data? {
-        return getProperty(id: .tagParentEntryId)
+    var parentEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagParentEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCFOLD] 2.2.2.2.1.8 PidTagHierarchyChangeNumber Property

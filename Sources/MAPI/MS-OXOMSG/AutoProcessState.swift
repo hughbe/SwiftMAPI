@@ -11,7 +11,7 @@
 /// the processing of voting and tracking for e-mail messages. The property can be absent, in which case
 /// the default value of 0x00000000 is used. If set, this property is set to one of the values in the
 /// following table.
-public enum MessageAutoProcessState: UInt32 {
+public enum AutoProcessState: UInt32 {
     /// The client will not process the voting and tracking for the message.
     case dontProcess = 0x00000000
     

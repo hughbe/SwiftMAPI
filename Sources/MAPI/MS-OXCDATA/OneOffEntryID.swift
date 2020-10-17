@@ -81,7 +81,7 @@ public struct OneOffEntryID: EntryID {
         /// PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5)) as a null-terminated string.
         /// If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.displayName = try dataStream.readUTF16LEString()!
+            self.displayName = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.displayName = try dataStream.readAsciiString()!
         }
@@ -90,7 +90,7 @@ public struct OneOffEntryID: EntryID {
         /// PidTagAddressType property ([MS-OXOABK] section 2.2.3.13)) as a null-terminated string. If
         /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.addressType = try dataStream.readUTF16LEString()!
+            self.addressType = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.addressType = try dataStream.readAsciiString()!
         }
@@ -99,13 +99,9 @@ public struct OneOffEntryID: EntryID {
         /// PidTagEmailAddress property ([MS-OXOABK] section 2.2.3.14)) as a null-terminated string. If
         /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.emailAddress = try dataStream.readUTF16LEString()!
+            self.emailAddress = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.emailAddress = try dataStream.readAsciiString()!
         }
-        
-        /// There is no padding in one-off entry identifier structures; the bytes are packed exactly as indicated above and
-        /// the entry identifier length should not include any bytes beyond the terminating null character of the email address.
-        assert(dataStream.remainingCount == 0)
     }
 }
