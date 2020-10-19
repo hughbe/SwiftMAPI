@@ -540,26 +540,32 @@ public extension MessageStorage {
 
     /// [MS-OXOCAL] 2.2.1.27 PidLidGlobalObjectId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidGlobalObjectId property ([MS-OXPROPS] section 2.143) specifies the unique identifier of
-    /// the Calendar object. After it is set for a Calendar object, the value of this property MUST NOT
-    /// change. The fields in this binary large object (BLOB) are specified in the following table. All fields
-    /// have little-endian byte order.
-    var globalObjectId: Data? {
-        return getProperty(name: .lidGlobalObjectId)
+    /// The PidLidGlobalObjectId property ([MS-OXPROPS] section 2.143) specifies the unique identifier of the Calendar object.
+    /// After it is set for a Calendar object, the value of this property MUST NOT change.
+    /// The fields in this binary large object (BLOB) are specified in the following table. All fields have little-endian byte order.
+    var globalObjectId: GlobalObjectId? {
+        guard let data: Data = getProperty(name: .lidGlobalObjectId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? GlobalObjectId(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.28 PidLidCleanGlobalObjectId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// Contains the value of the PidLidGlobalObjectId property (section 2.2.1.27) for an object that
-    /// represents an Exception object to a recurring series, where the Year, Month, and Day fields are all
-    /// zero.
-    /// The format of the PidLidCleanGlobalObjectId property ([MS-OXPROPS] section 2.58) is the same as
-    /// that of the PidLidGlobalObjectId property. The value of this property MUST be equal to the value of
-    /// PidLidGlobalObjectId, except the YH, YL, M, and D fields MUST all be zero. All objects that refer to
-    /// an instance of a recurring series (including an orphan instance), as well as the recurring series
-    /// itself, will have the same value for this property.
-    var cleanGlobalObjectId: Data? {
-        return getProperty(name: .lidCleanGlobalObjectId)
+    /// Contains the value of the PidLidGlobalObjectId property (section 2.2.1.27) for an object that represents an Exception object to a recurring series, where the
+    /// Year, Month, and Day fields are all zero.
+    /// The format of the PidLidCleanGlobalObjectId property ([MS-OXPROPS] section 2.58) is the same as that of the PidLidGlobalObjectId property.
+    /// The value of this property MUST be equal to the value of PidLidGlobalObjectId, except the YH, YL, M, and D fields MUST all be zero. All objects that refer to
+    /// an instance of a recurring series (including an orphan instance), as well as the recurring series itself, will have the same value for this property.
+    var cleanGlobalObjectId: GlobalObjectId? {
+        guard let data: Data = getProperty(name: .lidCleanGlobalObjectId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? GlobalObjectId(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.29 PidTagOwnerAppointmentId Property
@@ -666,8 +672,13 @@ public extension MessageStorage {
     /// The PidLidTimeZoneStruct property ([MS-OXOCAL] section 2.2.1.39) gets or sets the calculated
     /// information to convert the values in time fields between local time and UTC.
     /// For more details about the PidLidTimeZoneStruct property, see [MS-OXPROPS] section 2.342.
-    var timeZoneStruct: Data? {
-        return getProperty(name: .lidTimeZoneStruct)
+    var timeZoneStruct: TimeZoneStruct? {
+        guard let data: Data = getProperty(name: .lidTimeZoneStruct) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? TimeZoneStruct(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.40 PidLidTimeZoneDescription Property
@@ -1869,12 +1880,15 @@ public extension MessageStorage {
     
     /// [MS-OXOCAL] 2.2.12.5 PidTagScheduleInfoAppointmentTombstone Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagScheduleInfoAppointmentTombstone property ([MS-OXPROPS] section 2.966) in a
-    /// delegator's Delegate Information object contains a list of tombstones. This property is not
-    /// required. If this property does not exist when a meeting is declined by the delegator or the
-    /// delegate, it MUST be created.
+    /// The PidTagScheduleInfoAppointmentTombstone property ([MS-OXPROPS] section 2.966) in a delegator's Delegate Information object contains a list of tombstones.
+    /// This property is not required. If this property does not exist when a meeting is declined by the delegator or the delegate, it MUST be created.
     /// This property has the following structure, where the fields are stored in little-endian byte order.
-    var scheduleInfoAppointmentTombstone: Data? {
-        return getProperty(id: .tagScheduleInfoAppointmentTombstone)
+    var scheduleInfoAppointmentTombstone: ScheduleInfoAppointmentTombstone? {
+        guard let data: Data = getProperty(id: .tagScheduleInfoAppointmentTombstone) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ScheduleInfoAppointmentTombstone(dataStream: &dataStream)
     }
 }

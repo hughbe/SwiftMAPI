@@ -519,3 +519,215 @@ extension NoteColor: EnumCaseRepresentable {
         (.white, ".white")
     ]
 }
+
+extension BusinessCardDisplayDefinition.TemplateID: EnumCaseRepresentable {
+    public static let caseNames: [(element: BusinessCardDisplayDefinition.TemplateID, name: String)] = [
+        (.imageLeftAligned, ".imageLeftAligned"),
+        (.imageRightAligned, ".imageRightAligned"),
+        (.imageTopAligned, ".imageTopAligned"),
+        (.imageBottomAligned, ".imageBottomAligned"),
+        (.noImage, ".noImage"),
+        (.backgroundImage, ".backgroundImage")
+    ]
+}
+
+extension BusinessCardDisplayDefinition.ImageAlignment: EnumCaseRepresentable {
+    public static let caseNames: [(element: BusinessCardDisplayDefinition.ImageAlignment, name: String)] = [
+        (.stretchedToFit, ".stretchedToFit"),
+        (.topLeft, ".topLeft"),
+        (.topCenter, ".topCenter"),
+        (.topRight, ".topRight"),
+        (.middleLeft, ".middleLeft"),
+        (.middleCenter, ".middleCenter"),
+        (.middleRight, ".middleRight"),
+        (.bottomLeft, ".bottomLeft"),
+        (.bottomCenter, ".bottomCenter"),
+        (.bottomRight, ".bottomRight"),
+    ]
+}
+
+extension FieldInfo.TextFormat: EnumCaseRepresentable {
+    public static let caseNames: [(element: FieldInfo.TextFormat, name: String)] = [
+        (.centerAlign, ".centerAlign"),
+        (.rightAlign, ".rightAlign"),
+        (.underline, ".underline"),
+        (.italic, ".italic"),
+        (.bold, ".bold"),
+        (.underline, ".underline")
+    ]
+}
+
+extension FieldInfo.LabelFormat: EnumCaseRepresentable {
+    public static let caseNames: [(element: FieldInfo.LabelFormat, name: String)] = [
+        (.rightToLeftReadingOrder, ".rightToLeftReadingOrder"),
+        (.toTheLeft, ".toTheLeft"),
+        (.toTheRight, ".toTheRight")
+    ]
+}
+
+extension ContactLinkGlobalAddressListLinkState: EnumCaseRepresentable {
+    public static let caseNames: [(element: ContactLinkGlobalAddressListLinkState, name: String)] = [
+        (.notLinkedOrNotDownloaded, ".notLinkedOrNotDownloaded"),
+        (.linked, ".linked"),
+        (.cannotBeAutomaticallyLinked, ".cannotBeAutomaticallyLinked")
+    ]
+}
+
+extension RecurrenceType: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrenceType, name: String)] = [
+        (.none, ".none"),
+        (.daily, ".daily"),
+        (.weekly, ".weekly"),
+        (.monthly, ".monthly"),
+        (.yearly, ".yearly")
+    ]
+}
+
+extension OldRecurrenceType: EnumCaseRepresentable {
+    public static let caseNames: [(element: OldRecurrenceType, name: String)] = [
+        (.daily, ".daily"),
+        (.weekly, ".weekly"),
+        (.monthly, ".monthly"),
+        (.everyNthMonth, ".everyNthMonth"),
+        (.yearly, ".yearly"),
+        (.everyNthYear, ".everyNthYear")
+    ]
+}
+
+extension RecurrencePattern.RecurFrequency: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrencePattern.RecurFrequency, name: String)] = [
+        (.daily, ".daily"),
+        (.weekly, ".weekly"),
+        (.monthly, ".monthly"),
+        (.yearly, ".yearly")
+    ]
+}
+
+extension RecurrencePattern.PatternType: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrencePattern.PatternType, name: String)] = [
+        (.day, ".day"),
+        (.week, ".week"),
+        (.month, ".month"),
+        (.monthEnd, ".monthEnd"),
+        (.monthNth, ".monthNth"),
+        (.hjMonth, ".hjMonth"),
+        (.hjMonthNth, ".hjMonthNth"),
+        (.hjMonthEnd, ".hjMonthEnd")
+    ]
+}
+
+extension RecurrencePattern.CalendarType: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrencePattern.CalendarType, name: String)] = [
+        (.`default`, ".`default`"),
+        (.gregorian, ".gregorian"),
+        (.gregorianUs, ".gregorianUs"),
+        (.japan, ".japan"),
+        (.taiwan, ".taiwan"),
+        (.korean, ".korean"),
+        (.hijri, ".hijri"),
+        (.thai, ".thai"),
+        (.hebrew, ".hebrew"),
+        (.gregorianMeFrench, ".gregorianMeFrench"),
+        (.gregorianArabic, ".gregorianArabic"),
+        (.greogrianXlitEnglish, ".greogrianXlitEnglish"),
+        (.greogrianXlitFrench, ".greogrianXlitFrench"),
+        (.lunarJapanese, ".lunarJapanese"),
+        (.chineseLunar, ".chineseLunar"),
+        (.saka, ".saka"),
+        (.lunarEtoChinese, ".lunarEtoChinese"),
+        (.lunarEtoKorean, ".lunarEtoKorean"),
+        (.lunarRokuyou, ".lunarRokuyou"),
+        (.lunarKorean, ".lunarKorean"),
+        (.umAlQura, ".umAlQura")
+    ]
+}
+
+extension RecurrencePattern.EndType: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrencePattern.EndType, name: String)] = [
+        (.endAfterDate, ".endAfterDate"),
+        (.endAfterNOccurences, ".endAfterNOccurences"),
+        (.neverEnd, ".neverEnd"),
+        (.neverEnd2, ".neverEnd2")
+    ]
+}
+
+extension RecurrencePattern.DayOfWeek: EnumCaseRepresentable {
+    public static let caseNames: [(element: RecurrencePattern.DayOfWeek, name: String)] = [
+        (.sunday, ".sunday"),
+        (.monday, ".monday"),
+        (.tuesday, ".tuesday"),
+        (.wednesday, ".wednesday"),
+        (.thursday, ".thursday"),
+        (.friday, ".friday"),
+        (.saturday, ".saturday"),
+    ]
+}
+
+extension PatternTypeSpecificWeek: EnumCaseRepresentable {
+    public static let caseNames: [(element: PatternTypeSpecificWeek, name: String)] = [
+        (.x, ".x"),
+        (.sa, ".sa"),
+        (.f, ".f"),
+        (.th, ".th"),
+        (.w, ".w"),
+        (.tu, ".tu"),
+        (.m, ".m"),
+        (.su, ".su")
+    ]
+}
+
+extension ExceptionInfo.OverrideFlags: EnumCaseRepresentable {
+    public static let caseNames: [(element: ExceptionInfo.OverrideFlags, name: String)] = [
+        (.subject, ".subject"),
+        (.meetingType, ".meetingType"),
+        (.reminderDelta, ".reminderDelta"),
+        (.reminder, ".reminder"),
+        (.location, ".location"),
+        (.busyStatus, ".busyStatus"),
+        (.attachment, ".attachment"),
+        (.subType, ".subType"),
+        (.apptColor, ".apptColor"),
+        (.exceptionalBody, ".exceptionalBody")
+    ]
+}
+
+extension AddressBookProviderEmailList: EnumCaseRepresentable {
+    public static let caseNames: [(element: AddressBookProviderEmailList, name: String)] = [
+        (.email1Defined, ".email1Defined"),
+        (.email2Defined, ".email2Defined"),
+        (.email3Defined, ".email3Defined"),
+        (.businessFaxDefined, ".businessFaxDefined"),
+        (.homeFaxDefined, ".homeFaxDefined"),
+        (.primaryFaxDefined, ".primaryFaxDefined")
+    ]
+}
+
+extension Gender: EnumCaseRepresentable {
+    public static let caseNames: [(element: Gender, name: String)] = [
+        (.unspecified, ".unspecified"),
+        (.male, ".male"),
+        (.female, ".female")
+    ]
+}
+
+extension PatternTypeSpecificMonthNth.Flags: EnumCaseRepresentable {
+    public static let caseNames: [(element: PatternTypeSpecificMonthNth.Flags, name: String)] = [
+        (.x, ".x"),
+        (.sa, ".sa"),
+        (.f, ".f"),
+        (.th, ".th"),
+        (.w, ".w"),
+        (.tu, ".tu"),
+        (.m, ".m"),
+        (.su, ".su")
+    ]
+}
+
+extension PatternTypeSpecificMonthNth.RecurrenceDays: EnumCaseRepresentable {
+    public static let caseNames: [(element: PatternTypeSpecificMonthNth.RecurrenceDays, name: String)] = [
+        (.first, ".first"),
+        (second, ".second"),
+        (.third, ".third"),
+        (.last, ".last")
+    ]
+}

@@ -618,15 +618,12 @@ public extension MessageStorage {
     /// For example, if one of the values in the PidLidAddressBookProviderEmailList property is
     /// 0x00000000, then the PidLidAddressBookProviderArrayType property would have the bit
     /// 0x00000001 set.
-    /// Value Meaning
-    /// 0x00000000 Email1 is defined for the contact.
-    /// 0x00000001 Email2 is defined for the contact.
-    /// 0x00000002 Email3 is defined for the contact.
-    /// 0x00000003 Business Fax is defined for the contact.
-    /// 0x00000004 Home Fax is defined for the contact.
-    /// 0x00000005 Primary Fax is defined for the contact.
-    var addressBookProviderEmailList: [UInt32]? {
-        return getProperty(name: .lidAddressBookProviderEmailList)
+    var addressBookProviderEmailList: [AddressBookProviderEmailList]? {
+        guard let rawValues: [UInt32] = getProperty(name: .lidAddressBookProviderEmailList) else {
+            return nil
+        }
+        
+        return rawValues.compactMap(AddressBookProviderEmailList.init)
     }
     
     /// [MS-OXOCNCTC] 2.2.1.2.12 PidLidAddressBookProviderArrayType Property
@@ -1097,8 +1094,13 @@ public extension MessageStorage {
     /// can be either a contact photo, specified in section 2.2.1.8, or a card picture, specified in section
     /// 2.2.1.7.2. Text fields consist of a value from another PtypString property set on the Contact object
     /// and an optional customized label string provided by the user.
-    var businessCardDisplayDefinition: Data? {
-        return getProperty(name: .lidBusinessCardDisplayDefinition)
+    var businessCardDisplayDefinition: BusinessCardDisplayDefinition? {
+        guard let data: Data = getProperty(name: .lidBusinessCardDisplayDefinition) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? BusinessCardDisplayDefinition(dataStream: &dataStream)
     }
     
     /// [MS-OXOCNTC] 2.2.1.7.2 PidLidBusinessCardCardPicture Property
@@ -1489,33 +1491,15 @@ public extension MessageStorage {
     /// field in the client's user interface. This property is optional.
     /// The meaning of each entry in the PidLidContactItemData property is defined in the following table.
     /// The value MUST be one of the following Meaning
-    /// One-based index into the
-    /// multivalue property
-    /// 0x00000001 The client SHOULD display the
-    /// contact's Home Address.
-    /// 1
-    /// 0x00000002 or 0x00000000 The client SHOULD display the
-    /// contact's Work Address.
-    /// 1
-    /// 0x00000003 The client SHOULD display the
-    /// contact's Other Address.
-    /// 1
-    /// 0x00008080 The client SHOULD display
-    /// Email1.
-    /// 2
-    /// 0x00008090 The client SHOULD display
-    /// Email2.
-    /// 2
-    /// 0x000080A0 The client SHOULD display
-    /// Email3.
-    /// 2
-    /// Property ID of any of the Telephone
-    /// properties specified in section 2.2.1.4 or of
-    /// any of the fax numbers specified in section
-    /// 2.2.1.2.6.
-    /// The client SHOULD display the
-    /// corresponding property.
-    /// 3, 4, 5, 6
+    /// One-based index into the multivalue property
+    /// 0x00000001 The client SHOULD display the contact's Home Address. 1
+    /// 0x00000002 or 0x00000000 The client SHOULD display the contact's Work Address. 1
+    /// 0x00000003 The client SHOULD display the contact's Other Address. 1
+    /// 0x00008080 The client SHOULD display Email1. 2
+    /// 0x00008090 The client SHOULD display Email2. 2
+    /// 0x000080A0 The client SHOULD display Email3. 2
+    /// Property ID of any of the Telephone properties specified in section 2.2.1.4 or of any of the fax numbers specified in section 2.2.1.2.6.
+    /// The client SHOULD display the corresponding property. 3, 4, 5, 6
     var contactItemData: [UInt32]? {
         return getProperty(name: .lidContactItemData)
     }

@@ -153,7 +153,7 @@ public extension MessageStorage {
     /// 0x00000008 "Reply"
     /// 0x00000009 "Reply to All"
     /// 0x0000000A "Review"
-    var flagString: String? {
+    var flagString: UInt32? {
         return getProperty(name: .lidFlagString)
     }
     

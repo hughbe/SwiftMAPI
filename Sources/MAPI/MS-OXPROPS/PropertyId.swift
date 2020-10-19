@@ -3037,7 +3037,7 @@ public enum PropertyId: UInt16 {
 
     case unknown0x3014 = 0x3014
 
-    // case unknown0x3015 = 0x3015
+    case unknown0x3015 = 0x3015
 
     /// [MS-OPROPS] 2.651 PidTagConversationIndexTracking
     /// Canonical name: PidTagConversationIndexTracking
@@ -3165,6 +3165,20 @@ public enum PropertyId: UInt16 {
     case tagStoreUnicodeMask = 0x340F
 
     // case unknown0x3410 = 0x3410
+    
+    // case unknown0x3411 = 0x3411
+    
+    // case unknown0x3412 = 0x3412
+    
+    // case unknown0x3413 = 0x3413
+    
+    /// PidTagStoreProvider
+    /// Not documented in specification but known on internet
+    /// Contains a provider-defined MAPIUID structure that indicates the type of the message store.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagstoreprovider-canonical-property
+    case tagStoreProvider = 0x3414
+    
+    // case unknown0x3415 = 0x3415
     
     // case unknown0x34C7 = 0x34C7
     
@@ -8442,6 +8456,48 @@ public enum PropertyId: UInt16 {
     case unknown0x6900 = 0x6900
 
     // case unknown0x6901 = 0x6901
+    
+    // case unknown0x6911 = 0x6911
+    
+    case unknown0x6912 = 0x6912
+    
+    // case unknown0x6913 = 0x6913
+    
+    // case unknown0x6914 = 0x6914
+    
+    case unknown0x6915 = 0x6915
+    
+    // case unknown0x6916 = 0x6916
+    
+    // case unknown0x6A14 = 0x6A14
+    
+    case unknown0x6A15 = 0x6A15
+    
+    case unknown0x6A16 = 0x6A16
+    
+    case unknown0x6A17 = 0x6A17
+    
+    case unknown0x6A18 = 0x6A18
+    
+    case unknown0x6A19 = 0x6A19
+    
+    case unknown0x6A1A = 0x6A1A
+    
+    // case unknown0x6A1B = 0x6A1B
+    
+    // case unknown0x6A1C = 0x6A1C
+    
+    case unknown0x6A1D = 0x6A1D
+    
+    // case unknown0x6A1C = 0x6A1E
+    
+    // case unknown0x6B1F = 0x6B1F
+    
+    case unknown0x6B20 = 0x6B20
+    
+    case unknown0x6B21 = 0x6B21
+    
+    // case unknown0x6B22 = 0x6B22
 
     // case unknown0x7000 = 0x7000
 
@@ -8521,6 +8577,22 @@ public enum PropertyId: UInt16 {
     // case unknown0x7008 = 0x7008
 
     // case unknown0x7009 = 0x7009
+    
+    // case unknown0x7200 = 0x7200
+    
+    case unknown0x7201 = 0x7201
+    
+    case unknown0x7202 = 0x7202
+    
+    case unknown0x7203 = 0x7203
+    
+    // case unknown0x7204 = 0x7204
+    
+    // case unknown0x7205 = 0x7205
+    
+    case unknown0x7206 = 0x7206
+    
+    // case unknown0x7207 = 0x7207
 
     // case unknown0x7C00 = 0x7C00
 
@@ -9006,11 +9078,121 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x803D = 0x803D
     
-    // case unknown0x80B0 = 0x80B0
+    // case unknown0x80A6 = 0x80A6
+    
+    case unknown0x80A7 = 0x80A7
+    
+    case unknown0x80A8 = 0x80A8
+    
+    case unknown0x80A9 = 0x80A9
+    
+    // case unknown0x80AA = 0x80AA
+    
+    // case unknown0x80AF = 0x80AF
+    
+    case unknown0x80B0 = 0x80B0
     
     case unknown0x80B1 = 0x80B1
     
     // case unknown0x80B2 = 0x80B2
+    
+    // case unknown0x80B3 = 0x80B3
+    
+    case unknown0x80B4 = 0x80B4
+    
+    case unknown0x80B5 = 0x80B5
+    
+    case unknown0x80B6 = 0x80B6
+    
+    case unknown0x80B7 = 0x80B7
+    
+    // case unknown0x80B8 = 0x80B8
+    
+    case unknown0x80B9 = 0x80B9
+    
+    // case unknown0x80BA = 0x80BA
+    
+    // case unknown0x80BB = 0x80BB
+    
+    case unknown0x80BC = 0x80BC
+    
+    // case unknown0x80BD = 0x80BD
+    
+    // case unknown0x80F0 = 0x80F0
+    
+    case unknown0x80F1 = 0x80F1
+    
+    // case unknown0x80F2 = 0x80F2
+    
+    // case unknown0x80F3 = 0x80F3
+    
+    // case unknown0x80F4 = 0x80F4
+    
+    // case unknown0x80F5 = 0x80F5
+    
+    // case unknown0x80F6 = 0x80F6
+    
+    // case unknown0x80F7 = 0x80F7
+    
+    // case unknown0x80F8 = 0x80F8
+    
+    // case unknown0x80F9 = 0x80F9
+    
+    // case unknown0x80FA = 0x80FA
+    
+    case unknown0x80FB = 0x80FB
+    
+    // case unknown0x80FC = 0x80FC
+    
+    // case unknown0x80FD = 0x80FD
+
+    // case unknown0x80FE = 0x80FE
+
+    // case unknown0x80FF = 0x80FF
+    
+    // case unknown0x8100 = 0x8100
+    
+    case unknown0x8101 = 0x8101
+    
+    // case unknown0x8102 = 0x8102
+    
+    // case unknown0x810E = 0x810E
+    
+    case unknown0x810F = 0x810F
+    
+    case unknown0x8110 = 0x8110
+    
+    // case unknown0x8126 = 0x8126
+    
+    case unknown0x8127 = 0x8127
+    
+    // case unknown0x8128 = 0x8128
+    
+    // case unknown0x8130 = 0x8130
+    
+    case unknown0x8131 = 0x8131
+    
+    // case unknown0x8132 = 0x8132
+    
+    // case unknown0x8133 = 0x8133
+    
+    // case unknown0x8134 = 0x8134
+    
+    // case unknown0x8135 = 0x8135
+    
+    // case unknown0x8136 = 0x8136
+    
+    // case unknown0x8137 = 0x8137
+    
+    case unknown0x8138 = 0x8138
+    
+    // case unknown0x8139 = 0x8139
+    
+    // case unknown0x8170 = 0x8170
+    
+    case unknown0x8171 = 0x8171
+    
+    case unknown0x8172 = 0x8172
 
     // case unknown0x8C56 = 0x8C56
 
@@ -9117,8 +9299,124 @@ public enum PropertyId: UInt16 {
     case tagAddressBookDistributionListMemberSubmitAccepted = 0x8073
 
     // case unknown0x8074 = 0x8074
+    
+    // case unknown0x80D1 = 0x80D1
+    
+    case unknown0x80D2 = 0x80D2
+    
+    // case unknown0x80D3 = 0x80D3
+    
+    // case unknown0x80DD = 0x80DD
+    
+    case unknown0x80DE = 0x80DE
+    
+    case unknown0x80DF = 0x80DF
+    
+    // case unknown0x80E0 = 0x80E0
+    
+    // case unknown0x80F2 = 0x80F2
+    
+    case unknown0x80F3 = 0x80F3
+    
+    // case unknown0x80F4 = 0x80F4
+    
+    // case unknown0x810B = 0x810B
+    
+    case unknown0x810C = 0x810C
+    
+    case unknown0x810D = 0x810D
+    
+    case unknown0x810E = 0x810E
+    
+    // case unknown0x8115 = 0x8115
+    
+    case unknown0x8116 = 0x8116
+    
+    // case unknown0x8117 = 0x8117
+    
+    // case unknown0x8121 = 0x8121
+    
+    case unknown0x8122 = 0x8122
+    
+    // case unknown0x8123 = 0x8123
+    
+    // case unknown0x8124 = 0x8124
+    
+    case unknown0x8125 = 0x8125
+    
+    // case unknown0x8126 = 0x8126
+    
+    // case unknown0x813E = 0x813E
+    
+    case unknown0x813F = 0x813F
+    
+    // case unknown0x8140 = 0x8140
 
-    // case unknown0x816F = 0x816F
+    // case unknown0x814F = 0x814F
+    
+    // case unknown0x8150 = 0x8150
+    
+    // case unknown0x8151 = 0x8151
+    
+    // case unknown0x8152 = 0x8152
+    
+    // case unknown0x8153 = 0x8153
+    
+    // case unknown0x8154 = 0x8154
+    
+    // case unknown0x8155 = 0x8155
+    
+    // case unknown0x8156 = 0x8156
+    
+    case unknown0x8157 = 0x8157
+    
+    // case unknown0x8158 = 0x8158
+    
+    // case unknown0x8159 = 0x8159
+    
+    case unknown0x815A = 0x815A
+    
+    case unknown0x815B = 0x815B
+    
+    case unknown0x815C = 0x815C
+    
+    case unknown0x815D = 0x815D
+    
+    case unknown0x815E = 0x815E
+    
+    case unknown0x815F = 0x815F
+    
+    case unknown0x8160 = 0x8160
+    
+    // case unknown0x8161 = 0x8161
+    
+    // case unknown0x8162 = 0x8162
+    
+    // case unknown0x8163 = 0x8163
+    
+    // case unknown0x8164 = 0x8164
+    
+    // case unknown0x8165 = 0x8165
+    
+    // case unknown0x8166 = 0x8166
+    
+    case unknown0x8167 = 0x8167
+    
+    // case unknown0x8168 = 0x8168
+    
+    // case unknown0x8169 = 0x8169
+    
+    // case unknown0x816A = 0x816A
+    
+    // case unknown0x816B = 0x816B
+    
+    case unknown0x816C = 0x816C
+    
+    case unknown0x816D = 0x816D
+    
+    // case unknown0x816E = 0x816E
+    
+    case unknown0x816F = 0x816F
 
     /// [MS-OXPROPS] 2.553 PidTagAddressBookNetworkAddress
     /// Canonical name: PidTagAddressBookNetworkAddress
@@ -9133,6 +9431,12 @@ public enum PropertyId: UInt16 {
     case tagAddressBookNetworkAddress = 0x8170
 
     // case unknown0x8171 = 0x8171
+    
+    // case unknown0x8179 = 0x8179
+    
+    case unknown0x817A = 0x817A
+    
+    case unknown0x817B = 0x817B
     
     // case unknown0x81AD = 0x81AD
     

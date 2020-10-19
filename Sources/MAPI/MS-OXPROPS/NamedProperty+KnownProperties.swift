@@ -4322,7 +4322,7 @@ public extension NamedProperty {
     /// Consuming references: [MS-OXORMDR]
     /// Alternate names: dispidTaskResetReminder
     static let lidTaskResetReminder = NamedProperty(set: .task,
-                                                                  lid: 0x00008116)
+                                                                  lid: 0x00008107)
 
     /// [MS-OXPROPS] 2.332 PidLidTaskRole
     /// Canonical name: PidLidTaskRole
@@ -5682,7 +5682,7 @@ public extension NamedProperty {
     /// Defining reference: [MS-OXCEXT] section 2.2.2.7
     /// Alternate names: dispidXmlExtractedUrls
     static let nameExtractedUrls = NamedProperty(set: .xmlExtractedEntities,
-                                                               name: "LinksDirty")
+                                                               name: "XmlExtractedUrls")
     
     /// [MS-OXPROPS] 2.441 PidNameFrom
     /// Canonical name: PidNameFrom

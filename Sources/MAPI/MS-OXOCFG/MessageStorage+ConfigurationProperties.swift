@@ -177,8 +177,13 @@ public extension MessageStorage {
     /// store
     /// Ignore Not set
     /// None of the above Not set
-    var conversationActionMoveStoreEid: Data? {
-        return getProperty(name: .lidConversationActionMoveStoreEid)
+    var conversationActionMoveStoreEid: EntryID? {
+        guard let data: Data = getProperty(name: .lidConversationActionMoveStoreEid) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXOCFG] 2.2.8.5 PidLidConversationActionVersion Property

@@ -5,9 +5,11 @@
 //  Created by Hugh Bellamy on 05/09/2020.
 //
 
-/// [MS-OXOCAL] 2.2.2.4 PidLidClientIntent Property
+/// [MS-OXOCAL] 2.2.6.2 PidLidChangeHighlight Property
 /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-/// The PidLidClientIntent property ([MS-OXPROPS] section 2.59) indicates what actions a user has taken on a Meeting object.
+/// The PidLidChangeHighlight property ([MS-OXPROPS] section 2.52) specifies a bit field that indicates
+/// how the Meeting object has changed.<27> This property is not required. The individual flags that
+/// can be set are as follows.
 public struct ChangeHighlight: OptionSet {
     public let rawValue: UInt32
 

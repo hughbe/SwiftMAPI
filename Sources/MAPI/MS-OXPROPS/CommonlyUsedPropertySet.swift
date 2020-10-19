@@ -64,6 +64,8 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
     
     case calendarAssistant
     
+    case remote
+    
     public static let PS_PUBLIC_STRINGS = UUID(uuidString: "00020329-0000-0000-C000-000000000046")!
     
     public static let PSETID_Common = UUID(uuidString: "00062008-0000-0000-C000-000000000046")!
@@ -99,6 +101,8 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
     public static let PSETID_Attachment = UUID(uuidString: "96357F7F-59E1-47D0-99A7-46515C183B54")!
     
     public static let PSETID_CalendarAssistant = UUID(uuidString: "11000E07-B51B-40D6-AF21-CAA85EDAB1D0")!
+    
+    public static let PSETID_Remote = UUID(uuidString: "00062014-0000-0000-C000-000000000046")!
     
     public init?(uuid: UUID) {
         switch uuid {
@@ -138,6 +142,8 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
             self = .attachment
         case CommonlyUsedPropertySet.PSETID_CalendarAssistant:
             self = .calendarAssistant
+        case CommonlyUsedPropertySet.PSETID_Remote:
+            self = .remote
         default:
             return nil
         }
@@ -181,6 +187,8 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
             return CommonlyUsedPropertySet.PSETID_Attachment
         case .calendarAssistant:
             return CommonlyUsedPropertySet.PSETID_CalendarAssistant
+        case .remote:
+            return CommonlyUsedPropertySet.PSETID_Remote
         }
     }
     
@@ -222,6 +230,8 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
             return "PSETID_Attachment"
         case .calendarAssistant:
             return "PSETID_CalendarAssistant"
+        case .remote:
+            return "PSETID_Remote"
         }
     }
 }

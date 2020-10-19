@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 03/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXOSRCH] 2.2 Message Syntax
@@ -146,32 +147,15 @@ public extension MessageStorage {
 
     /// [MS-OXOSRCH] 2.2.2.1.2 PidTagExtendedFolderFlags
     /// Type: PtypBinary
-    /// The PidTagExtendedFolderFlags property ([MS-OXPROPS] section 2.685) is a binary large object
-    /// (BLOB) that contains subproperties of a Folder object. These subproperties control folder
-    /// configuration that is shared between client and server. Each subproperty is formatted as specified in
-    /// [MS-OXOCFG] section 2.2.7.1.
-    /// The PidTagExtendedFolderFlags property of a search folder container MUST include at least the
-    /// SearchFolderTag, SearchFolderID, and ExtendedFlags subproperties with the settings as
-    /// specified in the following table.
+    /// The PidTagExtendedFolderFlags property ([MS-OXPROPS] section 2.685) is a binary large object (BLOB) that contains subproperties of a Folder object.
+    /// These subproperties control folder configuration that is shared between client and server. Each subproperty is formatted as specified in [MS-OXOCFG] section 2.2.7.1.
+    /// The PidTagExtendedFolderFlags property of a search folder container MUST include at least the SearchFolderTag, SearchFolderID, and ExtendedFlags subproperties
+    /// with the settings as specified in the following table.
     /// Subproperty name Id field Cb field Data field
-    /// SearchFolderTag 0x03 0x04 A 4-byte value that matches the
-    /// value of the
-    /// PidTagSearchFolderTag
-    /// property (section 2.2.1.2.3) of the
-    /// search folder definition
-    /// message.
-    /// SearchFolderID 0x02 0x10 A GUID that matches the GUID
-    /// stored in the
-    /// PidTagSearchFolderId property
-    /// (section 2.2.1.2.1) of the search
-    /// folder definition message.
+    /// SearchFolderTag 0x03 0x04 A 4-byte value that matches the value of the PidTagSearchFolderTag property (section 2.2.1.2.3) of the search folder definition message.
+    /// SearchFolderID 0x02 0x10 A GUID that matches the GUID stored in the PidTagSearchFolderId property (section 2.2.1.2.1) of the search folder definition message.
     /// ExtendedFlags 0x01 0x04 A 4-byte value, as specified in [MS-OXOCFG] section 2.2.7.1.2.
-    /// The two bits of the b field are set
-    /// to 10 if the value of the
-    /// PidTagSearchFolderTemplateId
-    /// property (section 2.2.1.2.2) is
-    /// 0x00000003 or 0x00000004;
-    /// otherwise, the two bits of the b
+    /// The two bits of the b field are set to 10 if the value of the PidTagSearchFolderTemplateId property (section 2.2.1.2.2) is 0x00000003 or 0x00000004; otherwise, the two bits of the b
     /// field are set to 01.
     /// [MS-OXOCFG] 2.2.7 Folder Flags
     /// Folder flags consist of a collection of small properties packed into a single binary property on a folder.
@@ -197,10 +181,14 @@ public extension MessageStorage {
     /// SearchFolderID 0x02 0x10 A GUID that matches the GUID stored in the PidTagSearchFolderId property
     /// (section 2.2.1.2.1) of the search folder definition message.
     /// ExtendedFlags 0x01 0x04 A 4-byte value, as specified in [MS-OXOCFG] section 2.2.7.1.2.
-    /// The two bits of the b field are set to 10 if the value of the PidTagSearchFolderTemplateId
-    /// property (section 2.2.1.2.2) is 0x00000003 or 0x00000004; otherwise, the two bits of the b
-    /// field are set to 01.
-    var extendedFolderFlags: Data? {
-        return getProperty(id: .tagExtendedFolderFlags)
+    /// The two bits of the b field are set to 10 if the value of the PidTagSearchFolderTemplateId property (section 2.2.1.2.2) is 0x00000003 or 0x00000004;
+    /// otherwise, the two bits of the b field are set to 01.
+    var extendedFolderFlags: ExtendedFolderFlags? {
+        guard let data: Data = getProperty(id: .tagExtendedFolderFlags) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ExtendedFolderFlags(dataStream: &dataStream)
     }
 }

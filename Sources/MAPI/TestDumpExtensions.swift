@@ -40,7 +40,7 @@ private func escapeString(string: String) -> String {
         } else if char.isLetter || char.isNumber || char.isSymbol || char.isWhitespace || char.isPunctuation || char == "\t" {
             s.append(char)
         } else {
-            fatalError("NYI")
+            s.append(char)
         }
     }
 
@@ -48,6 +48,10 @@ private func escapeString(string: String) -> String {
 }
 
 private func stringAssert(value: Any?, accessor: String, name: String) -> String {
+    if value is Data {
+        return "XCTAssertNil(\(accessor).\(name))\n"
+    }
+
     let actual = value! as! String
     if actual.count > 750 {
         return "XCTAssertNotNil(\(accessor).\(name))\n"
@@ -64,6 +68,11 @@ private func multipleStringAssert(value: Any?, accessor: String, name: String) -
 private func guidAssert(value: Any?, accessor: String, name: String) -> String {
     let actual = value! as! UUID
     return "XCTAssertEqual(UUID(uuidString: \"\(actual)\"), \(accessor).\(name)!)\n"
+}
+
+private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual = value! as! [UUID]
+    return "XCTAssertEqual([\(actual.map { "UUID(uuidString: \"\($0)\"" }.joined(separator: ", "))], \(accessor).\(name)!)\n"
 }
 
 private func int16Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
@@ -144,13 +153,17 @@ private func xidAssert(value: Any?, accessor: String, name: String) -> String {
     return s
 }
 
-private func enumAssert<T>(value: Any?, accessor: String, name: String, type: T.Type) -> String where T: RawRepresentable, T: EnumCaseRepresentable, T.RawValue == UInt32, T.Element: RawRepresentable, T.Element.RawValue == T.RawValue {
+private func enumAssert<T>(value: Any?, accessor: String, name: String, type: T.Type) -> String where T: RawRepresentable, T: EnumCaseRepresentable, T.RawValue: FixedWidthInteger, T.Element: RawRepresentable, T.Element.RawValue == T.RawValue {
     guard let actual = T(rawValue: value as! T.RawValue) else {
         return "XCTAssertNil(\(accessor).\(name))\n"
     }
 
-    let caseName = actual.stringRepresentation
-    return "XCTAssertEqual(\(caseName), \(accessor).\(name)!)\n"
+    return "XCTAssertEqual(\(actual.stringRepresentation), \(accessor).\(name)!)\n"
+}
+
+private func multipleEnumAssert<T>(value: Any?, accessor: String, name: String, type: T.Type) -> String where T: RawRepresentable, T: EnumCaseRepresentable, T.RawValue: FixedWidthInteger, T.Element: RawRepresentable, T.Element.RawValue == T.RawValue {
+    let actual = value as! [T.RawValue]
+    return "XCTAssertEqual([\(actual.compactMap(T.init).map { $0.stringRepresentation }.joined(separator: ","))], \(accessor).\(name)!)\n"
 }
 
 private func optionSetAssert<T>(value: Any?, accessor: String, name: String, type: T.Type) -> String where T: OptionSet, T: EnumCaseRepresentable, T.RawValue: FixedWidthInteger {
@@ -237,7 +250,9 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
 
 private func conversationIndexAssert(value: Any?, accessor: String, name: String) -> String {
     var dataStream = DataStream(data: value as! Data)
-    let actual = try! ConversationIndex(dataStream: &dataStream)
+    guard let actual = try? ConversationIndex(dataStream: &dataStream) else {
+        return "XCTAssertNil(\(accessor).\(name))\n"
+    }
 
     var s = ""
 
@@ -404,9 +419,7 @@ private func contactLinkEntryAssert(value: Any?, accessor: String, name: String)
 
 private func verbStreamAssert(value: Any?, accessor: String, name: String) -> String {
     var dataStream = DataStream(data: value as! Data)
-    guard let actual = try? VerbStream(dataStream: &dataStream) else {
-        return "XCTAssertNil(\(accessor).\(name))\n"
-    }
+    let actual = try! VerbStream(dataStream: &dataStream)
     
     var s = ""
     
@@ -450,6 +463,327 @@ private func verbStreamAssert(value: Any?, accessor: String, name: String) -> St
     return s
 }
 
+private func businessCardDisplayDefinitionAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! BusinessCardDisplayDefinition(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.majorVersion.hexString), \(accessor).\(name)!.majorVersion)\n"
+    s += "XCTAssertEqual(\(actual.minorVersion.hexString), \(accessor).\(name)!.minorVersion)\n"
+    s += "XCTAssertEqual(\(actual.templateID.stringRepresentation), \(accessor).\(name)!.templateID)\n"
+    s += "XCTAssertEqual(\(actual.countOfFields), \(accessor).\(name)!.countOfFields)\n"
+    s += "XCTAssertEqual(\(actual.fieldInfoSize.hexString), \(accessor).\(name)!.fieldInfoSize)\n"
+    s += "XCTAssertEqual(\(actual.extraInfoSize.hexString), \(accessor).\(name)!.extraInfoSize)\n"
+    s += "XCTAssertEqual(\(actual.imageAlignment.stringRepresentation), \(accessor).\(name)!.imageAlignment)\n"
+    s += "XCTAssertEqual(\(actual.imageSource.hexString), \(accessor).\(name)!.imageSource)\n"
+    s += "XCTAssertEqual(\(actual.backgroundColor.hexString), \(accessor).\(name)!.backgroundColor)\n"
+    s += "XCTAssertEqual(\(actual.imageArea.hexString), \(accessor).\(name)!.imageArea)\n"
+    s += "XCTAssertEqual(\(actual.reserved.hexString), \(accessor).\(name)!.imageArea)\n"
+    
+    s += "XCTAssertEqual(\(actual.fieldInfoN.count), \(accessor).\(name)!.fieldInfoN.count)\n"
+    for (offset, element) in actual.fieldInfoN.enumerated() {
+        s += "XCTAssertEqual(\(element.textPropertyID.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].textPropertyID)\n"
+        s += "XCTAssertEqual(\(element.textFormat.stringRepresentation), \(accessor).\(name)!.fieldInfoN[\(offset)].textFormat)\n"
+        s += "XCTAssertEqual(\(element.labelFormat.stringRepresentation), \(accessor).\(name)!.fieldInfoN[\(offset)].labelFormat)\n"
+        s += "XCTAssertEqual(\(element.fontSize.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].fontSize)\n"
+        s += "XCTAssertEqual(\(element.reserved.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].reserved)\n"
+        s += "XCTAssertEqual(\(element.labelOffset.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].labelOffset)\n"
+        s += "XCTAssertEqual(\(element.valueFontColor.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].valueFontColor)\n"
+        s += "XCTAssertEqual(\(element.labelFontColor.hexString), \(accessor).\(name)!.fieldInfoN[\(offset)].labelFontColor)\n"
+    }
+    
+    s += "XCTAssertEqual(\(actual.extraInfo.count), \(accessor).\(name)!.extraInfo.count)\n"
+    for (offset, element) in actual.extraInfo.enumerated() {
+        s += "XCTAssertEqual(\(escapeString(string: element)), \(accessor).\(name)!.extraInfo[\(offset)])\n"
+    }
+    
+    return s
+}
+
+private func scheduleInfoAppointmentTombstoneAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! ScheduleInfoAppointmentTombstone(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.identifier.hexString), \(accessor).\(name)!.identifier)\n"
+    s += "XCTAssertEqual(\(actual.headerSize.hexString), \(accessor).\(name)!.headerSize)\n"
+    s += "XCTAssertEqual(\(actual.version.hexString), \(accessor).\(name)!.version)\n"
+    s += "XCTAssertEqual(\(actual.recordsCount), \(accessor).\(name)!.recordsCount)\n"
+    s += "XCTAssertEqual(\(actual.recordsSize.hexString), \(accessor).\(name)!.recordsSize)\n"
+    
+    s += "XCTAssertEqual(\(actual.records.count), \(accessor).\(name)!.records.count)\n"
+    for (offset, element) in actual.records.enumerated() {
+        s += "XCTAssertEqual(\(element.startTime.timeIntervalSince1970), \(accessor).\(name)!.records[\(offset)].startTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.endTime.timeIntervalSince1970), \(accessor).\(name)!.records[\(offset)].endTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.globalObjectIdSize.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectIdSize)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.byteArrayID.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.byteArrayID)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.yh.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.yh)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.yl.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.yl)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.m.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.m)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.d.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.d)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.creationTime.timeIntervalSince1970), \(accessor).\(name)!.records[\(offset)].globalObjectId.creationTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.x.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.x)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.size.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.size)\n"
+        s += "XCTAssertEqual(\(element.globalObjectId.data.hexString), \(accessor).\(name)!.records[\(offset)].globalObjectId.data)\n"
+        s += "XCTAssertEqual(\(element.usernameSize.hexString), \(accessor).\(name)!.records[\(offset)].usernameSize)\n"
+        s += "XCTAssertEqual(\(escapeString(string: element.username)), \(accessor).\(name)!.records[\(offset)].username)\n"
+    }
+    
+    return s
+}
+
+private func extendedFolderFlagsAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! ExtendedFolderFlags(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.subProperties.count), \(accessor).\(name)!.subProperties.count)\n"
+    for (offset, element) in actual.subProperties.enumerated() {
+        s += "XCTAssertEqual(\(element.id.hexString), \(accessor).\(name)!.subProperties[\(offset)].id)\n"
+        s += "XCTAssertEqual(\(element.cb.hexString), \(accessor).\(name)!.subProperties[\(offset)].cb)\n"
+        s += "XCTAssertEqual(\(element.data.hexString), \(accessor).\(name)!.subProperties[\(offset)].data)\n"
+    }
+
+    return s
+}
+
+private func globalObjectIdAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! GlobalObjectId(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.byteArrayID.hexString), \(accessor).\(name)!.byteArrayID)\n"
+    s += "XCTAssertEqual(\(actual.yh.hexString), \(accessor).\(name)!.yh)\n"
+    s += "XCTAssertEqual(\(actual.yl.hexString), \(accessor).\(name)!.yl)\n"
+    s += "XCTAssertEqual(\(actual.m.hexString), \(accessor).\(name)!.m)\n"
+    s += "XCTAssertEqual(\(actual.d.hexString), \(accessor).\(name)!.d)\n"
+    s += "XCTAssertEqual(\(actual.creationTime.timeIntervalSince1970), \(accessor).\(name)!.creationTime.timeIntervalSince1970)\n"
+    s += "XCTAssertEqual(\(actual.x.hexString), \(accessor).\(name)!.x)\n"
+    s += "XCTAssertEqual(\(actual.size.hexString), \(accessor).\(name)!.size)\n"
+    s += "XCTAssertEqual(\(actual.data.hexString), \(accessor).\(name)!.data)\n"
+
+    return s
+}
+
+private func timeZoneStructAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! TimeZoneStruct(dataStream: &dataStream)
+    
+    var s = ""
+
+    s += "XCTAssertEqual(\(actual.lBias), \(accessor).\(name)!.lBias)\n"
+    s += "XCTAssertEqual(\(actual.lStandardBias), \(accessor).\(name)!.lStandardBias)\n"
+    s += "XCTAssertEqual(\(actual.lDaylightBias), \(accessor).\(name)!.lDaylightBias)\n"
+    s += "XCTAssertEqual(\(actual.wStandardYear), \(accessor).\(name)!.wStandardYear)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wYear), \(accessor).\(name)!.stStandardDate.wYear)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wMonth), \(accessor).\(name)!.stStandardDate.wMonth)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wDayOfWeek), \(accessor).\(name)!.stStandardDate.wDayOfWeek)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wDay), \(accessor).\(name)!.stStandardDate.wDay)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wHour), \(accessor).\(name)!.stStandardDate.wHour)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wMinute), \(accessor).\(name)!.stStandardDate.wMinute)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wSecond), \(accessor).\(name)!.stStandardDate.wSecond)\n"
+    s += "XCTAssertEqual(\(actual.stStandardDate.wMilliseconds), \(accessor).\(name)!.stStandardDate.wMilliseconds)\n"
+    s += "XCTAssertEqual(\(actual.wDaylightYear), \(accessor).\(name)!.wDaylightYear)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wYear), \(accessor).\(name)!.stDaylightDate.wYear)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wMonth), \(accessor).\(name)!.stDaylightDate.wMonth)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wDayOfWeek), \(accessor).\(name)!.stDaylightDate.wDayOfWeek)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wDay), \(accessor).\(name)!.stDaylightDate.wDay)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wHour), \(accessor).\(name)!.stDaylightDate.wHour)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wMinute), \(accessor).\(name)!.stDaylightDate.wMinute)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wSecond), \(accessor).\(name)!.stDaylightDate.wSecond)\n"
+    s += "XCTAssertEqual(\(actual.stDaylightDate.wMilliseconds), \(accessor).\(name)!.stDaylightDate.wMilliseconds)\n"
+    
+    return s
+}
+
+
+private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! AppointmentRecurrencePattern(dataStream: &dataStream)
+    
+    var s = ""
+    
+    
+    /*
+    public let readerVersion2: UInt32
+    public let writerVersion2: UInt32
+    public let startTimeOffset: UInt32
+    public let endTimeOffset: UInt32
+    public let exceptionCount: UInt16
+    public let exceptionInfo: [ExceptionInfo]
+    public let reservedBlock1Size: UInt32
+    public let reservedBlock1: [UInt8]
+    public let extendedException: [ExtendedException]
+    public let reservedBlock2Size: UInt32
+    public let reservedBlock2: [UInt8]
+ */
+    
+    s += "XCTAssertEqual(\(actual.recurrencePattern.readerVersion.hexString), \(accessor).\(name)!.recurrencePattern.readerVersion)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.writerVersion.hexString), \(accessor).\(name)!.recurrencePattern.writerVersion)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.recurFrequency.stringRepresentation), \(accessor).\(name)!.recurrencePattern.recurFrequency)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.patternType.stringRepresentation), \(accessor).\(name)!.recurrencePattern.patternType)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.calendarType.stringRepresentation), \(accessor).\(name)!.recurrencePattern.calendarType)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.firstDateTime.hexString), \(accessor).\(name)!.recurrencePattern.firstDateTime)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.period.hexString), \(accessor).\(name)!.recurrencePattern.period)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.slidingFlag.hexString), \(accessor).\(name)!.recurrencePattern.slidingFlag)\n"
+    
+    if let week = actual.recurrencePattern.patternTypeSpecific as? PatternTypeSpecificWeek {
+        s += "XCTAssertEqual(\(week.stringRepresentation), (\(accessor).\(name)!.recurrencePattern.patternTypeSpecific as! PatternTypeSpecificWeek))\n"
+    } else if let month = actual.recurrencePattern.patternTypeSpecific as? PatternTypeSpecificMonth {
+        s += "XCTAssertEqual(\(month.day), (\(accessor).\(name)!.recurrencePattern.patternTypeSpecific as! PatternTypeSpecificMonth).day)\n"
+    } else if let monthNth = actual.recurrencePattern.patternTypeSpecific as? PatternTypeSpecificMonthNth {
+        s += "XCTAssertEqual(\(monthNth.flags.stringRepresentation), (\(accessor).\(name)!.recurrencePattern.patternTypeSpecific as! PatternTypeSpecificMonthNth).flags)\n"
+        s += "XCTAssertEqual(\(monthNth.n.stringRepresentation), (\(accessor).\(name)!.recurrencePattern.patternTypeSpecific as! PatternTypeSpecificMonthNth).n)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.recurrencePattern.patternTypeSpecific)\n"
+    }
+    
+    s += "XCTAssertEqual(\(actual.recurrencePattern.occurrenceCount), \(accessor).\(name)!.recurrencePattern.occurrenceCount)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.firstDOW.stringRepresentation), \(accessor).\(name)!.recurrencePattern.firstDOW)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.deletedInstanceCount), \(accessor).\(name)!.recurrencePattern.deletedInstanceCount)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.deletedInstanceDates.count), \(accessor).\(name)!.recurrencePattern.deletedInstanceDates.count)\n"
+    for (offset, element) in actual.recurrencePattern.deletedInstanceDates.enumerated() {
+        s += "XCTAssertEqual(\(element.timeIntervalSince1970), \(accessor).\(name)!.deletedInstanceDates[\(offset)].timeIntervalSince1970\n"
+    }
+
+    s += "XCTAssertEqual(\(actual.recurrencePattern.modifiedInstanceCount), \(accessor).\(name)!.recurrencePattern.modifiedInstanceCount)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.modifiedInstanceDates.count), \(accessor).\(name)!.recurrencePattern.modifiedInstanceDates.count)\n"
+    for (offset, element) in actual.recurrencePattern.modifiedInstanceDates.enumerated() {
+        s += "XCTAssertEqual(\(element.timeIntervalSince1970), \(accessor).\(name)!.modifiedInstanceDates[\(offset)].timeIntervalSince1970\n"
+    }
+    
+    s += "XCTAssertEqual(\(actual.recurrencePattern.startDate.timeIntervalSince1970), \(accessor).\(name)!.recurrencePattern.startDate.timeIntervalSince1970)\n"
+    s += "XCTAssertEqual(\(actual.recurrencePattern.endDate.timeIntervalSince1970), \(accessor).\(name)!.recurrencePattern.endDate.timeIntervalSince1970)\n"
+    
+    s += "XCTAssertEqual(\(actual.readerVersion2.hexString), \(accessor).\(name)!.readerVersion2)\n"
+    s += "XCTAssertEqual(\(actual.writerVersion2.hexString), \(accessor).\(name)!.writerVersion2)\n"
+    s += "XCTAssertEqual(\(actual.startTimeOffset.hexString), \(accessor).\(name)!.startTimeOffset)\n"
+    s += "XCTAssertEqual(\(actual.endTimeOffset.hexString), \(accessor).\(name)!.endTimeOffset)\n"
+    s += "XCTAssertEqual(\(actual.exceptionCount), \(accessor).\(name)!.exceptionCount)\n"
+    
+    s += "XCTAssertEqual(\(actual.exceptionInfo.count), \(accessor).\(name)!.recurrencePattern.exceptionInfo.count)\n"
+    for (offset, element) in actual.exceptionInfo.enumerated() {
+        s += "XCTAssertEqual(\(element.startDateTime.timeIntervalSince1970), \(accessor).\(name)!.exceptionInfo[\(offset)].startDateTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.endDateTime.timeIntervalSince1970), \(accessor).\(name)!.exceptionInfo[\(offset)].endDateTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.originalStartTime.timeIntervalSince1970), \(accessor).\(name)!.exceptionInfo[\(offset)].originalStartTime.timeIntervalSince1970)\n"
+        s += "XCTAssertEqual(\(element.overrideFlags.stringRepresentation), \(accessor).\(name)!.exceptionInfo[\(offset)].overrideFlags)\n"
+        
+        if element.overrideFlags.contains(.subject) {
+            s += "XCTAssertEqual(\(element.subjectLength!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].subjectLength!)\n"
+            s += "XCTAssertEqual(\(element.subjectLength2!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].subjectLength2!)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.subject!)), \(accessor).\(name)!.exceptionInfo[\(offset)].subject!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].subjectLength)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].subjectLength2)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].subject)\n"
+        }
+        
+        if element.overrideFlags.contains(.meetingType) {
+            s += "XCTAssertEqual(\(element.meetingType!.stringRepresentation), \(accessor).\(name)!.exceptionInfo[\(offset)].meetingType!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].meetingType)\n"
+        }
+        
+        if element.overrideFlags.contains(.reminderDelta) {
+            s += "XCTAssertEqual(\(element.reminderDelta!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].reminderDelta!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].reminderDelta)\n"
+        }
+        
+        if element.overrideFlags.contains(.reminder) {
+            s += "XCTAssertEqual(\(element.reminderSet!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].reminderSet!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].reminderSet)\n"
+        }
+
+        if element.overrideFlags.contains(.location) {
+            s += "XCTAssertEqual(\(element.locationLength!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].locationLength!)\n"
+            s += "XCTAssertEqual(\(element.locationLength2!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].locationLength2!)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.location!)), \(accessor).\(name)!.exceptionInfo[\(offset)].location!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].locationLength)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].locationLength2)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].location)\n"
+        }
+        
+        if element.overrideFlags.contains(.busyStatus) {
+            s += "XCTAssertEqual(\(element.busyStatus!.stringRepresentation), \(accessor).\(name)!.exceptionInfo[\(offset)].busyStatus!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].busyStatus)\n"
+        }
+        
+        if element.overrideFlags.contains(.attachment) {
+            s += "XCTAssertEqual(\(element.attachment!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].attachment!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].attachment)\n"
+        }
+        
+        if element.overrideFlags.contains(.subType) {
+            s += "XCTAssertEqual(\(element.subType!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].subType!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].subType)\n"
+        }
+        
+        if element.overrideFlags.contains(.apptColor) {
+            s += "XCTAssertEqual(\(element.appointmentColor!.hexString), \(accessor).\(name)!.exceptionInfo[\(offset)].appointmentColor!)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.exceptionInfo[\(offset)].appointmentColor)\n"
+        }
+    }
+    
+    s += "XCTAssertEqual(\(actual.reservedBlock1Size.hexString), \(accessor).\(name)!.reservedBlock1Size)\n"
+    s += "XCTAssertEqual(\(actual.reservedBlock1.hexString), \(accessor).\(name)!.reservedBlock1)\n"
+    
+    s += "XCTAssertEqual(\(actual.extendedException.count), \(accessor).\(name)!.recurrencePattern.extendedException.count)\n"
+    for (offset, element) in actual.extendedException.enumerated() {
+        s += "XCTAssertEqual(\(element.reservedBlockEE1Size.hexString), \(accessor).\(name)!.extendedException[\(offset)].reservedBlockEE1Size)\n"
+        s += "XCTAssertEqual(\(element.reservedBlockEE1.hexString), \(accessor).\(name)!.extendedException[\(offset)].reservedBlockEE1)\n"
+        
+        if actual.exceptionInfo[Int(offset)].overrideFlags.contains(.subject) || actual.exceptionInfo[Int(offset)].overrideFlags.contains(.location) {
+            s += "XCTAssertEqual(\(element.startDateTime!.timeIntervalSince1970), \(accessor).\(name)!.extendedException[\(offset)].startDateTime!.timeIntervalSince1970)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].startDateTime)\n"
+        }
+
+        if actual.exceptionInfo[Int(offset)].overrideFlags.contains(.subject) || actual.exceptionInfo[Int(offset)].overrideFlags.contains(.location) {
+            s += "XCTAssertEqual(\(element.endDateTime!.timeIntervalSince1970), \(accessor).\(name)!.extendedException[\(offset)].endDateTime!.timeIntervalSince1970)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].endDateTime)\n"
+        }
+
+        if actual.exceptionInfo[Int(offset)].overrideFlags.contains(.subject) || actual.exceptionInfo[Int(offset)].overrideFlags.contains(.location) {
+            s += "XCTAssertEqual(\(element.originalStartDate!.timeIntervalSince1970), \(accessor).\(name)!.extendedException[\(offset)].originalStartDate!.timeIntervalSince1970)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].originalStartDate)\n"
+        }
+        
+        if actual.exceptionInfo[Int(offset)].overrideFlags.contains(.subject) {
+            s += "XCTAssertEqual(\(element.wideCharSubjectLength!.hexString), \(accessor).\(name)!.extendedException[\(offset)].wideCharSubjectLength)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.wideCharSubject!)), \(accessor).\(name)!.extendedException[\(offset)].wideCharSubject)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].wideCharSubjectLength)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].wideCharSubject)\n"
+        }
+        
+        if actual.exceptionInfo[Int(offset)].overrideFlags.contains(.location) {
+            s += "XCTAssertEqual(\(element.wideCharLocationLength!.hexString), \(accessor).\(name)!.extendedException[\(offset)].wideCharLocationLength)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.wideCharLocation!)), \(accessor).\(name)!.extendedException[\(offset)].wideCharLocation)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].wideCharLocationLength)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.extendedException[\(offset)].wideCharLocation)\n"
+        }
+    }
+    
+    s += "XCTAssertEqual(\(actual.reservedBlock2Size.hexString), \(accessor).\(name)!.reservedBlock2Size)\n"
+    s += "XCTAssertEqual(\(actual.reservedBlock2.hexString), \(accessor).\(name)!.reservedBlock2)\n"
+
+    return s
+}
+
 private func unknownAssert(value: Any?, accessor: String, fullName: String) -> String {
     guard let value = value else {
         return "XCTAssertNil(\(accessor).\(fullName))"
@@ -471,6 +805,8 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
         return dateAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as Date?)")
     } else if type(of: value) == UUID.self {
         return guidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UUID?)")
+    } else if type(of: value) == [UUID].self {
+        return multipleGuidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UUID?)")
     } else if type(of: value) == [String].self {
         return multipleStringAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [String]?)")
     } else if type(of: value) == [UInt32].self {
@@ -530,6 +866,8 @@ private func unknownAssert(value: Any?, accessor: String, name: NamedProperty) -
             setString = ".attachment"
         case .calendarAssistant:
             setString = ".calendarAssistant"
+        case .remote:
+            setString = ".remote"
         }
         
         switch name.kind {
@@ -554,8 +892,645 @@ private func unknownAssert(value: Any?, accessor: String, name: NamedProperty) -
 
 public func propertiesTestString(accessor: String, properties: [UInt16: Any?], namedProperties: [UInt16: NamedProperty]?) -> String {
     var s = ""
+    
+    var failures: [String] = []
 
     for prop in properties {
+        if prop.key >= 0x8000, let kvp = namedProperties?[prop.key - 0x8000] {
+            switch kvp.kind {
+            case .stringNamed:
+                switch (kvp.guid, kvp.name) {
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "XmlExtractedMeetings"):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "extractedMeetings")
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "XmlExtractedContacts"):
+                    if prop.value is Bool {
+                        s += "XCTAssertNil(\(accessor).extractedContacts)\n"
+                    } else {
+                        s += stringAssert(value: prop.value, accessor: accessor, name: "extractedContacts")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "XmlExtractedUrls"):
+                    if prop.value is Bool {
+                        s += "XCTAssertNil(\(accessor).extractedUrls)\n"
+                    } else {
+                        s += stringAssert(value: prop.value, accessor: accessor, name: "extractedUrls")
+                    }
+                case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "Keywords"):
+                    if prop.value is UInt32 {
+                        s += "XCTAssertNil(\(accessor).keywords)\n"
+                    } else {
+                        s += multipleStringAssert(value: prop.value, accessor: accessor, name: "keywords")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinInferenceClassificationResult"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationResult"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "OriginalInferenceClassification"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "LatestMessageWordCount"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationTrackingEx"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceMessageIdentifier"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ClutterProbability"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ClutterThreshold"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ConversationContributions"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ConversationWasFocused"),
+                     (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "TriageFeatureVector"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "CurrentMessageSafetyFlags"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "ComposeType"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityDocument"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityDocumentDelayed"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionSuccess"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionSuccessDelayed"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionServiceDiagnosticContextDelayed"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionServiceDiagnosticContext"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityNames"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityNamesDelayed"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "ExchangeApplicationFlags"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "InTransitMessageCorrelator"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "PropertyExistenceTracker"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "TeeNextPayload"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "TeeVersion"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScore1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScoreDev1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/ExtractLanguage1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/KeyPhraseExtraction2.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/SubjectTermFrequency1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/TermFrequency1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/OOFDetection2.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/EmbeddedUrl1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/Subscription1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/M2HClassifier1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/SubscriptionInferred1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "ItemCurrentFolderReason"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "MessageCardExtractionDiagnosticContext"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "NetworkMessageId"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "TeeNextScenario"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "X-Message-Delivery"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "X-Message-Info"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Mailbox-Delivery"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Message-Info"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "ClientInfo"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "ConversationTreeParentRecordKey"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "IsQuotedTextChanged"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "IsReadReceipt"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "IsSigned"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "HasQuotedText"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "HeaderBodyFragmentList"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "X-Message-Info"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "acceptlanguage"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "authentication-results"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "received-spf"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-class"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-fromentityheader"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-id"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-originalarrivaltime"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authmechanism"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-originalserveripaddress"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-originalclientipaddress"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-submissionquotaskipped"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authas"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authsource"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-transport-crosstenantheadersstamped"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-dlp-detectedclassifications"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-publictraffictype"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-forefront-antispam-report"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-filtered"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-result"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-av"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-kse-antivirus-info"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-kse-antivirus-interceptor-info"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-mailer"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-microsoft-antispam"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-originating-ip"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-cr-hashedpuzzle"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-cr-puzzleid"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-transfer-encoding"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-type"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentOriginalUrl"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentWasSavedToCloud"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "DocumentProcessingCorrelationId"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "ImageNaturalHeight"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "ImageNaturalWidth"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailHeight"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailWidth"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "RecipientMailboxGuid"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "IsDeletedFromActiveDirectory"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "IsServiceAccount"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "RecipientMailboxType"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "ReasonInRecipientCache"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "HasPublicCommunicationSignals"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "AccountName"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "AbchPersonStoreId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "DisplayNameLastFirst"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "DisplayNamePriority"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "SourceId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "IsHiddenFromAddressList"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "IsFavorite"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "ContactV3InSync"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "ExternalDirectoryObjectId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "ObjectId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "DisplayNameFirstLast"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "PersonIdGuid"),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "urn:schemas-microsoft-com:office:outlook#fixupfbfolder"),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/outlook/spoofingstamp"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "IsPartiallyIndexed"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "BigFunnelCorrelationId"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "DetectedLanguage"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "LastIndexingAttemptTime"),
+                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3"), "ConversationIndexTrackingEx"),
+                     (UUID(uuidString: "4E3A7680-B77A-11D0-9DA5-00C04FD65685"), "Internet Charset Body"),
+                     (UUID(uuidString: "31805AB8-3E92-11DC-879C-00061B031004"), "GpgOL Sig Status"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "XrmContactId"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "XrmId"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "AggregatedItemLinkIds"),
+                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KeyPhrases"),
+                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KPRelevanceScoresInt32"),
+                     (UUID(uuidString: "C2FC5982-E37F-4663-92F7-F17E804779DD"), "ITEM_ID"),
+                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16"), "ITEM_ID"):
+                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
+                    s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
+                case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "TriageHeuristicsFeatureSet"):
+                    s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"TriageHeuristicsFeatureSet\"))\n"
+                case (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnail"):
+                    s += "XCTAssertNotNil(\(accessor).getProperty(set: .attachment, name: \"ImageSmallThumbnail\"))\n"
+                default:
+                    failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
+                }
+            case .numericalNamed:
+                switch (kvp.guid, kvp.lid!) {
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008580):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "internetAccountName")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008581):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "internetAccountStamp")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008506):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "`private`")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008514):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "smartNoAttach")
+                case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x0000232A),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085D7):
+                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008554):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "currentVersionName")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x0000850E):
+                    if prop.value is Data {
+                        s += "XCTAssertNil(\(accessor).agingDontAgeMe)\n"
+                    } else {
+                        s += boolAssert(value: prop.value, accessor: accessor, name: "agingDontAgeMe")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008518):
+                    if prop.value is Data {
+                        s += "XCTAssertNil(\(accessor).taskMode)\n"
+                    } else {
+                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskMode", type: TaskMode.self)
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008552):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "currentVersion")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008503):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "reminderSet")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008501):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "reminderDelta")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008510):
+                    s += optionSetAssert(value: prop.value, accessor: accessor, name: "sideEffects", type: MessageSideEffects.self)
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085BF):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "validFlagStringProof")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008582):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "useTnef")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811C):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).taskComplete)\n"
+                    } else {
+                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskComplete")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000812A):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "taskAcceptanceState", type: TaskAcceptanceState.self)
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008103):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "teamTask")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008123):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskOrdinal")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008124):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskNoCompute")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008110):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskActualEffort")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008111):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskEstimatedEffort")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000812C):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskFFixOffline")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008126):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskFRecurring")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008101):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "taskStatus", type: TaskStatus.self)
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008102):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).percentComplete)\n"
+                    } else {
+                        s += doubleAssert(value: prop.value, accessor: accessor, name: "percentComplete")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008121):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "taskAssigner")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008112):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskVersion")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008113):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "taskState", type: TaskState.self)
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008129):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "taskOwnership", type: TaskOwnership.self)
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008127):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "taskRole")
+                case (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000015):
+                    s += optionSetAssert(value: prop.value, accessor: accessor, name: "clientIntent", type: ClientIntent.self)
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008520):
+                    s += verbStreamAssert(value: prop.value, accessor: accessor, name: "verbStream")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x0000851A):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "autoProcessState", type: AutoProcessState.self)
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008524):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "verbResponse")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DF):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "weddingAnniversaryLocal")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C2):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax2AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C4):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax2OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008093):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email2EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C3):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax2EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008026):
+                    s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "fileUnderList")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008090):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email2DisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008094):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email2OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804E):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "anniversaryEventEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D2):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax3AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B4):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax1OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008025):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "autoLog")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085BD):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).referenceEntryId)\n"
+                    } else {
+                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "referenceEntryId")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B2):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax1AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008029):
+                    s += optionSetAssert(value: prop.value, accessor: accessor, name: "addressBookProviderArrayType", type: AddressBookProviderArrayType.self)
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008092):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email2AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008005):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fileUnder")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B3):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax1EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008023):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "contactCharacterSet")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804D):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "birthdayEventEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D3):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax3EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000801A):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "homeAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DA):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "homeAddressCountryCode")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DD):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "addressCountryCode")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008010):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "department")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008062):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "instantMessagingAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008007):
+                    s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "contactItemData")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C5):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "fax2OriginalEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DE):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "birthdayLocal")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008022):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "postalAddressId", type: PostalAddressId.self)
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D8):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "freeBusyLocation")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008028):
+                    s += multipleEnumAssert(value: prop.value, accessor: accessor, name: "addressBookProviderEmailList", type: AddressBookProviderEmailList.self)
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D4):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "fax3OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008006):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "fileUnderId")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008119):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskStatusOnComplete")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008539):
+                    s += multipleStringAssert(value: prop.value, accessor: accessor, name: "companies")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008502):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).reminderTime)\n"
+                    } else {
+                        s += dateAssert(value: prop.value, accessor: accessor, name: "reminderTime")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008139):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskCustomFlags")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A1):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "toDoSubOrdinal")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811F):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "taskOwner")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008560):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "reminderSignalTime")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008535):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "billing")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811B):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskUpdates")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000810F):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "taskDateCompleted")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008105):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).taskDueDate)\n"
+                    } else {
+                        s += dateAssert(value: prop.value, accessor: accessor, name: "taskDueDate")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A0):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "toDoOrdinalDate")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A0):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "toDoOrdinalDate")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008104):
+                    if prop.value is String {
+                        s += "XCTAssertNil(\(accessor).reminderTime)\n"
+                    } else {
+                        s += dateAssert(value: prop.value, accessor: accessor, name: "taskStartDate")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008516):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "commonStart")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008517):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "commonEnd")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008584):
+                    s += dataAssert(value: prop.value, accessor: accessor, name: "contactLinkSearchKey")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x0000853A):
+                    s += multipleStringAssert(value: prop.value, accessor: accessor, name: "contacts")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008243):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "organizerAlias")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008256):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposedDuration")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008218):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "responseStatus", type: ResponseStatus.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008248):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "netShowUrl")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008249):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "onlinePassword")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008242):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "directory")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008228):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "exceptionReplaceTime")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008229):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "fInvited")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008241):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "conferencingType", type: ConferencingType.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008206):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "fExceptionalBody")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008201):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentSequence")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008247):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "collaborateDoc")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008224):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "intendedBusyStatus", type: BusyStatus.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008208):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "eventLocation")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008259):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposalNumber")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008214):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "appointmentColor", type: AppointmentColor.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008207):
+                    s += optionSetAssert(value: prop.value, accessor: accessor, name: "appointmentAuxiliaryFlags", type: AppointmentAuxiliaryFlags.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008223):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "recurring")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000820E):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentEndWhole")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008236):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "clipEnd")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000820D):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentStartWhole")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008205):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "busyStatus", type: BusyStatus.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008215):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentSubType")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008235):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "clipStart")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008257):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentCounterProposal")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008213):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentDuration")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008217):
+                    s += optionSetAssert(value: prop.value, accessor: accessor, name: "appointmentStateFlags", type: AppointmentStateFlags.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825A):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentNotAllowPropose")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825E):
+                    s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionStartDisplay")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008586):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "contactLinkName")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008260):
+                    s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionRecur")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008585):
+                    s += contactLinkEntryAssert(value: prop.value, accessor: accessor, name: "contactLinkEntry")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825F):
+                    s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionEndDisplay")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008712):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "logTypeDesc")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870F):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentSaved")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870C):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "logFlags", type: LogFlags.self)
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008700):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "logType")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870E):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentPrinted")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008707):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "logDuration")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008708):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "logEnd")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008711):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentPosted")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008706):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "logStart")
+                case (CommonlyUsedPropertySet.PSETID_Log, 0x00008710):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentRouted")
+                case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B02):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteWidth")
+                case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B05):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteY")
+                case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B00):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "noteColor", type: NoteColor.self)
+                case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B04):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteX")
+                case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B03):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteHeight")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DB):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressCountryCode")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008047):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressState")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008049):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressCountry")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000801B):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008045):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressStreet")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008046):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressCity")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008048):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressPostalCode")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008040):
+                    s += businessCardDisplayDefinitionAssert(value: prop.value, accessor: accessor, name: "businessCardDisplayDefinition")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008041):
+                    s += dataAssert(value: prop.value, accessor: accessor, name: "businessCardCardPicture")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008082):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email1AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008084):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email1OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008083):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email1EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080E3):
+                    s += multipleStringAssert(value: prop.value, accessor: accessor, name: "contactLinkSMTPAddressCache")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080E0):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "isContactLinked")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080E6):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "contactLinkGlobalAddressListLinkState", type: ContactLinkGlobalAddressListLinkState.self)
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008085):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "email1OriginalEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008080):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email1DisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080E8):
+                    s += guidAssert(value: prop.value, accessor: accessor, name: "contactLinkGlobalAddressListLinkId")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080E2):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "contactLinkedGlobalAddressListEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008530):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "flagRequest")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A4):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "toDoTitle")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000023):
+                    s += globalObjectIdAssert(value: prop.value, accessor: accessor, name: "cleanGlobalObjectId")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000003):
+                    s += globalObjectIdAssert(value: prop.value, accessor: accessor, name: "globalObjectId")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008232):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "recurrencePattern")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008246):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "allowExternalCheck")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008234):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "timeZoneDescription")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008231):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "recurrenceType", type: RecurrenceType.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000823A):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "autoFillLocation")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000802B):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "businessWebPageUrl")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C8):
+                    if prop.value is Bool {
+                        s += "XCTAssertNil(\(accessor).conversationActionMaxDeliveryTime)\n"
+                    } else {
+                        s += dateAssert(value: prop.value, accessor: accessor, name: "conversationActionMaxDeliveryTime")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085B7):
+                    if prop.value is UInt32 {
+                        s += "XCTAssertNil(\(accessor).classificationDescription)\n"
+                    } else {
+                        s += stringAssert(value: prop.value, accessor: accessor, name: "classificationDescription")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085B8):
+                    if prop.value is UInt32 {
+                        s += "XCTAssertNil(\(accessor).classificationGuid)\n"
+                    } else {
+                        s += stringAssert(value: prop.value, accessor: accessor, name: "classificationGuid")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C7):
+                    if prop.value is Bool {
+                        s += "XCTAssertNil(\(accessor).conversationActionMoveStoreEid)\n"
+                    } else {
+                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "conversationActionMoveStoreEid")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085CA):
+                    if prop.value is UInt32 {
+                        s += "XCTAssertNil(\(accessor).conversationActionMoveStoreEid)\n"
+                    } else {
+                        s += dateAssert(value: prop.value, accessor: accessor, name: "conversationActionLastAppliedTime")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C9):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "conversationProcessed")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085B6):
+                    if prop.value is UInt32 {
+                        s += "XCTAssertNil(\(accessor).classification)\n"
+                    } else {
+                        s += stringAssert(value: prop.value, accessor: accessor, name: "classification")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008120):
+                    if prop.value is Date {
+                        s += "XCTAssertNil(\(accessor).taskMultipleRecipients)\n"
+                    } else {
+                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskMultipleRecipients")
+                    }
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008107):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskResetReminder")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C0):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "flagString")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008233):
+                    s += timeZoneStructAssert(value: prop.value, accessor: accessor, name: "timeZoneStruct")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x000085C0):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "flagString")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008216):
+                    s += appointmentRecurrencePatternAssert(value: prop.value, accessor: accessor, name: "appointmentRecur")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000822B):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "fExceptionalAttendees")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804C):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "distributionListChecksum")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008055):
+                    s += multipleDataAssert(value: prop.value, accessor: accessor, name: "distributionListMembers")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008053):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "distributionListName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x00008054):
+                    s += multipleDataAssert(value: prop.value, accessor: accessor, name: "distributionListOneOffMembers")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000802E):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "yomiCompanyName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000801C):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000802D):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "yomiLastName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080A3):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email3EmailAddress")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080A4):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email3OriginalDisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080A2):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email3AddressType")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x0000802C):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "yomiFirstName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080A0):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "email3DisplayName")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080A5):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "email3OriginalEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008210):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentEndTime")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000820F):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentStartTime")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008212):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentStartDate")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008211):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentEndDate")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085D8),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008534),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008596),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085B9),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008570),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008578),
+                     (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
+                     (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
+                     (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
+                     (CommonlyUsedPropertySet.PSETID_Address, 0x000080EA),
+                     (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
+                     (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200),
+                     (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F01),
+                     (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F07),
+                     (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000):
+                   s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
+                default:
+                    failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
+                }
+            }
+            
+            continue
+        }
+        
         switch prop.key {
         case PstPropertyId.tagDisplayName.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "displayName")
@@ -1185,404 +2160,265 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += dateAssert(value: prop.value, accessor: accessor, name: "endDate")
         case PropertyId.dotstuffState.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "dotstuffState")
-        default:
-            if prop.key >= 0x8000, let kvp = namedProperties?[prop.key - 0x8000] {
-                switch kvp.kind {
-                case .stringNamed:
-                    switch (kvp.guid, kvp.name) {
-                    case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "XmlExtractedMeetings"):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "extractedMeetings")
-                    case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "Keywords"):
-                        s += multipleStringAssert(value: prop.value, accessor: accessor, name: "keywords")
-                    case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinInferenceClassificationResult"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationResult"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "OriginalInferenceClassification"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "LatestMessageWordCount"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationTrackingEx"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceMessageIdentifier"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ClutterProbability"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ClutterThreshold"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ConversationContributions"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "ConversationWasFocused"),
-                         (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "TriageFeatureVector"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "CurrentMessageSafetyFlags"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "ComposeType"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityDocument"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityDocumentDelayed"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionSuccess"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionSuccessDelayed"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionServiceDiagnosticContextDelayed"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtractionServiceDiagnosticContext"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityNames"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityNamesDelayed"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "ExchangeApplicationFlags"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "InTransitMessageCorrelator"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "PropertyExistenceTracker"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "TeeNextPayload"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "TeeVersion"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScore1.0"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScoreDev1.0"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/ExtractLanguage1.0"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/KeyPhraseExtraction2.0"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "ItemCurrentFolderReason"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "MessageCardExtractionDiagnosticContext"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "NetworkMessageId"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "TeeNextScenario"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "X-Message-Delivery"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "X-Message-Info"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Mailbox-Delivery"),
-                         (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Message-Info"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "ClientInfo"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "ConversationTreeParentRecordKey"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "IsQuotedTextChanged"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "IsReadReceipt"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "IsSigned"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "HasQuotedText"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "HeaderBodyFragmentList"),
-                         (CommonlyUsedPropertySet.PSETID_Messaging, "X-Message-Info"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "acceptlanguage"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "authentication-results"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "received-spf"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-fromentityheader"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-id"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-originalarrivaltime"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authmechanism"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-originalserveripaddress"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-originalclientipaddress"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-submissionquotaskipped"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authas"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authsource"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-transport-crosstenantheadersstamped"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-publictraffictype"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-forefront-antispam-report"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-filtered"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-result"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-av"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-kse-antivirus-info"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-kse-antivirus-interceptor-info"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-mailer"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-microsoft-antispam"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-originating-ip"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-transfer-encoding"),
-                         (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-type"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentOriginalUrl"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentWasSavedToCloud"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "DocumentProcessingCorrelationId"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "ImageNaturalHeight"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "ImageNaturalWidth"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailHeight"),
-                         (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailWidth"),
-                         (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "IsPartiallyIndexed"),
-                         (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "BigFunnelCorrelationId"),
-                         (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "DetectedLanguage"),
-                         (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "LastIndexingAttemptTime"),
-                         (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3"), "ConversationIndexTrackingEx"),
-                         (UUID(uuidString: "4E3A7680-B77A-11D0-9DA5-00C04FD65685"), "Internet Charset Body"),
-                         (UUID(uuidString: "31805AB8-3E92-11DC-879C-00061B031004"), "GpgOL Sig Status"):
-                        s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
-                    case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
-                        s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
-                    case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "TriageHeuristicsFeatureSet"):
-                        s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"TriageHeuristicsFeatureSet\"))\n"
-                    case (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnail"):
-                        s += "XCTAssertNotNil(\(accessor).getProperty(set: .attachment, name: \"ImageSmallThumbnail\"))\n"
-                    default:
-                        fatalError("UNKNOWN: \(kvp)")
-                    }
-                case .numericalNamed:
-                    switch (kvp.guid, kvp.lid!) {
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008580):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "internetAccountName")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008581):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "internetAccountStamp")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008506):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "`private`")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008514):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "smartNoAttach")
-                    case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x0000232A),
-                         (CommonlyUsedPropertySet.PSETID_Common, 0x000085D7):
-                        s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008554):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "currentVersionName")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x0000850E):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "agingDontAgeMe")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008518):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskMode", type: TaskMode.self)
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008552):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "currentVersion")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008503):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "reminderSet")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008501):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "reminderDelta")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008510):
-                        s += optionSetAssert(value: prop.value, accessor: accessor, name: "sideEffects", type: MessageSideEffects.self)
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085BF):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "validFlagStringProof")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008582):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "useTnef")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811C):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskComplete")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000812A):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskAcceptanceState", type: TaskAcceptanceState.self)
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008103):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "teamTask")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008123):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskOrdinal")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008124):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskNoCompute")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008110):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskActualEffort")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008111):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskEstimatedEffort")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000812C):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskFFixOffline")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008126):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskFRecurring")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008101):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskStatus", type: TaskStatus.self)
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008102):
-                        s += doubleAssert(value: prop.value, accessor: accessor, name: "percentComplete")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008121):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "taskAssigner")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008112):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskVersion")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008113):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskState", type: TaskState.self)
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008129):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "taskOwnership", type: TaskOwnership.self)
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008127):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "taskRole")
-                    case (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000015):
-                        s += optionSetAssert(value: prop.value, accessor: accessor, name: "clientIntent", type: ClientIntent.self)
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008520):
-                        s += verbStreamAssert(value: prop.value, accessor: accessor, name: "verbStream")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x0000851A):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "autoProcessState", type: AutoProcessState.self)
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008524):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "verbResponse")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DF):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "weddingAnniversaryLocal")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C2):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax2AddressType")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C4):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax2OriginalDisplayName")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008093):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "email2EmailAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C3):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax2EmailAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008026):
-                        s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "fileUnderList")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008090):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "email2DisplayName")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008094):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "email2OriginalDisplayName")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804E):
-                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "anniversaryEventEntryId")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D2):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax3AddressType")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B4):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax1OriginalDisplayName")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008025):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "autoLog")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085BD):
-                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "referenceEntryId")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B2):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax1AddressType")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008029):
-                        s += optionSetAssert(value: prop.value, accessor: accessor, name: "addressBookProviderArrayType", type: AddressBookProviderArrayType.self)
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008092):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "email2AddressType")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008005):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fileUnder")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B3):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax1EmailAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008023):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "contactCharacterSet")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804D):
-                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "birthdayEventEntryId")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D3):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax3EmailAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x0000801A):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "homeAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DA):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "homeAddressCountryCode")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DD):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "addressCountryCode")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008010):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "department")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008062):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "instantMessagingAddress")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008007):
-                        s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "contactItemData")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C5):
-                        s += entryIdAssert(value: prop.value, accessor: accessor, name: "fax2OriginalEntryId")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DE):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "birthdayLocal")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008022):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "postalAddressId", type: PostalAddressId.self)
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D8):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "freeBusyLocation")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008028):
-                        s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "addressBookProviderEmailList")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D4):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "fax3OriginalDisplayName")
-                    case (CommonlyUsedPropertySet.PSETID_Address, 0x00008006):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "fileUnderId")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008119):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskStatusOnComplete")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008539):
-                        s += multipleStringAssert(value: prop.value, accessor: accessor, name: "companies")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008502):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "reminderTime")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008139):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskCustomFlags")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A1):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "toDoSubOrdinal")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811F):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "taskOwner")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008560):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "reminderSignalTime")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008535):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "billing")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811B):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "taskUpdates")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x0000810F):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "taskDateCompleted")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008105):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "taskDueDate")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A0):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "toDoOrdinalDate")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A0):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "toDoOrdinalDate")
-                    case (CommonlyUsedPropertySet.PSETID_Task, 0x00008104):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "taskStartDate")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008516):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "commonStart")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008517):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "commonEnd")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008584):
-                        s += dataAssert(value: prop.value, accessor: accessor, name: "contactLinkSearchKey")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x0000853A):
-                        s += multipleStringAssert(value: prop.value, accessor: accessor, name: "contacts")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008243):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "organizerAlias")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008256):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposedDuration")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008218):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "responseStatus", type: ResponseStatus.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008248):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "netShowUrl")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008249):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "onlinePassword")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008242):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "directory")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008228):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "exceptionReplaceTime")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008229):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "fInvited")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008241):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "conferencingType", type: ConferencingType.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008206):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "fExceptionalBody")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008201):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentSequence")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008247):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "collaborateDoc")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008224):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "intendedBusyStatus", type: BusyStatus.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008208):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "eventLocation")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008259):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposalNumber")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008214):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "appointmentColor", type: AppointmentColor.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008207):
-                        s += optionSetAssert(value: prop.value, accessor: accessor, name: "appointmentAuxiliaryFlags", type: AppointmentAuxiliaryFlags.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008223):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "recurring")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000820E):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentEndWhole")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008236):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "clipEnd")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000820D):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentStartWhole")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008205):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "busyStatus", type: BusyStatus.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008215):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentSubType")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008235):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "clipStart")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008257):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentCounterProposal")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008213):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentDuration")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008217):
-                        s += optionSetAssert(value: prop.value, accessor: accessor, name: "appointmentStateFlags", type: AppointmentStateFlags.self)
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825A):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentNotAllowPropose")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825E):
-                        s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionStartDisplay")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008586):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "contactLinkName")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008260):
-                        s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionRecur")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x00008585):
-                        s += contactLinkEntryAssert(value: prop.value, accessor: accessor, name: "contactLinkEntry")
-                    case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825F):
-                        s += appointmentTimeZoneDefinitionAssert(value: prop.value, accessor: accessor, name: "appointmentTimeZoneDefinitionEndDisplay")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008712):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "logTypeDesc")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870F):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentSaved")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870C):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "logFlags", type: LogFlags.self)
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008700):
-                        s += stringAssert(value: prop.value, accessor: accessor, name: "logType")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870E):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentPrinted")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008707):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "logDuration")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008708):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "logEnd")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008711):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentPosted")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008706):
-                        s += dateAssert(value: prop.value, accessor: accessor, name: "logStart")
-                    case (CommonlyUsedPropertySet.PSETID_Log, 0x00008710):
-                        s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentRouted")
-                    case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B02):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "noteWidth")
-                    case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B05):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "noteY")
-                    case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B00):
-                        s += enumAssert(value: prop.value, accessor: accessor, name: "noteColor", type: NoteColor.self)
-                    case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B04):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "noteX")
-                    case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B03):
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "noteHeight")
-                    case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
-                         (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
-                         (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
-                         (CommonlyUsedPropertySet.PSETID_Common, 0x000085D8),
-                         (CommonlyUsedPropertySet.PSETID_Common, 0x00008534),
-                         (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
-                         (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
-                         (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
-                         (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
-                         (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200):
-                       s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
-                    default:
-                        print("UNKNOWN: \(kvp)")
-                    }
-                }
-            } else if let propId = PstPropertyId(rawValue: prop.key) {
-                print("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
-            } else if let propId = PropertyId(rawValue: prop.key) {
-                print("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
+        case PropertyId.unknown0x3D16.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3D16")
+        case PropertyId.unknown0x36F8.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36F8")
+        case PropertyId.unknown0x3D15.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3D15")
+        case PropertyId.unknown0x36F7.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36F7")
+        case PropertyId.PR_ATTACHMENT_X400_PARAMETERS.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ATTACHMENT_X400_PARAMETERS")
+        case PropertyId.unknown0x3A76.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3A76")
+        case PropertyId.unknown0x3A7B.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3A7B")
+        case PropertyId.tagFlagCompleteTime.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "flagCompleteTime")
+        case PropertyId.unknown0x34C8.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x34C8")
+        case PropertyId.unknown0x3D14.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3D14")
+        case PropertyId.unknown0x6873.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6873")
+        case PropertyId.unknown0x36F4.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36F4")
+        case PropertyId.PR_FOLDER_XVIEWINFO_E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_FOLDER_XVIEWINFO_E")
+        case PropertyId.tagIpmContactEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmContactEntryId")
+        case PropertyId.tagIpmAppointmentEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmAppointmentEntryId")
+        case PropertyId.tagIpmJournalEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmJournalEntryId")
+        case PropertyId.tagIpmTaskEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmTaskEntryId")
+        case PropertyId.tagRemindersOnlineEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagRemindersOnlineEntryId")
+        case PropertyId.tagIpmNoteEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmNoteEntryId")
+        case PropertyId.tagFreeBusyEntryIds.rawValue:
+            s += multipleDataAssert(value: prop.value, accessor: accessor, name: "tagFreeBusyEntryIds")
+        case PropertyId.tagReplChangenum.rawValue:
+            s += int64Assert(value: prop.value, accessor: accessor, name: "replChangenum")
+        case PropertyId.tagFreeBusyCountMonths.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "freeBusyCountMonths")
+        case PropertyId.tagReplItemid.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "replItemid")
+        case PropertyId.tagReplVersionHistory.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "replVersionHistory")
+        case PropertyId.tagScheduleInfoAppointmentTombstone.rawValue:
+            s += scheduleInfoAppointmentTombstoneAssert(value: prop.value, accessor: accessor, name: "scheduleInfoAppointmentTombstone")
+        case PropertyId.tagExtendedFolderFlags.rawValue:
+            s += extendedFolderFlagsAssert(value: prop.value, accessor: accessor, name: "extendedFolderFlags")
+        case PropertyId.tagBusinessHomePage.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "businessHomePage")
+        case PropertyId.PR_FOLDER_VIEWLIST.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_FOLDER_VIEWLIST")
+        case PropertyId.PR_ORG_EMAIL_ADDR.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORG_EMAIL_ADDR")
+        case PropertyId.tagContactAddressBookFolderEntryId.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagContactAddressBookFolderEntryId")
+        case PropertyId.PR_PROFILE_CONNECT_FLAGS.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_PROFILE_CONNECT_FLAGS")
+        case PropertyId.tagReplFlags.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "replFlags")
+        case PropertyId.tagRecipientNumber.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "recipientNumber")
+        case PropertyId.unknown0x815A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815A")
+        case PropertyId.unknown0x815B.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815B")
+        case PropertyId.unknown0x815C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815C")
+        case PropertyId.unknown0x815E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815E")
+        case PropertyId.unknown0x815F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815F")
+        case PropertyId.unknown0x80B6.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B6")
+        case PropertyId.unknown0x8167.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8167")
+        case PropertyId.unknown0x816C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x816C")
+        case PropertyId.unknown0x816F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x816F")
+        case PropertyId.unknown0x80BC.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80BC")
+        case PropertyId.unknown0x817A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x817A")
+        case PropertyId.unknown0x815D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815D")
+        case PropertyId.unknown0x8157.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8157")
+        case PropertyId.unknown0x80F3.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80F3")
+        case PropertyId.unknown0x816D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x816D")
+        case PropertyId.unknown0x80B9.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B9")
+        case PropertyId.unknown0x80B4.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B4")
+        case PropertyId.unknown0x8101.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8101")
+        case PropertyId.unknown0x8171.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8171")
+        case PropertyId.unknown0x80B7.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B7")
+        case PropertyId.unknown0x80B5.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B5")
+        case PropertyId.unknown0x817B.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x817B")
+        case PropertyId.unknown0x810E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x810E")
+        case PropertyId.unknown0x8116.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8116")
+        case PropertyId.unknown0x8131.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8131")
+        case PropertyId.unknown0x810C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x810C")
+        case PropertyId.unknown0x8122.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8122")
+        case PropertyId.unknown0x80F1.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80F1")
+        case PropertyId.unknown0x810D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x810D")
+        case PropertyId.unknown0x810F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x810F")
+        case PropertyId.unknown0x8138.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8138")
+        case PropertyId.unknown0x813F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x813F")
+        case PropertyId.unknown0x8110.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8110")
+        case PropertyId.unknown0x8127.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8127")
+        case PropertyId.unknown0x8125.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8125")
+        case PropertyId.unknown0x80DF.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80DF")
+        case PropertyId.unknown0x80B1.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B1")
+        case PropertyId.unknown0x80B0.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80B0")
+        case PropertyId.unknown0x80FB.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80FB")
+        case PropertyId.unknown0x80D2.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80D2")
+        case PropertyId.unknown0x80DE.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80DE")
+        case PropertyId.unknown0x7202.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7202")
+        case PropertyId.unknown0x7206.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7206")
+        case PropertyId.unknown0x7203.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7203")
+        case PropertyId.unknown0x7201.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7201")
+        case PropertyId.tagStoreProvider.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagStoreProvider")
+        case PropertyId.unknown0x80A9.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80A9")
+        case PropertyId.unknown0x80A8.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80A8")
+        case PropertyId.unknown0x80A7.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x80A7")
+        case PropertyId.tagOriginalDisplayTo.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalDisplayTo")
+        case PropertyId.tagOriginalDisplayCc.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalDisplayCc")
+        case PropertyId.tagOriginalDisplayBcc.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalDisplayBcc")
+        case PropertyId.tagAttachPathname.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "attachPathname")
+        case PropertyId.tagPrimaryTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "primaryTelephoneNumber")
+        case PropertyId.tagGender.rawValue:
+            s += enumAssert(value: prop.value, accessor: accessor, name: "gender", type: Gender.self)
+        case PropertyId.tagPersonalHomePage.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "personalHomePage")
+        case PropertyId.tagMessageSubmissionId.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "messageSubmissionId")
+        case PropertyId.unknown0x3015.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3015")
+        case PropertyId.unknown0x6A1D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A1D")
+        case PropertyId.unknown0x6A17.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A17")
+        case PropertyId.unknown0x6A19.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A19")
+        case PropertyId.unknown0x6A18.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A18")
+        case PropertyId.unknown0x6A15.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A15")
+        case PropertyId.unknown0x6A16.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A16")
+        case PropertyId.unknown0x6A1A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6A1A")
+        case PropertyId.unknown0x6915.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6915")
+        case PropertyId.unknown0x6912.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6912")
+        case PropertyId.tagOtherAddressPostalCode.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressPostalCode")
+        case PropertyId.tagCustomerId.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "customerId")
+        case PropertyId.tagPagerTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "pagerTelephoneNumber")
+        case PropertyId.tagGovernmentIdNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "governmentIdNumber")
+        case PropertyId.tagOtherAddressStateOrProvince.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressStateOrProvince")
+        case PropertyId.tagAssistantTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "assistantTelephoneNumber")
+        case PropertyId.tagOtherAddressCountry.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressCountry")
+        case PropertyId.tagOtherAddressCity.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressCity")
+        case PropertyId.tagCarTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "carTelephoneNumber")
+        case PropertyId.tagRadioTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "radioTelephoneNumber")
+        case PropertyId.tagHome2TelephoneNumberOrTagHome2TelephoneNumbers.rawValue:
+            if prop.value is [String] {
+                s += multipleStringAssert(value: prop.value, accessor: accessor, name: "home2TelephoneNumbers")
             } else {
-                fatalError("UNKNOWN \(prop.key.hexString), value: \(String(describing: prop.value))")
+                s += stringAssert(value: prop.value, accessor: accessor, name: "home2TelephoneNumber")
+            }
+        case PropertyId.tagBusiness2TelephoneNumberOrTagBusiness2TelephoneNumbers.rawValue:
+            if prop.value is [String] {
+                s += multipleStringAssert(value: prop.value, accessor: accessor, name: "business2TelephoneNumbers")
+            } else {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "business2TelephoneNumber")
+            }
+        case PropertyId.tagOtherAddressStreet.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressStreet")
+        case PropertyId.tagCompanyMainTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "companyMainTelephoneNumber")
+        case PropertyId.tagHomeFaxNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "homeFaxNumber")
+        case PropertyId.unknown0x6B20.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6B20")
+        case PropertyId.unknown0x6B21.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6B21")
+        case PropertyId.tagInternetOrganization.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "internetOrganization")
+        case PropertyId.tagListUnsubscribe.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "listUnsubscribe")
+        default:
+            if let propId = PstPropertyId(rawValue: prop.key) {
+                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
+            } else if let propId = PropertyId(rawValue: prop.key) {
+                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
+            } else {
+                failures.append("UNKNOWN!!: \(prop.key.hexString), value: \(String(describing: prop.value))")
             }
         }
+    }
+    
+    if failures.count > 0 {
+        fatalError("\n" + failures.joined(separator: "\n") + "\n")
     }
 
     s += "\n"
