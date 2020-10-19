@@ -920,6 +920,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     } else {
                         s += multipleStringAssert(value: prop.value, accessor: accessor, name: "keywords")
                     }
+                case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/exchange/junkemailmovestamp"):
+                    s += int32Assert(value: prop.value, accessor: accessor, name: "exchangeJunkEmailMoveStamp")
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinInferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "OriginalInferenceClassification"),
@@ -1000,6 +1002,14 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-originating-ip"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-cr-hashedpuzzle"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-cr-puzzleid"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sid-result"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-originalarrivaltime"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-rim-org-msg-ref-id"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-message-delivery"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sid-pra"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-message-info"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-message-status"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sender"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-transfer-encoding"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-type"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentOriginalUrl"),
@@ -2406,6 +2416,46 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += stringAssert(value: prop.value, accessor: accessor, name: "internetOrganization")
         case PropertyId.tagListUnsubscribe.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "listUnsubscribe")
+        case PropertyId.unknown0x68AC.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68AC")
+        case PropertyId.unknown0x68C8.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68C8")
+        case PropertyId.unknown0x68AD.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68AD")
+        case PropertyId.unknown0x68CE.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68CE")
+        case PropertyId.tagDefaultViewEntryId.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagDefaultViewEntryId")
+        case PropertyId.unknown0x68B1.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68B1")
+        case PropertyId.unknown0x688C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x688C")
+        case PropertyId.unknown0x6814.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6814")
+        case PropertyId.tagBlockStatus.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "blockStatus")
+        case PropertyId.tagOfflineAddressBookTruncatedPropertiesOrTagVoiceMessageAttachmentOrder.rawValue:
+            if prop.value is [UInt32] {
+                s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "offlineAddressBookTruncatedProperties")
+            } else if prop.value is String {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "voiceMessageAttachmentOrder")
+            } else {
+                s += "XCTAssertNil(\(accessor).offlineAddressBookTruncatedProperties)\n"
+            }
+        case PropertyId.tagScheduleInfoFreeBusyBusyOrTagWlinkAddressBookEID.rawValue:
+            if prop.value is [Data] {
+                s += multipleDataAssert(value: prop.value, accessor: accessor, name: "scheduleInfoFreeBusyBusy")
+            } else if prop.value is Data {
+                s += entryIdAssert(value: prop.value, accessor: accessor, name: "wlinkAddressBookEID")
+            } else {
+                s += "XCTAssertNil(\(accessor).scheduleInfoFreeBusyBusy)\n"
+            }
+        case PropertyId.unknown0x68A1.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68A1")
+        case PropertyId.unknown0x68C7.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68C7")
+        case PropertyId.unknown0x689E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x689E")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

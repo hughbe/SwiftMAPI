@@ -37,7 +37,7 @@ public extension MessageStorage {
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
     /// The PidNameExchangeJunkEmailMoveStamp property ([MS-OXCSPAM] section 2.2.1.2) MUST be
     /// set on all RSS objects.
-    var exchangeJunkEmailMoveStamp: Data? {
+    var exchangeJunkEmailMoveStamp: UInt32? {
         return getProperty(name: .nameExchangeJunkEmailMoveStamp)
     }
     

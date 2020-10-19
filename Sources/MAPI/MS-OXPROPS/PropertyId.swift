@@ -7852,6 +7852,12 @@ public enum PropertyId: UInt16 {
     case unknown0x680E = 0x680E
 
     // case unknown0x680F = 0x680F
+    
+    // case unknown0x6813 = 0x6813
+    
+    case unknown0x6814 = 0x6814
+    
+    // case unknown0x6815 = 0x6815
 
     /// [MS-OXPROPS] 2.923 PidTagReportingMessageTransferAgent
     /// Canonical name: PidTagReportingMessageTransferAgent
@@ -8408,6 +8414,14 @@ public enum PropertyId: UInt16 {
     case unknown0x6873 = 0x6873
     
     // case unknown0x6874 = 0x6874
+    
+    // case unknown0x688B = 0x688B
+    
+    case unknown0x688C = 0x688C
+    
+    // case unknown0x688D = 0x688D
+    
+    // case unknown0x688E = 0x688E
 
     // case unknown0x688F = 0x688F
 
@@ -8445,11 +8459,65 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x6893 = 0x6893
     
+    // case unknown0x689D = 0x689D
+    
+    case unknown0x689E = 0x689E
+    
+    // case unknown0x689F = 0x689F
+    
+    // case unknown0x68A0 = 0x68A0
+    
+    case unknown0x68A1 = 0x68A1
+    
+    // case unknown0x68A2 = 0x68A2
+    
+    // case unknown0x68A3 = 0x68A3
+    
+    // case unknown0x68A4 = 0x68A4
+    
+    // case unknown0x68A5 = 0x68A5
+    
+    // case unknown0x68A6 = 0x68A6
+    
+    // case unknown0x68A7 = 0x68A7
+    
+    case unknown0x68A8 = 0x68A8
+    
+    // case unknown0x68A9 = 0x68A9
+    
+    // case unknown0x68AA = 0x68AA
+    
+    // case unknown0x68AB = 0x68AB
+    
+    case unknown0x68AC = 0x68AC
+    
+    case unknown0x68AD = 0x68AD
+    
+    // case unknown0x68AE = 0x68AE
+    
+    // case unknown0x68B0 = 0x68B0
+    
+    case unknown0x68B1 = 0x68B1
+    
+    // case unknown0x68B2 = 0x68B2
+
+    // case unknown0x68C6 = 0x68C6
+    
+    case unknown0x68C7 = 0x68C7
+    
+    case unknown0x68C8 = 0x68C8
+    
+    // case unknown0x68C9 = 0x68C9
+    
     // case unknown0x68CA = 0x68CA
 
     case unknown0x68CB = 0x68CB
     
     // case unknown0x68CC = 0x68CC
+    
+    // case unknown0x68CD = 0x68CD
+    
+    case unknown0x68CE = 0x68CE
 
     // case unknown0x68FF = 0x68FF
 
