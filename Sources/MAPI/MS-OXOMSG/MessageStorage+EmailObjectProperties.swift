@@ -1254,7 +1254,7 @@ public extension MessageStorage {
     /// 0x00000010 Suppress Out of Office (OOF) messages.
     /// 0x00000020 Suppress all auto-reply messages other than OOF
     /// notifications.
-    var autoResponseSuppress: UInt32? {
+    var autoResponseSuppress: Int32? {
         return getProperty(id: .tagAutoResponseSuppress)
     }
 
@@ -1532,8 +1532,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagReportEntryId property ([MS-OXPROPS] section 2.916) is an optional property that can
     /// appear on a report message. This property contains an address book EntryID, as specified in [MSOXCDATA] section 2.2.5.2, that represents the application that generated the report message.
-    var reportEntryId: Data? {
-        return getProperty(id: .tagReportEntryId)
+    var reportEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagReportEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.2.20 PidTagReportName Property

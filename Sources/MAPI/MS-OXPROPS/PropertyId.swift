@@ -2854,7 +2854,11 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x10F7 = 0x10F7
 
-    // case unknown0x1206 = 0x1206
+    // case unknown0x1204 = 0x1204
+    
+    case unknown0x1205 = 0x1205
+    
+    case unknown0x1206 = 0x1206
     
     case unknown0x1207 = 0x1207
     
@@ -5415,8 +5419,7 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_LAST_MODIFIER_ENTRYID, ptagLastModifierEntryId
     case tagLastModifierEntryId = 0x3FFB
 
-
-    // case unknown0x3FFC = 0x3FFC
+    case PR_REPLY_RECIPIENT_SMTP_PROXIES = 0x3FFC
 
     /// [MS-OXPROPS] 2.788 PidTagMessageCodepage
     /// Canonical name: PidTagMessageCodepage
@@ -5713,11 +5716,11 @@ public enum PropertyId: UInt16 {
 
     case unknown0x4025 = 0x4025
 
-    // case unknown0x4026 = 0x4026
+    case unknown0x4026 = 0x4026
 
-    // case unknown0x4027 = 0x4027
+    case unknown0x4027 = 0x4027
 
-    // case unknown0x4028 = 0x4028
+    case unknown0x4028 = 0x4028
 
     /// [MS-OXPROPS] 2.879 PidTagReadReceiptAddressType
     /// Canonical name: PidTagReadReceiptAddressType
@@ -5811,9 +5814,9 @@ public enum PropertyId: UInt16 {
 
     case unknown0x4035 = 0x4035
 
-    // case unknown0x4036 = 0x4036
+    case unknown0x4036 = 0x4036
 
-    // case unknown0x4037 = 0x4037
+    case unknown0x4037 = 0x4037
 
     /// [MS-OXPROPS] 2.732 PidTagCreatorSimpleDisplayName
     /// Canonical name: PidTagCreatorSimpleDisplayName
@@ -5862,12 +5865,34 @@ public enum PropertyId: UInt16 {
     case PR_ORG_EMAIL_ADDR = 0x403E
     
     // case unknown0x403F = 0x403F
+    
+    // case unknown0x4058 = 0x4058
 
     /// Not documented in specification - known on internet
-    case creatorFlag = 0x4059
+    case PR_CREATOR_FLAG = 0x4059
 
     /// Not documented in specification - known on internet
-    case modifierFlag = 0x405A
+    case PR_MODIFIER_FLAG = 0x405A
+    
+    // case unknown0x405B = 0x405B
+    
+    // case unknown0x405C = 0x405C
+    
+    // case unknown0x405D = 0x405D
+    
+    case unknown0x405E = 0x405E
+    
+    case unknown0x405F = 0x405F
+    
+    case unknown0x4060 = 0x4060
+    
+    // case unknown0x4061 = 0x4061
+    
+    case unknown0x4062 = 0x4062
+    
+    case unknown0x4063 = 0x4063
+    
+    // case unknown0x4064 = 0x4064
 
     // case unknown0x4073 = 0x4073
 
@@ -6307,6 +6332,12 @@ public enum PropertyId: UInt16 {
     case tagMimeSkeleton = 0x64F0
 
     // case unknown0x64F1 = 0x64F1
+    
+    // case unknown0x653F = 0x653F
+    
+    case unknown0x6540 = 0x6540
+    
+    // case unknown0x6541 = 0x6541
 
     // case unknown0x65C1 = 0x65C1
 
@@ -6899,6 +6930,16 @@ public enum PropertyId: UInt16 {
     case tagRuleFolderEntryId = 0x6651
 
     // case unknown0x6652 = 0x6652
+    
+    // case unknown0x6653 = 0x6653
+    
+    // case unknown0x6654 = 0x6654
+    
+    case unknown0x6655 = 0x6655
+    
+    case unknown0x6656 = 0x6656
+    
+    // case unknown0x6657 = 0x6657
     
     // case unknown0x6661 = 0x6661
     
@@ -9553,6 +9594,12 @@ public enum PropertyId: UInt16 {
     case unknown0x81C2 = 0x81C2
     
     // case unknown0x81C3 = 0x81C3
+    
+    // case unknown0x8A5B = 0x8A5B
+    
+    case unknown0x8A5C = 0x8A5C
+    
+    // case unknown0x8A5D = 0x8A5D
 
     // case unknown0x8C69 = 0x8C69
 

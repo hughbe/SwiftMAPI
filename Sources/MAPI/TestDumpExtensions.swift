@@ -84,7 +84,12 @@ private func int16Assert(value: Any?, accessor: String, name: String, hexString:
     return "XCTAssertEqual(\(actual), \(accessor).\(name)!)\n"
 }
 
-private func int32Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
+private func multipleInt16Assert(value: Any?, accessor: String, name: String) -> String {
+    let actual = value! as! [UInt16]
+    return "XCTAssertEqual([\(actual.map { $0.hexString }.joined(separator: ", "))], \(accessor).\(name)!)\n"
+}
+
+private func uint32Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
     let actual = value! as! UInt32
     if hexString {
         return "XCTAssertEqual(\(actual.hexString), \(accessor).\(name)!)\n"
@@ -93,9 +98,14 @@ private func int32Assert(value: Any?, accessor: String, name: String, hexString:
     return "XCTAssertEqual(\(actual), \(accessor).\(name)!)\n"
 }
 
-private func multipleInt32Assert(value: Any?, accessor: String, name: String) -> String {
+private func multipleUInt32Assert(value: Any?, accessor: String, name: String) -> String {
     let actual = value! as! [UInt32]
     return "XCTAssertEqual([\(actual.map { $0.hexString }.joined(separator: ", "))], \(accessor).\(name)!)\n"
+}
+
+private func int32Assert(value: Any?, accessor: String, name: String) -> String {
+    let actual = Int32(bitPattern: value! as! UInt32)
+    return "XCTAssertEqual(\(actual), \(accessor).\(name)!)\n"
 }
 
 private func int64Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
@@ -812,7 +822,7 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
     } else if type(of: value) == UInt16.self {
         return int16Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt16?)")
     } else if type(of: value) == UInt32.self {
-        return int32Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt32?)")
+        return uint32Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt32?)")
     } else if type(of: value) == UInt64.self {
         return int64Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt64?)")
     } else if type(of: value) == Data.self {
@@ -826,7 +836,9 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
     } else if type(of: value) == [String].self {
         return multipleStringAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [String]?)")
     } else if type(of: value) == [UInt32].self {
-        return multipleInt32Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt32]?)")
+        return multipleUInt32Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt32]?)")
+    } else if type(of: value) == [UInt16].self {
+        return multipleInt16Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt32]?)")
     } else if type(of: value) == UInt64.self {
         return int64Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt64?)")
     } else if type(of: value) == Double.self {
@@ -942,7 +954,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                         s += multipleStringAssert(value: prop.value, accessor: accessor, name: "keywords")
                     }
                 case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/exchange/junkemailmovestamp"):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "exchangeJunkEmailMoveStamp")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "exchangeJunkEmailMoveStamp")
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinInferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "OriginalInferenceClassification"),
@@ -969,6 +981,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, "PropertyExistenceTracker"),
                      (CommonlyUsedPropertySet.PSETID_Common, "TeeNextPayload"),
                      (CommonlyUsedPropertySet.PSETID_Common, "TeeVersion"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "DirectDeliveryRequestor"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "TeeInferResult"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "ItemExchangeDiagnostics"),
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScore1.0"),
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/IRankerScoreDev1.0"),
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/ExtractLanguage1.0"),
@@ -988,6 +1003,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, "X-Message-Info"),
                      (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Mailbox-Delivery"),
                      (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Message-Info"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "MY_NAMED_PROPERTY_NUMBER_2"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "ClientInfo"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "ConversationTreeParentRecordKey"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "IsQuotedTextChanged"),
@@ -1011,7 +1027,32 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-authsource"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-transport-crosstenantheadersstamped"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-dlp-detectedclassifications"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-transport-endtoendlatency"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-traffictypediagnostic"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-network-message-id"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-has-attach"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-publictraffictype"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-gmx-html"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-gmx-bulk"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-bounce-key"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-bbexpires"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-gmx-antivirus"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-provags-id"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-gmx-antispam"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-authenticated"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-mimeole"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-amazon-rte-version"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-amazon-mail-relay-type"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-beenthere"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-headers-end"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-report"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-mailman-version"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-flag"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-score"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-level"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-scanned-by"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-scan-signature"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-scan-result"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-forefront-antispam-report"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-filtered"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ironport-anti-spam-result"),
@@ -1031,8 +1072,16 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-message-info"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-message-status"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sender"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sa-exim-version"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sa-exim-scanned"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-status"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-virus-scanned"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-spam-checker-version"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sa-exim-connect-ip"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-sa-exim-mail-from"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-transfer-encoding"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-type"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "probing_ps_internet_headers"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentOriginalUrl"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentWasSavedToCloud"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "DocumentProcessingCorrelationId"),
@@ -1040,6 +1089,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Attachment, "ImageNaturalWidth"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailHeight"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "ImageSmallThumbnailWidth"),
+                     (CommonlyUsedPropertySet.PSETID_Attachment, "ImageThumbnailError"),
                      (CommonlyUsedPropertySet.PSETID_Address, "RecipientMailboxGuid"),
                      (CommonlyUsedPropertySet.PSETID_Address, "IsDeletedFromActiveDirectory"),
                      (CommonlyUsedPropertySet.PSETID_Address, "IsServiceAccount"),
@@ -1058,8 +1108,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Address, "ObjectId"),
                      (CommonlyUsedPropertySet.PSETID_Address, "DisplayNameFirstLast"),
                      (CommonlyUsedPropertySet.PSETID_Address, "PersonIdGuid"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "SenderRelevanceScore"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "urn:schemas-microsoft-com:office:outlook#fixupfbfolder"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/outlook/spoofingstamp"),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "MY_NAMED_PROPERTY"),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "MY_NAMED_PROPERTY_NUMBER_2"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "IsPartiallyIndexed"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "BigFunnelCorrelationId"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "DetectedLanguage"),
@@ -1073,7 +1126,12 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KeyPhrases"),
                      (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KPRelevanceScoresInt32"),
                      (UUID(uuidString: "C2FC5982-E37F-4663-92F7-F17E804779DD"), "ITEM_ID"),
-                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16"), "ITEM_ID"):
+                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16"), "ITEM_ID"),
+                     (UUID(uuidString: "9B5093E0-5734-4A7F-B88F-B4D0220B5ADA"), "THIS_WAS_A_COMPLETELY_DIFFERENT_ONE"),
+                     (UUID(uuidString: "66666666-6666-6666-C000-000000000046"), "Name4"),
+                     (UUID(uuidString: "55555555-5555-5555-C000-000000000046"), "Name4"),
+                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceEntryID"),
+                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceLastModifiedTimestamp"):
                     s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
                     s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
@@ -1112,11 +1170,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                         s += enumAssert(value: prop.value, accessor: accessor, name: "taskMode", type: TaskMode.self)
                     }
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008552):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "currentVersion")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "currentVersion")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008503):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "reminderSet")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008501):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "reminderDelta")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "reminderDelta")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008510):
                     s += optionSetAssert(value: prop.value, accessor: accessor, name: "sideEffects", type: MessageSideEffects.self)
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085BF):
@@ -1134,13 +1192,13 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008103):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "teamTask")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008123):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskOrdinal")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "taskOrdinal")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008124):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "taskNoCompute")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008110):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskActualEffort")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "taskActualEffort")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008111):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskEstimatedEffort")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "taskEstimatedEffort")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x0000812C):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "taskFFixOffline")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008126):
@@ -1156,7 +1214,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008121):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "taskAssigner")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008112):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskVersion")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "taskVersion")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008113):
                     s += enumAssert(value: prop.value, accessor: accessor, name: "taskState", type: TaskState.self)
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008129):
@@ -1182,7 +1240,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C3):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "fax2EmailAddress")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008026):
-                    s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "fileUnderList")
+                    s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "fileUnderList")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008090):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "email2DisplayName")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008094):
@@ -1212,7 +1270,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080B3):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "fax1EmailAddress")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008023):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "contactCharacterSet")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "contactCharacterSet")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804D):
                     s += entryIdAssert(value: prop.value, accessor: accessor, name: "birthdayEventEntryId")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D3):
@@ -1228,7 +1286,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008062):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "instantMessagingAddress")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008007):
-                    s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "contactItemData")
+                    s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "contactItemData")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080C5):
                     s += entryIdAssert(value: prop.value, accessor: accessor, name: "fax2OriginalEntryId")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DE):
@@ -1242,7 +1300,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080D4):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "fax3OriginalDisplayName")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008006):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "fileUnderId")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "fileUnderId")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008119):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "taskStatusOnComplete")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008539):
@@ -1254,7 +1312,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                         s += dateAssert(value: prop.value, accessor: accessor, name: "reminderTime")
                     }
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008139):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskCustomFlags")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "taskCustomFlags")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085A1):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "toDoSubOrdinal")
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811F):
@@ -1294,7 +1352,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008243):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "organizerAlias")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008256):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposedDuration")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentProposedDuration")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008218):
                     s += enumAssert(value: prop.value, accessor: accessor, name: "responseStatus", type: ResponseStatus.self)
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008248):
@@ -1312,7 +1370,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008206):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "fExceptionalBody")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008201):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentSequence")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentSequence")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008247):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "collaborateDoc")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008224):
@@ -1320,7 +1378,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008208):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "eventLocation")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008259):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentProposalNumber")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentProposalNumber")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008214):
                     s += enumAssert(value: prop.value, accessor: accessor, name: "appointmentColor", type: AppointmentColor.self)
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008207):
@@ -1342,7 +1400,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008257):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "appointmentCounterProposal")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008213):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "appointmentDuration")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentDuration")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008217):
                     s += optionSetAssert(value: prop.value, accessor: accessor, name: "appointmentStateFlags", type: AppointmentStateFlags.self)
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000825A):
@@ -1368,7 +1426,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Log, 0x0000870E):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentPrinted")
                 case (CommonlyUsedPropertySet.PSETID_Log, 0x00008707):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "logDuration")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "logDuration")
                 case (CommonlyUsedPropertySet.PSETID_Log, 0x00008708):
                     s += dateAssert(value: prop.value, accessor: accessor, name: "logEnd")
                 case (CommonlyUsedPropertySet.PSETID_Log, 0x00008711):
@@ -1378,15 +1436,15 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Log, 0x00008710):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "logDocumentRouted")
                 case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B02):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteWidth")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "noteWidth")
                 case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B05):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteY")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "noteY")
                 case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B00):
                     s += enumAssert(value: prop.value, accessor: accessor, name: "noteColor", type: NoteColor.self)
                 case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B04):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteX")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "noteX")
                 case (CommonlyUsedPropertySet.PSETID_Note, 0x00008B03):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "noteHeight")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "noteHeight")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DB):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "workAddressCountryCode")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008047):
@@ -1476,7 +1534,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                         s += dateAssert(value: prop.value, accessor: accessor, name: "conversationActionLastAppliedTime")
                     }
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C9):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "conversationProcessed")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "conversationProcessed")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085B6):
                     if prop.value is UInt32 {
                         s += "XCTAssertNil(\(accessor).classification)\n"
@@ -1487,22 +1545,30 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     if prop.value is Date {
                         s += "XCTAssertNil(\(accessor).taskMultipleRecipients)\n"
                     } else {
-                        s += int32Assert(value: prop.value, accessor: accessor, name: "taskMultipleRecipients")
+                        s += uint32Assert(value: prop.value, accessor: accessor, name: "taskMultipleRecipients")
                     }
                 case (CommonlyUsedPropertySet.PSETID_Task, 0x00008107):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "taskResetReminder")
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskResetReminder")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008115):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "taskLastUpdate")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x0000811A):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "taskHistory", type: TaskHistory.self)
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008108):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskAccepted")
+                case (CommonlyUsedPropertySet.PSETID_Task, 0x00008109):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "taskDeadOccurrence")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085C0):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "flagString")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "flagString")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008233):
                     s += timeZoneStructAssert(value: prop.value, accessor: accessor, name: "timeZoneStruct")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x000085C0):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "flagString")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "flagString")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008216):
                     s += appointmentRecurrencePatternAssert(value: prop.value, accessor: accessor, name: "appointmentRecur")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000822B):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "fExceptionalAttendees")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804C):
-                    s += int32Assert(value: prop.value, accessor: accessor, name: "distributionListChecksum")
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "distributionListChecksum")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008055):
                     s += multipleDataAssert(value: prop.value, accessor: accessor, name: "distributionListMembers")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008053):
@@ -1583,7 +1649,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A040),
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A043),
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A044),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A045):
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A045),
+                     (UUID(uuidString: "86030200-0000-0000-c000-000000000046")!, 0x00008004):
                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 default:
                     failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
@@ -1599,9 +1666,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PstPropertyId.tagSubfolders.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "subfolders")
         case PstPropertyId.tagContentCount.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "contentCount")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "contentCount")
         case PstPropertyId.tagContentUnreadCount.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "contentUnreadCount")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "contentUnreadCount")
         case PstPropertyId.tagSearchKey.rawValue:
             s += dataAssert(value: prop.value, accessor: accessor, name: "searchKey")
         case PropertyId.unknown0x7CF9.rawValue:
@@ -1615,7 +1682,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagLastModificationTime.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "lastModificationTime")
         case PropertyId.tagAssociatedContentCount.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "associatedContentCount")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "associatedContentCount")
         case PropertyId.tagChangeKey.rawValue:
             s += xidAssert(value: prop.value, accessor: accessor, name: "changeKey")
         case PropertyId.tagCreationTime.rawValue:
@@ -1635,7 +1702,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x7C0F.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7C0F")
         case PropertyId.tagMessageSize.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "messageSize", hexString: true)
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "messageSize", hexString: true)
         case PropertyId.unknown0x7CF8.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7CF8")
         case PropertyId.tagContainerClass.rawValue:
@@ -1663,9 +1730,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x35EE.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x35EE")
         case PstPropertyId.tagPstHiddenCount.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "pstHiddenCount")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "pstHiddenCount")
         case PstPropertyId.tagPstHiddenUnread.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "pstHiddenUnread")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "pstHiddenUnread")
         case PropertyId.unknown0x35EF.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x35EF")
         case PropertyId.unknown0x35FD.rawValue:
@@ -1699,7 +1766,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagImportance.rawValue:
             s += enumAssert(value: prop.value, accessor: accessor, name: "importance", type: MessageImportance.self)
         case PropertyId.tagLtpRowId.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "ltpRowId", hexString: true)
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ltpRowId", hexString: true)
         case PropertyId.tagMessageClass.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "messageClass")
         case PropertyId.tagSubject.rawValue:
@@ -1715,7 +1782,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagConversationIndex.rawValue:
             s += conversationIndexAssert(value: prop.value, accessor: accessor, name: "conversationIndex")
         case PropertyId.tagLtpRowVer.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "ltpRowVer")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ltpRowVer")
         case PropertyId.tagSentRepresentingName.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "sentRepresentingName")
         case PropertyId.tagMessageFlags.rawValue:
@@ -1743,7 +1810,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x1213.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1213")
         case PropertyId.tagMessageLocaleId.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "messageLocaleId")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "messageLocaleId")
         case PropertyId.tagReceivedByAddressType.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "receivedByAddressType")
         case PropertyId.tagReceivedByName.rawValue:
@@ -1831,9 +1898,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.PR_LAST_MODIFIER_SID.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_LAST_MODIFIER_SID")
         case PropertyId.tagMessageCodepage.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "messageCodepage")
-        case PropertyId.modifierFlag.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "modifierFlag")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "messageCodepage")
+        case PropertyId.PR_MODIFIER_FLAG.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_MODIFIER_FLAG")
         case PropertyId.tagReceivedByEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "receivedByEntryId")
         case PstPropertyId.tagPstBodyPrefix.rawValue:
@@ -1873,7 +1940,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagSentRepresentingEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "sentRepresentingEntryId")
         case PropertyId.tagInternetCodepage.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "internetCodepage")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "internetCodepage")
         case PropertyId.tagReceivedBySmtpAddress.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "receivedBySmtpAddress")
         case PropertyId.unknown0x5D0B.rawValue:
@@ -1909,19 +1976,19 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x0E4B.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0E4B")
         case PropertyId.tagIconIndex.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "iconIndex", hexString: true)
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "iconIndex", hexString: true)
         case PropertyId.tagSentRepresentingEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "sentRepresentingEntryId")
         case PropertyId.unknown0x5D0B.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5D0B")
         case PropertyId.tagOriginatorDeliveryReportRequested.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "originatorDeliveryReportRequested")
-        case PropertyId.creatorFlag.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "creatorFlag")
+        case PropertyId.PR_CREATOR_FLAG.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_CREATOR_FLAG")
         case PropertyId.tagDeleteAfterSubmit.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "deleteAfterSubmit")
         case PropertyId.tagInternetMailOverrideFormat.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "internetMailOverrideFormat", hexString: true)
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "internetMailOverrideFormat", hexString: true)
         case PropertyId.tagRead.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "read")
         case PropertyId.unknown0x7D0E.rawValue:
@@ -1935,13 +2002,13 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 s += unknownAssert(value: prop.value, accessor: accessor, name: "tagNameidStreamGuid")
             }
         case PropertyId.tagRecipientOrder.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "recipientOrder")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "recipientOrder")
         case PropertyId.tagRecipientTrackStatus.rawValue:
             s += enumAssert(value: prop.value, accessor: accessor, name: "recipientTrackStatus", type: ResponseStatus.self)
         case PropertyId.tagRecipientDisplayName.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "recipientDisplayName")
         case PropertyId.tagSendInternetEncoding.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "sendInternetEncoding")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "sendInternetEncoding")
         case PropertyId.tagRecipientResourceState.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRecipientResourceState")
         case PropertyId.tagSubjectPrefix.rawValue:
@@ -1969,7 +2036,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagRtfCompressed.rawValue:
             s += optionalAssert(value: prop.value, accessor: accessor, name: "rtfCompressed")
         case PropertyId.tagRowid.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "rowid")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "rowid")
         case PropertyId.tagInstanceKey.rawValue:
             s += dataAssert(value: prop.value, accessor: accessor, name: "instanceKey")
         case PropertyId.tagAttachDataBinary.rawValue:
@@ -1987,13 +2054,13 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagAttachMimeTag.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "attachMimeTag")
         case PropertyId.tagAttachNumber.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "attachNumber")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "attachNumber")
         case PropertyId.tagLanguage.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "language")
         case PropertyId.unknown0x371D.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x371D")
         case PropertyId.tagRenderingPosition.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "renderingPosition")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "renderingPosition")
         case PropertyId.tagAttachContentId.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "attachContentId")
         case PropertyId.unknown0x680E.rawValue:
@@ -2011,7 +2078,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagAttachMimeSequence.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagAttachMimeSequence")
         case PropertyId.tagAttachmentLinkId.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "attachmentLinkId")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "attachmentLinkId")
         case PropertyId.tagAttachFlags.rawValue:
             s += optionSetAssert(value: prop.value, accessor: accessor, name: "attachFlags", type: AttachFlags.self)
         case PropertyId.tagExceptionStartTime.rawValue:
@@ -2021,9 +2088,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagExceptionReplaceTime.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "exceptionReplaceTime")
         case PropertyId.tagAttachSize.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "attachSize")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "attachSize")
         case PropertyId.tagAttachmentFlags.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "attachmentFlags", hexString: true)
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "attachmentFlags", hexString: true)
         case PropertyId.tagAttachEncoding.rawValue:
             s += dataAssert(value: prop.value, accessor: accessor, name: "attachEncoding")
         case PropertyId.tagCreatorEntryId.rawValue:
@@ -2055,7 +2122,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagTrustSender.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "trustSender")
         case PropertyId.tagOwnerAppointmentId.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "ownerAppointmentId")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ownerAppointmentId")
         case PropertyId.tagRecipientReassignmentProhibited.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "recipientReassignmentProhibited")
         case PropertyId.tagOriginalSensitivity.rawValue:
@@ -2121,7 +2188,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x0E9D.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0E9D")
         case PropertyId.tagInitialDetailsPane.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "initialDetailsPane")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "initialDetailsPane")
         case PropertyId.tagToDoItemFlags.rawValue:
             s += optionSetAssert(value: prop.value, accessor: accessor, name: "toDoItemFlags", type: ToDoItemFlags.self)
         case PropertyId.tagFlagStatus.rawValue:
@@ -2147,7 +2214,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagLastVerbExecutionTime.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "lastVerbExecutionTime")
         case PropertyId.tagLastVerbExecuted.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "lastVerbExecuted")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "lastVerbExecuted")
         case PropertyId.tagHomeAddressCity.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "homeAddressCity")
         case PropertyId.tagLocation.rawValue:
@@ -2265,7 +2332,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagReplChangenum.rawValue:
             s += int64Assert(value: prop.value, accessor: accessor, name: "replChangenum")
         case PropertyId.tagFreeBusyCountMonths.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "freeBusyCountMonths")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "freeBusyCountMonths")
         case PropertyId.tagReplItemid.rawValue:
             s += dataAssert(value: prop.value, accessor: accessor, name: "replItemid")
         case PropertyId.tagReplVersionHistory.rawValue:
@@ -2285,9 +2352,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.PR_PROFILE_CONNECT_FLAGS.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_PROFILE_CONNECT_FLAGS")
         case PropertyId.tagReplFlags.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "replFlags")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "replFlags")
         case PropertyId.tagRecipientNumber.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "recipientNumber")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "recipientNumber")
         case PropertyId.unknown0x815A.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x815A")
         case PropertyId.unknown0x815B.rawValue:
@@ -2485,10 +2552,10 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x6814.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6814")
         case PropertyId.tagBlockStatus.rawValue:
-            s += int32Assert(value: prop.value, accessor: accessor, name: "blockStatus")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "blockStatus")
         case PropertyId.tagOfflineAddressBookTruncatedPropertiesOrTagVoiceMessageAttachmentOrder.rawValue:
             if prop.value is [UInt32] {
-                s += multipleInt32Assert(value: prop.value, accessor: accessor, name: "offlineAddressBookTruncatedProperties")
+                s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "offlineAddressBookTruncatedProperties")
             } else if prop.value is String {
                 s += stringAssert(value: prop.value, accessor: accessor, name: "voiceMessageAttachmentOrder")
             } else {
@@ -2524,6 +2591,92 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncPrefixCount")
         case PropertyId.tagFolderWebViewInfo.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagFolderWebViewInfo")
+        case PropertyId.tagRedirectionHistory.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRedirectionHistory")
+        case PropertyId.tagListHelp.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "listHelp")
+        case PropertyId.tagListSubscribe.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "listSubscribe")
+        case PropertyId.tagContentFilterSpamConfidenceLevel.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "contentFilterSpamConfidenceLevel")
+        case PropertyId.tagAutoResponseSuppress.rawValue:
+            s += int32Assert(value: prop.value, accessor: accessor, name: "autoResponseSuppress")
+        case PropertyId.tagUrlComponentName.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagUrlComponentName")
+        case PropertyId.tagUrlCompNameSet.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagUrlCompNameSet")
+        case PropertyId.PR_REPLY_RECIPIENT_SMTP_PROXIES.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPLY_RECIPIENT_SMTP_PROXIES")
+        case PropertyId.tagDisableFullFidelity.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagDisableFullFidelity")
+        case PropertyId.PR_ORG_ADDR_TYPE.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORG_ADDR_TYPE")
+        case PropertyId.tagLocalCommitTime.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "localCommitTime")
+        case PropertyId.tagLocalCommitTimeMax.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "localCommitTimeMax")
+        case PropertyId.tagLocaleId.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "localeId")
+        case PropertyId.unknown0x6655.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6655")
+        case PropertyId.unknown0x6656.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6656")
+        case PropertyId.unknown0x6540.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6540")
+        case PropertyId.unknown0x8A5C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x8A5C")
+        case PropertyId.unknown0x1205.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1205")
+        case PropertyId.tagReportEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "reportEntryId")
+        case PropertyId.PR_ORIGINAL_AUTHOR_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORIGINAL_AUTHOR_SID")
+        case PropertyId.unknown0x405E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x405E")
+        case PropertyId.unknown0x405F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x405F")
+        case PropertyId.unknown0x4060.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4060")
+        case PropertyId.unknown0x4062.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4062")
+        case PropertyId.unknown0x4063.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4063")
+        case PropertyId.PR_READ_RECEIPT_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_READ_RECEIPT_SID")
+        case PropertyId.tagOriginalAuthorEmailAddress.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorEmailAddress")
+        case PropertyId.tagOriginalAuthorAddressType.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorAddressType")
+        case PropertyId.tagReadReceiptEmailAddress.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "readReceiptEmailAddress")
+        case PropertyId.tagReadReceiptAddressType.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "readReceiptAddressType")
+        case PropertyId.tagPreview.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagPreview")
+        case PropertyId.PR_REPORT_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_SID")
+        case PropertyId.PR_REPORT_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_SID")
+        case PropertyId.tagOriginalAuthorEntryId.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorEntryId")
+        case PropertyId.PR_REPORT_DESTINATION_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_DESTINATION_SID")
+        case PropertyId.tagReadReceiptName.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "readReceiptName")
+        case PropertyId.unknown0x4026.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4026")
+        case PropertyId.unknown0x4027.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4027")
+        case PropertyId.unknown0x4028.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4028")
+        case PropertyId.unknown0x4036.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4036")
+        case PropertyId.PR_ORIGINATOR_SID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORIGINATOR_SID")
+        case PropertyId.unknown0x1206.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1206")
+        case PropertyId.unknown0x4037.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4037")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

@@ -741,3 +741,14 @@ extension RemoteStatus: EnumCaseRepresentable {
         (.markedForDelete, ".markedForDelete")
     ]
 }
+
+extension TaskHistory: EnumCaseRepresentable {
+    public static let caseNames: [(element: TaskHistory, name: String)] = [
+        (.dueDateChanged, ".dueDateChanged"),
+        (.anotherPropertyChanged, ".anotherPropertyChanged"),
+        (.assigneeAcceptedTask, ".assigneeAcceptedTask"),
+        (.assigneeRejectedTask, ".assigneeRejectedTask"),
+        (.assignedToAssignee, ".assignedToAssignee"),
+        (.noChanges, ".noChanges")
+    ]
+}
