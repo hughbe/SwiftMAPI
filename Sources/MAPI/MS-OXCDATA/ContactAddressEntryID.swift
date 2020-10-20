@@ -18,7 +18,7 @@ public struct ContactAddressEntryID: EntryID {
     public var type: UInt32
     public var index: UInt32
     public var entryIdCount: UInt32
-    public var entryIdBytes: MessageEntryID
+    public var entryIdBytes: EntryID
 
     public init(dataStream: inout DataStream) throws {
         /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
@@ -62,7 +62,7 @@ public struct ContactAddressEntryID: EntryID {
         
         /// EntryIdBytes (variable): The EntryID of the Contact object that contains this address, which in turn has the format specified in section 2.2.4.2.
         /// The size of this structure is specified by the EntryIdCount field.<4>
-        self.entryIdBytes = try MessageEntryID(dataStream: &dataStream)
+        self.entryIdBytes = try getEntryID(dataStream: &dataStream, size: Int(self.entryIdCount))
         
         assert(dataStream.remainingCount == 0)
     }

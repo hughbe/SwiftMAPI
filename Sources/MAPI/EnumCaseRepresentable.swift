@@ -726,8 +726,18 @@ extension PatternTypeSpecificMonthNth.Flags: EnumCaseRepresentable {
 extension PatternTypeSpecificMonthNth.RecurrenceDays: EnumCaseRepresentable {
     public static let caseNames: [(element: PatternTypeSpecificMonthNth.RecurrenceDays, name: String)] = [
         (.first, ".first"),
-        (second, ".second"),
+        (.second, ".second"),
         (.third, ".third"),
         (.last, ".last")
+    ]
+}
+
+extension RemoteStatus: EnumCaseRepresentable {
+    public static let caseNames: [(element: RemoteStatus, name: String)] = [
+        (.noStatus, ".noStatus"),
+        (.unmarked, ".unmarked"),
+        (.markedForDownload, ".markedForDownload"),
+        (.markedForCopy, ".markedForCopy"),
+        (.markedForDelete, ".markedForDelete")
     ]
 }

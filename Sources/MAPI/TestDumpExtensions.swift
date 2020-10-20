@@ -195,6 +195,10 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         actual = value
     } else {
         var dataStream = DataStream(data: value as! Data)
+        if dataStream.count == 0 {
+            return "XCTAssertNil(\(accessor).\(name))\n"
+        }
+
         guard let value = try? getEntryID(dataStream: &dataStream, size: dataStream.count) else {
             return "XCTAssertNil(\(accessor).\(name))\n"
         }
@@ -241,6 +245,18 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         s += "XCTAssertEqual(\(generalEntryID.flags.hexString), (\(accessor).\(name) as? GeneralEntryID)!.flags)\n"
         s += "XCTAssertEqual(UUID(uuidString: \"\(generalEntryID.providerUid)\"), (\(accessor).\(name) as? GeneralEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(generalEntryID.providerData.hexString), (\(accessor).\(name) as? GeneralEntryID)!.providerData)\n"
+
+        return s
+    } else if let contactAddressEntryID = actual as? ContactAddressEntryID {
+        var s = ""
+
+        s += "XCTAssertEqual(\(contactAddressEntryID.flags.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.flags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(contactAddressEntryID.providerUid)\"), (\(accessor).\(name) as? ContactAddressEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(contactAddressEntryID.version.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.version)\n"
+        s += "XCTAssertEqual(\(contactAddressEntryID.type.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.type)\n"
+        s += "XCTAssertEqual(\(contactAddressEntryID.index.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.index)\n"
+        s += "XCTAssertEqual(\(contactAddressEntryID.entryIdCount.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.entryIdCount)\n"
+        s += entryIdAssert(value: contactAddressEntryID.entryIdBytes, accessor: "(\(accessor).\(name) as? ContactAddressEntryID)!", name: "entryIdBytes")
 
         return s
     }
@@ -822,6 +838,11 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
 
 private func unknownAssert(value: Any?, accessor: String, name: String) -> String {
     let fullName = "getProperty(id: .\(name))"
+    return unknownAssert(value: value, accessor: accessor, fullName: fullName)
+}
+
+private func unknownAssert(value: Any?, accessor: String, namedPropertyName: String) -> String {
+    let fullName = "getProperty(name: .\(namedPropertyName))"
     return unknownAssert(value: value, accessor: accessor, fullName: fullName)
 }
 
@@ -1514,6 +1535,28 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentStartDate")
                 case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008211):
                     s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentEndDate")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F01):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteEntryId")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F02):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteMessageClass")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F03):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteTransport")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F04):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteTransportTime")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F05):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteTransferSize")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F06):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteSearchKey")
+                case (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F07):
+                    s += unknownAssert(value: prop.value, accessor: accessor, namedPropertyName: "lidRemoteSearchKey")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008538):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "nonSendableBcc")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008537):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "nonSendableCc")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008536):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "nonSendableTo")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x00008511):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "remoteStatus", type: RemoteStatus.self)
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1523,15 +1566,24 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085B9),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008570),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008578),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008583),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x0000858F),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x000080EA),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200),
-                     (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F01),
-                     (CommonlyUsedPropertySet.PSETID_Remote, 0x00008F07),
-                     (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000):
+                     (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000),
+                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A025),
+                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A024),
+                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A022),
+                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A021),
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A041),
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A040),
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A043),
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A044),
+                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A045):
                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 default:
                     failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
@@ -2456,6 +2508,22 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x68C7")
         case PropertyId.unknown0x689E.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x689E")
+        case PropertyId.tagAttachContentLocation.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "attachContentLocation")
+        case PropertyId.tagConversationKey.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagConversationKey")
+        case PropertyId.tagRtfSyncBodyCrc.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncBodyCrc")
+        case PropertyId.tagRtfSyncBodyCount.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncBodyCount")
+        case PropertyId.tagRtfSyncBodyTag.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncBodyTag")
+        case PropertyId.tagRtfSyncTrailingCount.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncTrailingCount")
+        case PropertyId.tagRtfSyncPrefixCount.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRtfSyncPrefixCount")
+        case PropertyId.tagFolderWebViewInfo.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagFolderWebViewInfo")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

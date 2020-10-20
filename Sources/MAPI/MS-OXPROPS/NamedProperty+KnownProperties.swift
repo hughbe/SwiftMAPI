@@ -6444,6 +6444,75 @@ public extension NamedProperty {
     static let nameXVoiceMessageSenderName = NamedProperty(set: .internetHeaders,
                                                                          name: "X-VoiceMessageSenderName")
     
-    static let inTransitMessageCorrelator = NamedProperty(set: .common,
-                                                                        name: "InTransitMessageCorrelator")
+    static let inTransitMessageCorrelator = NamedProperty(set: .common, name: "InTransitMessageCorrelator")
+    
+    /// PidLidRemoteEntryId Canonical Property
+    /// Indicates the entry ID of a remote item.
+    /// Associated properties: dispidRemoteEID
+    /// Property set:PSETID_Remote
+    /// Long ID (LID): 0x00008F01
+    /// Data type: PT_BINARY
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremoteentryid-canonical-property
+    static let lidRemoteEntryId = NamedProperty(set: .remote, lid: 0x00008F01)
+    
+    /// PidLidRemoteMessageClass Canonical Property
+    /// Indicates the message class of a remote item.
+    /// Associated properties: dispidRemoteMsgClass
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F02
+    /// Data type: None
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremotemessageclass-canonical-property
+    static let lidRemoteMessageClass = NamedProperty(set: .remote, lid: 0x00008F02)
+    
+    /// PidLidRemoteTransport Canonical Property
+    /// Identifies what account the header item is associated with, primarily to implement the POP Leave on Server functionality.
+    /// Associated Properties dispidRemoteXP
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F03
+    /// Data type: PT_STRING8
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremotetransport-canonical-property
+    static let lidRemoteTransport = NamedProperty(set: .remote, lid: 0x00008F03)
+    
+    /// PidLidRemoteTransferTime Canonical Property
+    /// Indicates the transfer time, in seconds, for a remote item.
+    /// Associated properties: dispidRemoteXferTime
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F04
+    /// Data type: PT_LONG
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremotetransfertime-canonical-property
+    static let lidRemoteTransferTime = NamedProperty(set: .remote, lid: 0x00008F04)
+    
+    /// PidLidRemoteTransferSize Canonical Property
+    /// Indicates the transfer size, in bytes, for a remote item.
+    /// Associated properties: dispidRemoteXferSize
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F05
+    /// Data type: PT_LONG
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremotetransfersize-canonical-property
+    static let lidRemoteTransferSize = NamedProperty(set: .remote, lid: 0x00008F05)
+    
+    /// PidLidRemoteSearchKey Canonical Property
+    /// Indicates the search key of a remote item.
+    /// Associated properties: dispidRemoteSearchKey
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F06
+    /// Data type: PT_BINARY
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremotesearchkey-canonical-property
+    static let lidRemoteSearchKey = NamedProperty(set: .remote, lid: 0x00008F06)
+    
+    /// PidLidRemoteAttachment Canonical Property
+    /// Indicates whether a remote item has an attachment associated with it.
+    /// Associated properties: dispidRemoteAttachment
+    /// Property set: PSETID_Remote
+    /// Long ID (LID): 0x00008F07
+    /// Data type: PT_BOOLEAN
+    /// Area: Remote message
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidlidremoteattachment-canonical-property
+    static let lidRemoteAttachment = NamedProperty(set: .remote, lid: 0x00008F07)
 }
