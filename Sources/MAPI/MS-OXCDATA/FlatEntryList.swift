@@ -34,7 +34,9 @@ public struct FlatEntryList {
             flatEntries.append(flatEntry)
             
             // Align to 4 byte boundary.
-            dataStream.position += Int(flatEntry.size) % 4
+            if dataStream.remainingCount > 0 {
+                dataStream.position += Int(flatEntry.size) % 4
+            }
         }
         
         self.flatEntries = flatEntries
