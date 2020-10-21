@@ -59,16 +59,17 @@ public extension MessageStorage {
     
     /// [MS-OXCFOLD] 2.2.2.2.1.4 PidTagAddressBookEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAddressBookEntryId property ([MS-OXPROPS] section 2.515) contains an Address
-    /// Book EntryID structure, as specified in [MS-OXCDATA] section 2.2.5.2, that specifies the nameservice entry ID of a directory object that refers to a public folder. This property is set only for
-    /// public folders.<10> For details about public folders, see [MS-OXCSTOR] section 1.3.1.
+    /// The PidTagAddressBookEntryId property ([MS-OXPROPS] section 2.515) contains an Address Book EntryID structure,
+    /// as specified in [MS-OXCDATA] section 2.2.5.2, that specifies the nameservice entry ID of a directory object that refers
+    /// to a public folder. This property is set only for public folders.<10> For details about public folders, see [MS-OXCSTOR]
+    /// section 1.3.1.
     var addressBookEntryId: AddressBookEntryID? {
         guard let data: Data = getProperty(id: .tagAddressBookEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? AddressBookEntryID(dataStream: &dataStream)
+        return try? AddressBookEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXCFOLD] 2.2.2.2.1.5 PidTagFolderFlags Property

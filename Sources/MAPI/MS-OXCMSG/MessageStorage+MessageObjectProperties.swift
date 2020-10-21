@@ -1381,8 +1381,13 @@ public extension MessageStorage {
     /// The PidTagPolicyTag property ([MS-OXPROPS] section 2.863) specifies the GUID of a retention
     /// tag. The PidTagPolicyTag property can be present on both Message objects and folders and can
     /// be set by both client and server.
-    var policyTag: Data? {
-        return getProperty(id: .tagPolicyTag)
+    var policyTag: UUID? {
+        guard let data: Data = getProperty(id: .tagPolicyTag) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.read(type: UUID.self)
     }
     
     /// [MS-OXCMSG] 2.2.1.58 Retention and Archive Properties
@@ -1416,8 +1421,13 @@ public extension MessageStorage {
     /// [MS-OXCMSG] 2.2.1.58.4 PidTagStartDateEtc Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagStartDateEtc property ([MS-OXPROPS] section 2.1026) has the following structure.
-    var startDateEtc: Data? {
-        return getProperty(id: .tagStartDateEtc)
+    var startDateEtc: StartDateEtc? {
+        guard let data: Data = getProperty(id: .tagStartDateEtc) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? StartDateEtc(dataStream: &dataStream)
     }
     
     /// [MS-OXCMSG] 2.2.1.58 Retention and Archive Properties

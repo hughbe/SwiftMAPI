@@ -769,3 +769,13 @@ extension MessageRights: EnumCaseRepresentable {
         (.freeBusyDetailed, ".freeBusyDetailed")
     ]
 }
+
+extension RpcOverHttpFlags: EnumCaseRepresentable {
+    public static let caseNames: [(element: RpcOverHttpFlags, name: String)] = [
+        (.useRpcOverHtml, ".useRpcOverHtml"),
+        (.sslOnly, ".sslOnly"),
+        (.mutualAuth, ".mutualAuth"),
+        (.httpFirstOnFast, ".httpFirstOnFast"),
+        (.httpFirstOnSlow, ".httpFirstOnSlow"),
+    ]
+}

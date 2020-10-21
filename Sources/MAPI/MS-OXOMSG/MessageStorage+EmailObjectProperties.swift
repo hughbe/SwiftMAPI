@@ -1659,7 +1659,7 @@ public extension MessageStorage {
     /// [MS-OXOMSG] 2.2.2.31 PidTagNonDeliveryReportReasonCode Property
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
     /// The PidTagNonDeliveryReportReasonCode property ([MS-OXPROPS] section 2.803) contains a
-    /// value that provides information on the reason for a non-delivery report, as specified in [MSOXCMAIL] section 2.2.3.7.1.3.
+    /// value that provides information on the reason for a non-delivery report, as specified in [MS-OXCMAIL] section 2.2.3.7.1.3.
     var nonDeliveryReportReasonCode: UInt32? {
         return getProperty(id: .tagNonDeliveryReportReasonCode)
     }

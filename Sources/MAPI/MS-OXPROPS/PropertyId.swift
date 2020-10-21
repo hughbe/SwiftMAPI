@@ -2870,13 +2870,29 @@ public enum PropertyId: UInt16 {
 
     case unknown0x120B = 0x120B
     
-    // case unknown0x120B = 0x120B
+    // case unknown0x120C = 0x120C
+    
+    case unknown0x120D = 0x120D
+    
+    // case unknown0x120E = 0x120E
+    
+    // case unknown0x120F = 0x120F
+    
+    // case unknown0x1210 = 0x1210
+    
+    // case unknown0x1211 = 0x1211
     
     // case unknown0x1212 = 0x1212
     
     case unknown0x1213 = 0x1213
     
     // case unknown0x1214 = 0x1214
+    
+    // case unknown0x1215 = 0x1215
+    
+    case unknown0x1216 = 0x1216
+    
+    // case unknown0x1217 = 0x1217
     
     // case unknown0x1239 = 0x1239
     
@@ -3183,6 +3199,12 @@ public enum PropertyId: UInt16 {
     case tagStoreProvider = 0x3414
     
     // case unknown0x3415 = 0x3415
+    
+    // case unknown0x3489 = 0x3489
+    
+    case unknown0x348A = 0x348A
+    
+    // case unknown0x348B = 0x348B
     
     // case unknown0x34C7 = 0x34C7
     
@@ -3507,6 +3529,12 @@ public enum PropertyId: UInt16 {
     case unknown0x365D = 0x365D
     
     // case unknown0x365E = 0x365E
+    
+    // case unknown0x365F = 0x365F
+    
+    case unknown0x3660 = 0x3660
+    
+    // case unknown0x3661 = 0x3661
 
     // case unknown0x3662 = 0x3662
 
@@ -3597,7 +3625,7 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_REM_ONLINE_ENTRYID, ptagRemOnlineEntryId
     case tagRemindersOnlineEntryId = 0x36D5
 
-    // case unknown0x36D6 = 0x36D6
+    case PR_REMINDERS_OFFLINE_ENTRYID = 0x36D6
 
     /// [MS-OXPROPS] 2.752 PidTagIpmDraftsEntryId
     /// Canonical name: PidTagIpmDraftsEntryId
@@ -4273,12 +4301,20 @@ public enum PropertyId: UInt16 {
     /// PidTagOriginalDisplayName
     /// Not documented in specification but known on internet
     /// Contains the original display name for an entry copied from an address book to a personal address book or other writable address book.
+    /// Associated properties: PR_ORIGINAL_DISPLAY_NAME, PR_ORIGINAL_DISPLAY_NAME_A, PR_ORIGINAL_DISPLAY_NAME_W
+    /// Identifier: 0x3A13
+    /// Data type: PT_STRING8, PT_UNICODE
+    /// Area: General messaging
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginaldisplayname-canonical-property
     case tagOriginalDisplayName = 0x3A13
 
     /// PidTagOriginalSearchKey
     /// Not documented in specification but known on internet
     /// Contains the original search key for an entry copied from an address book to a personal address book or other writeable address book.
+    /// Associated properties: PR_ORIGINAL_SEARCH_KEY
+    /// Identifier: 0x3A14
+    /// Data type: PT_BINARY
+    /// Area: General messaging
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginalsearchkey-canonical-property
     case tagOriginalSearchKey = 0x3A14
 
@@ -6572,7 +6608,7 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x6613 = 0x6613
     
-    // case unknown0x6614 = 0x6614
+    case unknown0x6614 = 0x6614
     
     // case unknown0x6615 = 0x6615
     
@@ -6592,7 +6628,7 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_USER_ENTRYID, ptagUserEntryId
     case tagUserEntryId = 0x6619
 
-    // case unknown0x661A = 0x661A
+    case unknown0x661A = 0x661A
 
     /// [MS-OXPROPS] 2.777 PidTagMailboxOwnerEntryId
     /// Canonical name: PidTagMailboxOwnerEntryId
@@ -7238,6 +7274,20 @@ public enum PropertyId: UInt16 {
     case tagCodePageId = 0x66C3
 
     // case unknown0x66C4 = 0x66C4
+    
+    // case unknown0x66C5 = 0x66C5
+    
+    // case unknown0x66C6 = 0x66C6
+    
+    // case unknown0x66C7 = 0x66C7
+    
+    // case unknown0x66C8 = 0x66C8
+    
+    // case unknown0x66C9 = 0x66C9
+    
+    case unknown0x66CA = 0x66CA
+    
+    // case unknown0x66CB = 0x66CB
     
     /// Unknown - seen in PST files
     case unknown0x66FC = 0x66FC

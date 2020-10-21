@@ -18,7 +18,9 @@ public struct AddressBookEntryID: EntryID {
     public var type: AddressBookEntryType
     public var x500DN: String
 
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let position = dataStream.position
+        
         /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
         /// However, in any EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
@@ -56,6 +58,6 @@ public struct AddressBookEntryID: EntryID {
         
         self.x500DN = x500DN
         
-        assert(dataStream.remainingCount == 0)
+        assert(dataStream.position - position == size)
     }
 }

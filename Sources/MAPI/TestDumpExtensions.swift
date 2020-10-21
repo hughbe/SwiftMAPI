@@ -66,7 +66,13 @@ private func multipleStringAssert(value: Any?, accessor: String, name: String) -
 }
 
 private func guidAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual = value! as! UUID
+    let actual: UUID
+    if let value = value as? Data {
+        var dataStream = DataStream(data: value)
+        actual = try! dataStream.read(type: UUID.self)
+    } else {
+        actual = value! as! UUID
+    }
     return "XCTAssertEqual(UUID(uuidString: \"\(actual)\"), \(accessor).\(name)!)\n"
 }
 
@@ -810,6 +816,18 @@ private func serializedReplidGuidMapAssert(value: Any?, accessor: String, name: 
     return s
 }
 
+private func startDateEtcAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! StartDateEtc(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.defaultRetentionPeriod), \(accessor).\(name)!.defaultRetentionPeriod)\n"
+    s += "XCTAssertEqual(\(actual.startDate.timeIntervalSince1970), \(accessor).\(name)!.startDate.timeIntervalSince1970)\n"
+    
+    return s
+}
+
 private func unknownAssert(value: Any?, accessor: String, fullName: String) -> String {
     guard let value = value else {
         return "XCTAssertNil(\(accessor).\(fullName))"
@@ -995,6 +1013,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/Subscription1.0"),
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/M2HClassifier1.0"),
                      (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/SubscriptionInferred1.0"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "EntityExtraction/ExtractQuotedTextLanguages1.0"),
                      (CommonlyUsedPropertySet.PSETID_Common, "ItemCurrentFolderReason"),
                      (CommonlyUsedPropertySet.PSETID_Common, "MessageCardExtractionDiagnosticContext"),
                      (CommonlyUsedPropertySet.PSETID_Common, "NetworkMessageId"),
@@ -1004,6 +1023,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Mailbox-Delivery"),
                      (CommonlyUsedPropertySet.PSETID_Common, "X-Microsoft-Antispam-Message-Info"),
                      (CommonlyUsedPropertySet.PSETID_Common, "MY_NAMED_PROPERTY_NUMBER_2"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "WasclWomsResults"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "WasclRuntimeData"),
+                     (CommonlyUsedPropertySet.PSETID_Common, "WasclPreSubmissionExecuted"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "ClientInfo"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "ConversationTreeParentRecordKey"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "IsQuotedTextChanged"),
@@ -1082,6 +1104,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-transfer-encoding"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "content-type"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "probing_ps_internet_headers"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-wascl-properties"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentOriginalUrl"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "AttachmentWasSavedToCloud"),
                      (CommonlyUsedPropertySet.PSETID_Attachment, "DocumentProcessingCorrelationId"),
@@ -1109,29 +1132,44 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Address, "DisplayNameFirstLast"),
                      (CommonlyUsedPropertySet.PSETID_Address, "PersonIdGuid"),
                      (CommonlyUsedPropertySet.PSETID_Address, "SenderRelevanceScore"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "MapiEmailAddress"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "NoEmailContactId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "MapiAddressType"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "MapiEntryId"),
+                     (CommonlyUsedPropertySet.PSETID_Address, "AbchPersonUpdateTime"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "urn:schemas-microsoft-com:office:outlook#fixupfbfolder"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/outlook/spoofingstamp"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "MY_NAMED_PROPERTY"),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "MY_NAMED_PROPERTY_NUMBER_2"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "IsPartiallyIndexed"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "BigFunnelCorrelationId"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "DetectedLanguage"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04"), "LastIndexingAttemptTime"),
-                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3"), "ConversationIndexTrackingEx"),
-                     (UUID(uuidString: "4E3A7680-B77A-11D0-9DA5-00C04FD65685"), "Internet Charset Body"),
-                     (UUID(uuidString: "31805AB8-3E92-11DC-879C-00061B031004"), "GpgOL Sig Status"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "XrmContactId"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "XrmId"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA"), "AggregatedItemLinkIds"),
-                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KeyPhrases"),
-                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE"), "KPRelevanceScoresInt32"),
-                     (UUID(uuidString: "C2FC5982-E37F-4663-92F7-F17E804779DD"), "ITEM_ID"),
-                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16"), "ITEM_ID"),
-                     (UUID(uuidString: "9B5093E0-5734-4A7F-B88F-B4D0220B5ADA"), "THIS_WAS_A_COMPLETELY_DIFFERENT_ONE"),
-                     (UUID(uuidString: "66666666-6666-6666-C000-000000000046"), "Name4"),
-                     (UUID(uuidString: "55555555-5555-5555-C000-000000000046"), "Name4"),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedAcceptCount"),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedTentativeCount"),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedDeclineCount"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "IsPartiallyIndexed"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "BigFunnelCorrelationId"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "DetectedLanguage"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "LastIndexingAttemptTime"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "ErrorProperties"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "IndexingAttemptCount"),
+                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "ErrorTags"),
+                     (UUID(uuidString: "4E3A7680-B77A-11D0-9DA5-00C04FD65685")!, "Internet Charset Body"),
+                     (UUID(uuidString: "31805AB8-3E92-11DC-879C-00061B031004")!, "GpgOL Sig Status"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "XrmContactId"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "XrmId"),
+                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "AggregatedItemLinkIds"),
+                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE")!, "KeyPhrases"),
+                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE")!, "KPRelevanceScoresInt32"),
+                     (UUID(uuidString: "C2FC5982-E37F-4663-92F7-F17E804779DD")!, "ITEM_ID"),
+                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16")!, "ITEM_ID"),
+                     (UUID(uuidString: "9B5093E0-5734-4A7F-B88F-B4D0220B5ADA")!, "THIS_WAS_A_COMPLETELY_DIFFERENT_ONE"),
+                     (UUID(uuidString: "66666666-6666-6666-C000-000000000046")!, "Name4"),
+                     (UUID(uuidString: "55555555-5555-5555-C000-000000000046")!, "Name4"),
                      (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceEntryID"),
-                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceLastModifiedTimestamp"):
+                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceLastModifiedTimestamp"),
+                     (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "IOpenTypedFacet.EventLocations"),
+                     (UUID(uuidString: "A719E259-2A9A-4FB8-BAB3-3A9F02970E4B")!, "Locations"),
+                     (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "ExtensionsList"),
+                     (UUID(uuidString: "403FC56B-CD30-47C5-86F8-EDE9E35A022B")!, "ComplianceTag"),
+                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3")!, "ConversationIndexTrackingEx"):
                     s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
                     s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
@@ -1623,6 +1661,10 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += stringAssert(value: prop.value, accessor: accessor, name: "nonSendableTo")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x00008511):
                     s += enumAssert(value: prop.value, accessor: accessor, name: "remoteStatus", type: RemoteStatus.self)
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x0000000A):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "isException")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000005):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "isRecurring")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1635,12 +1677,35 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008583),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x0000858F),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085DA),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085CE),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x000080EA),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000007),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000021),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000A),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000012),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000014),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000005),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000F),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000C),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000B),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000013),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000022),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000010),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000E),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000D),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000009),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000005),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000018),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000011),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000016),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000006),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000017),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000008),
                      (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A025),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A024),
@@ -2732,6 +2797,58 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6810")
         case PropertyId.unknown0x6617.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6617")
+        case PropertyId.unknown0x6614.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6614")
+        case PropertyId.tagRetentionPeriod.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "retentionPeriod")
+        case PropertyId.tagRetentionDate.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "retentionDate")
+        case PropertyId.tagPolicyTag.rawValue:
+            s += guidAssert(value: prop.value, accessor: accessor, name: "policyTag")
+        case PropertyId.tagRpcOverHttpFlags.rawValue:
+            s += enumAssert(value: prop.value, accessor: accessor, name: "rpcOverHttpFlags", type: RpcOverHttpFlags.self)
+        case PropertyId.tagOriginalSubject.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalSubject")
+        case PropertyId.tagReportText.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "reportText")
+        case PropertyId.unknown0x661A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x661A")
+        case PropertyId.tagOriginalSubmitTime.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "originalSubmitTime")
+        case PropertyId.tagStartDateEtc.rawValue:
+            s += startDateEtcAssert(value: prop.value, accessor: accessor, name: "startDateEtc")
+        case PropertyId.tagOriginatorNonDeliveryReportRequested.rawValue:
+            s += boolAssert(value: prop.value, accessor: accessor, name: "originatorNonDeliveryReportRequested")
+        case PropertyId.tagParentKey.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "parentKey")
+        case PropertyId.tagReportTime.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "reportTime")
+        case PropertyId.tagOriginalDisplayName.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalDisplayName")
+        case PropertyId.tagNonDeliveryReportReasonCode.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "nonDeliveryReportReasonCode", hexString: true)
+        case PropertyId.tagNonDeliveryReportDiagCode.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "nonDeliveryReportDiagCode", hexString: true)
+        case PropertyId.tagNonDeliveryReportStatusCode.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "nonDeliveryReportStatusCode", hexString: true)
+        case PropertyId.tagOriginalEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "originalEntryId")
+        case PropertyId.tagOriginalSearchKey.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "originalSearchKey")
+        case PropertyId.unknown0x348A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x348A")
+        case PropertyId.unknown0x66CA.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x66CA")
+        case PropertyId.PR_REMINDERS_OFFLINE_ENTRYID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REMINDERS_OFFLINE_ENTRYID")
+        case PropertyId.unknown0x120D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x120D")
+        case PropertyId.unknown0x3660.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3660")
+        case PropertyId.unknown0x1216.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1216")
+        case PropertyId.tagSecureSubmitFlags.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSecureSubmitFlags")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
