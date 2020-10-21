@@ -27,7 +27,7 @@ public struct NID {
         /// nidType (5 bits): Identifies the type of the node represented by the NID. The following table
         /// specifies a list of values for nidType. However, it is worth noting that nidType has no meaning to
         /// the structures defined in the NDB Layer.
-        let rawType = rawValue & 0b11111
+        let rawType = UInt16(rawValue & 0b11111)
         if let type = NIDType(rawValue: rawType) {
             self.type = type
             //fatalError("Unknown type \(rawType)")
@@ -40,7 +40,7 @@ public struct NID {
     }
     
     public init(type: NIDType, nid: NID) {
-        self.init(rawValue: (nid.rawValue & 0xffffffe0) | type.rawValue)
+        self.init(rawValue: (nid.rawValue & 0xffffffe0) | UInt32(type.rawValue))
     }
     
     /// [MS-PST] 2.4.1 Special Internal NIDs

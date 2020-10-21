@@ -5,7 +5,7 @@
 //  Created by Hugh Bellamy on 16/09/2020.
 //
 
-public enum NIDType: UInt32 {
+public enum NIDType: UInt16 {
     /// Heap node
     case hid = 0x00
     
@@ -65,4 +65,6 @@ public enum NIDType: UInt32 {
 
     /// LTP
     case ltp = 0x1F
+    
+    case unknown = 0xFF
 }

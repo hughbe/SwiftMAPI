@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 01/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXCSTOR] 2.2.2 Logon-Specific Properties
@@ -119,14 +120,18 @@ public extension MessageStorage {
     /// list of REPLID and REPLGUID pairs which represents all or part of the REPLID /REPLGUID mapping
     /// of the associated Logon object. This property allows a client to more efficiently seed a local cache of
     /// the REPLID /REPLGUID mapping without having to issue separate remote operations
-    /// RopLongTermIdFromId ([MS-OXCROPS] section 2.2.3.8) or RopIdFromLongTermId ([MSOXCROPS] section 2.2.3.9). The binary property, if returned, is made up of a combination of 18-byte
-    /// pairs where each pair consists of a 2-byte REPLID followed by a 16-byte REPLGUID. The value when
-    /// returned from the server contains as much of the mapping that can be returned, but not necessarily
-    /// the entire mapping. Any residual data less than 18 bytes in size can be ignored.
-    /// For additional information on REPLID and REPLGUID mapping, please see section 3.2.5.8 and section
-    /// 3.2.5.9.
-    var serializedReplidGuidMap: Data? {
-        return getProperty(id: .tagSerializedReplidGuidMap)
+    /// RopLongTermIdFromId ([MS-OXCROPS] section 2.2.3.8) or RopIdFromLongTermId ([MSOXCROPS] section 2.2.3.9).
+    /// The binary property, if returned, is made up of a combination of 18-byte pairs where each pair consists of a 2-byte REPLID
+    /// followed by a 16-byte REPLGUID. The value when returned from the server contains as much of the mapping that can be
+    /// returned, but not necessarily the entire mapping. Any residual data less than 18 bytes in size can be ignored.
+    /// For additional information on REPLID and REPLGUID mapping, please see section 3.2.5.8 and section 3.2.5.9.
+    var serializedReplidGuidMap: SerializedReplidGuidMap? {
+        guard let data: Data = getProperty(id: .tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SerializedReplidGuidMap(dataStream: &dataStream)
     }
     
     /// [MS-OXCSTOR] 2.2.2.1.1.14 PidTagSortLocaleId Property

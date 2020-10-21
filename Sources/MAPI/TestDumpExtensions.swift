@@ -633,21 +633,6 @@ private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, n
     
     var s = ""
     
-    
-    /*
-    public let readerVersion2: UInt32
-    public let writerVersion2: UInt32
-    public let startTimeOffset: UInt32
-    public let endTimeOffset: UInt32
-    public let exceptionCount: UInt16
-    public let exceptionInfo: [ExceptionInfo]
-    public let reservedBlock1Size: UInt32
-    public let reservedBlock1: [UInt8]
-    public let extendedException: [ExtendedException]
-    public let reservedBlock2Size: UInt32
-    public let reservedBlock2: [UInt8]
- */
-    
     s += "XCTAssertEqual(\(actual.recurrencePattern.readerVersion.hexString), \(accessor).\(name)!.recurrencePattern.readerVersion)\n"
     s += "XCTAssertEqual(\(actual.recurrencePattern.writerVersion.hexString), \(accessor).\(name)!.recurrencePattern.writerVersion)\n"
     s += "XCTAssertEqual(\(actual.recurrencePattern.recurFrequency.stringRepresentation), \(accessor).\(name)!.recurrencePattern.recurFrequency)\n"
@@ -807,6 +792,21 @@ private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, n
     s += "XCTAssertEqual(\(actual.reservedBlock2Size.hexString), \(accessor).\(name)!.reservedBlock2Size)\n"
     s += "XCTAssertEqual(\(actual.reservedBlock2.hexString), \(accessor).\(name)!.reservedBlock2)\n"
 
+    return s
+}
+
+private func serializedReplidGuidMapAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! SerializedReplidGuidMap(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.values.count), \(accessor).\(name)!.recurrencePattern.values.count)\n"
+    for (offset, element) in actual.values.enumerated() {
+        s += "XCTAssertEqual(\(element.id.hexString), \(accessor).\(name)!.values[\(offset)].id)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.values[\(offset)].guid)\n"
+    }
+    
     return s
 }
 
@@ -1634,6 +1634,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008578),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008583),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x0000858F),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x000085DA),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
@@ -2677,6 +2678,60 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1206")
         case PropertyId.unknown0x4037.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4037")
+        case PropertyId.tagRights.rawValue:
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "rights", type: MessageRights.self)
+        case PropertyId.tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT.rawValue:
+            if prop.value is UInt32 {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT")
+            } else {
+                s += serializedReplidGuidMapAssert(value: prop.value, accessor: accessor, name: "serializedReplidGuidMap")
+            }
+        case PropertyId.unknown0x67F4.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x67F4")
+        case PropertyId.tagOfflineAddressBookSequenceOrTagVoiceMessageDuration.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "offlineAddressBookSequence")
+        case PropertyId.PR_IPM_DAF_ENTRYID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_IPM_DAF_ENTRYID")
+        case PropertyId.tagNonIpmSubtreeEntryId.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagNonIpmSubtreeEntryId")
+        case PropertyId.unknown0x6815.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6815")
+        case PropertyId.tagFaxNumberOfPagesOrTagOfflineAddressBookDistinguishedName.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "faxNumberOfPages")
+        case PropertyId.unknown0x67E2.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x67E2")
+        case PropertyId.tagOfflineAddressBookMessageClassOrTagVoiceMessageSenderName.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSendOutlookRecallReport")
+        case PropertyId.tagOfflineAddressBookContainerGuidOrTagRwRulesStreamOrTagSenderTelephoneNumber.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOfflineAddressBookContainerGuidOrTagRwRulesStreamOrTagSenderTelephoneNumber")
+        case PropertyId.PR_GW_MTSIN_ENTRYID.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_GW_MTSIN_ENTRYID")
+        case PropertyId.unknown0x6612.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6612")
+        case PropertyId.unknown0x6808.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6808")
+        case PropertyId.unknown0x6809.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6809")
+        case PropertyId.unknown0x6807.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6807")
+        case PropertyId.unknown0x6743.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6743")
+        case PropertyId.unknown0x680C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x680C")
+        case PropertyId.unknown0x680A.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x680A")
+        case PropertyId.unknown0x680B.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x680B")
+        case PropertyId.tagCallId.rawValue:
+            if prop.value is String {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "callId")
+            } else {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "tagCallId")
+            }
+        case PropertyId.unknown0x6810.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6810")
+        case PropertyId.unknown0x6617.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6617")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

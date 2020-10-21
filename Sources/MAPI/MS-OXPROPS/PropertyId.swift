@@ -6568,7 +6568,7 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x6611 = 0x6611
     
-    // case unknown0x6612 = 0x6612
+    case unknown0x6612 = 0x6612
     
     // case unknown0x6613 = 0x6613
     
@@ -6578,7 +6578,7 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x6616 = 0x6616
     
-    // case unknown0x6617 = 0x6617
+    case unknown0x6617 = 0x6617
 
     // case unknown0x6618 = 0x6618
 
@@ -6774,7 +6774,7 @@ public enum PropertyId: UInt16 {
     /// Area: Logon Properties
     /// Defining reference: [MS-OXCSTOR] section 2.2.2.1.1.13
     /// Alternate names: ptagSerializedReplidGuidMap
-    case tagSerializedReplidGuidMap = 0x6638
+    case tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT = 0x6638
 
     /// [MS-OXPROPS] 2.935 PidTagRights
     /// Canonical name: PidTagRights
@@ -7373,7 +7373,7 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x6742 = 0x6742
 
-    // case unknown0x6743 = 0x6743
+    case unknown0x6743 = 0x6743
 
     // case unknown0x6744 = 0x6744
 
@@ -7562,6 +7562,22 @@ public enum PropertyId: UInt16 {
     case tagCnsetSeenFAI = 0x67DA
 
     // case unknown0x67DB = 0x67DB
+    
+    // case unknown0x67DC = 0x67DC
+    
+    // case unknown0x67DD = 0x67DD
+    
+    // case unknown0x67DE = 0x67DE
+    
+    // case unknown0x67DF = 0x67DF
+    
+    // case unknown0x67E0 = 0x67E0
+    
+    // case unknown0x67E1 = 0x67E1
+    
+    case unknown0x67E2 = 0x67E2
+    
+    // case unknown0x67E3 = 0x67E3
 
     // case unknown0x67E4 = 0x67E4
 
@@ -7740,7 +7756,9 @@ public enum PropertyId: UInt16 {
     /// 0x67F3 PtypInteger32 PidTagLtpRowVer LTP Row Version
     case tagLtpRowVer = 0x67F3
     
-    // case unknown0x67F4 = 0x67F4
+    case unknown0x67F4 = 0x67F4
+    
+    // case unknown0x67F5 = 0x67F5
     
     // case unknown0x67FE = 0x67FE
 
@@ -7876,17 +7894,17 @@ public enum PropertyId: UInt16 {
     /// Alternate names: InternalSchemaCallID
     case tagCallId = 0x6806
 
-    // case unknown0x6807 = 0x6807
+    case unknown0x6807 = 0x6807
 
-    // case unknown0x6808 = 0x6808
+    case unknown0x6808 = 0x6808
 
-    // case unknown0x6809 = 0x6809
+    case unknown0x6809 = 0x6809
 
-    // case unknown0x680A = 0x680A
+    case unknown0x680A = 0x680A
 
-    // case unknown0x680B = 0x680B
+    case unknown0x680B = 0x680B
 
-    // case unknown0x680C = 0x680C
+    case unknown0x680C = 0x680C
 
     case unknown0x680D = 0x680D
 
@@ -7894,11 +7912,19 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x680F = 0x680F
     
+    case unknown0x6810 = 0x6810
+    
+    // case unknown0x6811 = 0x6811
+    
+    // case unknown0x6812 = 0x6812
+    
     // case unknown0x6813 = 0x6813
     
     case unknown0x6814 = 0x6814
     
-    // case unknown0x6815 = 0x6815
+    case unknown0x6815 = 0x6815
+    
+    // case unknown0x6816 = 0x6816
 
     /// [MS-OXPROPS] 2.923 PidTagReportingMessageTransferAgent
     /// Canonical name: PidTagReportingMessageTransferAgent

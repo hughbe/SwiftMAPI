@@ -752,3 +752,20 @@ extension TaskHistory: EnumCaseRepresentable {
         (.noChanges, ".noChanges")
     ]
 }
+
+extension MessageRights: EnumCaseRepresentable {
+    public static let caseNames: [(element: MessageRights, name: String)] = [
+        (.readAny, ".readAny"),
+        (.create, ".create"),
+        (.editOwned, ".editOwned"),
+        (.deleteOwned, ".deleteOwned"),
+        (.editAny, ".editAny"),
+        (.deleteAny, ".deleteAny"),
+        (.createSubFolder, ".createSubFolder"),
+        (.folderOwner, ".folderOwner"),
+        (.folderContact, ".folderContact"),
+        (.folderVisible, ".folderVisible"),
+        (.freeBusySimple, ".freeBusySimple"),
+        (.freeBusyDetailed, ".freeBusyDetailed")
+    ]
+}
