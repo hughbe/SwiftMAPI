@@ -776,6 +776,17 @@ extension RpcOverHttpFlags: EnumCaseRepresentable {
         (.sslOnly, ".sslOnly"),
         (.mutualAuth, ".mutualAuth"),
         (.httpFirstOnFast, ".httpFirstOnFast"),
-        (.httpFirstOnSlow, ".httpFirstOnSlow"),
+        (.httpFirstOnSlow, ".httpFirstOnSlow")
+    ]
+}
+
+extension MeetingType: EnumCaseRepresentable {
+    public static let caseNames: [(element: MeetingType, name: String)] = [
+        (.empty, ".empty"),
+        (.request, ".request"),
+        (.full, ".full"),
+        (.info, ".info"),
+        (.outOfDate, ".outOfDate"),
+        (.delegatorCopy, ".delegatorCopy")
     ]
 }

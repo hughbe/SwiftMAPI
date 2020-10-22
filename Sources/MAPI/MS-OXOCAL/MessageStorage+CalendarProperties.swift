@@ -831,8 +831,13 @@ public extension MessageStorage {
     /// times when a recurring series occurs by using one of the recurrence patterns and ranges specified
     /// in [MS-OXOCAL] section 2.2.1.44.
     /// For more details about the PidLidAppointmentRecur property, see [MS-OXPROPS] section 2.22.
-    var appointmentRecur: Data? {
-        return getProperty(name: .lidAppointmentRecur)
+    var appointmentRecur: AppointmentRecurrencePattern? {
+        guard let data: Data = getProperty(name: .lidAppointmentRecur) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? AppointmentRecurrencePattern(dataStream: &dataStream)
     }
     
     /// [MS-OXOCAL] 2.2.1.45 PidLidRecurrenceType Property
@@ -1121,7 +1126,7 @@ public extension MessageStorage {
     /// Therefore, this property can be used to indicate that an exception to an appointment has attendees,
     /// even though the appointment (series) does not.
     /// This value SHOULD NOT be set for any Calendar object other than that of the organizer's.
-    var fExceptionalAttendees: String? {
+    var fExceptionalAttendees: Bool? {
         return getProperty(name: .lidFExceptionalAttendees)
     }
     

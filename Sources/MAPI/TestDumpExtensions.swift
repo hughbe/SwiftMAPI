@@ -511,7 +511,7 @@ private func businessCardDisplayDefinitionAssert(value: Any?, accessor: String, 
     s += "XCTAssertEqual(\(actual.imageSource.hexString), \(accessor).\(name)!.imageSource)\n"
     s += "XCTAssertEqual(\(actual.backgroundColor.hexString), \(accessor).\(name)!.backgroundColor)\n"
     s += "XCTAssertEqual(\(actual.imageArea.hexString), \(accessor).\(name)!.imageArea)\n"
-    s += "XCTAssertEqual(\(actual.reserved.hexString), \(accessor).\(name)!.imageArea)\n"
+    s += "XCTAssertEqual(\(actual.reserved.hexString), \(accessor).\(name)!.reserved)\n"
     
     s += "XCTAssertEqual(\(actual.fieldInfoN.count), \(accessor).\(name)!.fieldInfoN.count)\n"
     for (offset, element) in actual.fieldInfoN.enumerated() {
@@ -682,7 +682,7 @@ private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, n
     s += "XCTAssertEqual(\(actual.endTimeOffset.hexString), \(accessor).\(name)!.endTimeOffset)\n"
     s += "XCTAssertEqual(\(actual.exceptionCount), \(accessor).\(name)!.exceptionCount)\n"
     
-    s += "XCTAssertEqual(\(actual.exceptionInfo.count), \(accessor).\(name)!.recurrencePattern.exceptionInfo.count)\n"
+    s += "XCTAssertEqual(\(actual.exceptionInfo.count), \(accessor).\(name)!.exceptionInfo.count)\n"
     for (offset, element) in actual.exceptionInfo.enumerated() {
         s += "XCTAssertEqual(\(element.startDateTime.timeIntervalSince1970), \(accessor).\(name)!.exceptionInfo[\(offset)].startDateTime.timeIntervalSince1970)\n"
         s += "XCTAssertEqual(\(element.endDateTime.timeIntervalSince1970), \(accessor).\(name)!.exceptionInfo[\(offset)].endDateTime.timeIntervalSince1970)\n"
@@ -755,7 +755,7 @@ private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, n
     s += "XCTAssertEqual(\(actual.reservedBlock1Size.hexString), \(accessor).\(name)!.reservedBlock1Size)\n"
     s += "XCTAssertEqual(\(actual.reservedBlock1.hexString), \(accessor).\(name)!.reservedBlock1)\n"
     
-    s += "XCTAssertEqual(\(actual.extendedException.count), \(accessor).\(name)!.recurrencePattern.extendedException.count)\n"
+    s += "XCTAssertEqual(\(actual.extendedException.count), \(accessor).\(name)!.extendedException.count)\n"
     for (offset, element) in actual.extendedException.enumerated() {
         s += "XCTAssertEqual(\(element.reservedBlockEE1Size.hexString), \(accessor).\(name)!.extendedException[\(offset)].reservedBlockEE1Size)\n"
         s += "XCTAssertEqual(\(element.reservedBlockEE1.hexString), \(accessor).\(name)!.extendedException[\(offset)].reservedBlockEE1)\n"
@@ -973,6 +973,10 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     }
                 case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "http://schemas.microsoft.com/exchange/junkemailmovestamp"):
                     s += uint32Assert(value: prop.value, accessor: accessor, name: "exchangeJunkEmailMoveStamp")
+                case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "urn:schemas:calendar:transparent"):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "nameCalendarTransparent")
+                case (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, "DoNotForward"):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "meetingDoNotForward")
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinInferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "InferenceClassificationResult"),
                      (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "OriginalInferenceClassification"),
@@ -1144,6 +1148,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedAcceptCount"),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedTentativeCount"),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedDeclineCount"),
+                     (CommonlyUsedPropertySet.PSETID_Messaging, "PublishedCalendarItemName"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "IsPartiallyIndexed"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "BigFunnelCorrelationId"),
                      (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "DetectedLanguage"),
@@ -1685,6 +1690,22 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += stringAssert(value: prop.value, accessor: accessor, name: "postRssItemXml")
                 case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008903):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "postRssItemGuid")
+                case (CommonlyUsedPropertySet.PSETID_Address, 0x000080DC):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "otherAddressCountryCode")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000823C):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "ccAttendeesString")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000823B):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "toAttendeesString")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008202):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "appointmentSequenceTime")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000026):
+                    s += enumAssert(value: prop.value, accessor: accessor, name: "meetingType", type: MeetingType.self)
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008238):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "allAttendeesString")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008203):
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentLastSequence")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000024):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "appointmentMessageClass")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1702,6 +1723,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, 0x0000851B),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008542),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x00008513),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008540),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
@@ -1731,6 +1753,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000006),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000017),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000008),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000003),
+                     (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000001),
                      (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A025),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A024),
@@ -2883,7 +2907,15 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagItemTemporaryflags.rawValue:
             s += uint32Assert(value: prop.value, accessor: accessor, name: "itemTemporaryflags", hexString: true)
         case PropertyId.tagOrdinalMost.rawValue:
-            s += uint32Assert(value: prop.value, accessor: accessor, name: "ordianlMost")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ordinalMost")
+        case PropertyId.tagTelexNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "telexNumber")
+        case PropertyId.tagIsdnNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "isdnNumber")
+        case PropertyId.tagCallbackTelephoneNumber.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "callbackTelephoneNumber")
+        case PropertyId.unknown0x3A77.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3A77")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

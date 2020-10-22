@@ -71,7 +71,7 @@ public extension NamedProperty {
     /// Consuming reference: [MS-XWDCAL]
     /// Alternate names: dispidAllAttendeesString
     static let lidAllAttendeesString = NamedProperty(set: .appointment,
-                                                                   lid: 0x0000850E)
+                                                                   lid: 0x00008238)
     
     /// [MS-OXPROPS] 2.6 PidLidAllowExternalCheck
     /// Canonical name: PidLidAllowExternalCheck

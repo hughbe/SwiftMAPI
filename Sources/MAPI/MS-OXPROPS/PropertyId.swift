@@ -5158,7 +5158,7 @@ public enum PropertyId: UInt16 {
     
     case unknown0x3A76 = 0x3A76
     
-    // case unknown0x3A77 = 0x3A77
+    case unknown0x3A77 = 0x3A77
     
     // case unknown0x3A78 = 0x3A78
     
