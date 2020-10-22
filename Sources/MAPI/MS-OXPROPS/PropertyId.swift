@@ -2750,6 +2750,10 @@ public enum PropertyId: UInt16 {
     /// PidTagItemTemporaryflags
     /// Not documented in specification but known on internet
     /// Contains a flag that indicates that a message has been read, but not marked as read.
+    /// Associated properties: PR_ITEM_TMPFLAGS
+    /// Identifier: 0x1097
+    /// Data type: PT_LONG
+    /// Area: General messaging
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagitemtemporaryflags-canonical-property
     case tagItemTemporaryflags = 0x1097
 
@@ -6275,12 +6279,14 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_RECIPIENT_TRACKSTATUS, ptagRecipientTrackStatus
     case tagRecipientTrackStatus = 0x5FFF
 
-    // case unknown0x6000 = 0x6000
+    case unknown0x6000 = 0x6000
 
     /// Not documented in specification - known on internet
     case dotstuffState = 0x6001
 
-    // case unknown0x6002 = 0x6002
+    case unknown0x6002 = 0x6002
+    
+    // case unknown0x6003 = 0x6003
 
     // case unknown0x60FF = 0x60FF
 
@@ -7975,6 +7981,24 @@ public enum PropertyId: UInt16 {
     case unknown0x6815 = 0x6815
     
     // case unknown0x6816 = 0x6816
+    
+    // case unknown0x6817 = 0x6817
+    
+    // case unknown0x6818 = 0x6818
+    
+    // case unknown0x6819 = 0x6819
+    
+    // case unknown0x681A = 0x681A
+    
+    case unknown0x681B = 0x681B
+    
+    // case unknown0x681C = 0x681C
+    
+    // case unknown0x681D = 0x681D
+    
+    // case unknown0x681E = 0x681E
+    
+    // case unknown0x681F = 0x681F
 
     /// [MS-OXPROPS] 2.923 PidTagReportingMessageTransferAgent
     /// Canonical name: PidTagReportingMessageTransferAgent
@@ -8958,7 +8982,7 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_ATTACHMENT_CONTACTPHOTO
     case tagAttachmentContactPhoto = 0x7FFF
 
-    // case unknown0x8001 = 0x8000
+    // case unknown0x8000 = 0x8000
 
     // case unknown0x8001 = 0x8001
 

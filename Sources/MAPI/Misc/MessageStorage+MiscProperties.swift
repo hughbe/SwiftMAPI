@@ -45,4 +45,11 @@ public extension MessageStorage {
     var originalSearchKey: Data? {
         return getProperty(id: .tagOriginalSearchKey)
     }
+    
+    /// PidTagItemTemporaryflags
+    /// Contains a flag that indicates that a message has been read, but not marked as read.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagitemtemporaryflags-canonical-property
+    var itemTemporaryflags: UInt32? {
+        return getProperty(id: .tagItemTemporaryflags)
+    }
 }

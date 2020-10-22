@@ -1665,6 +1665,26 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += boolAssert(value: prop.value, accessor: accessor, name: "isException")
                 case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000005):
                     s += boolAssert(value: prop.value, accessor: accessor, name: "isRecurring")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x0000001A):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "ownerCriticalChange")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000002):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "where")
+                case (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008244):
+                    s += boolAssert(value: prop.value, accessor: accessor, name: "autoStartCheck")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008902):
+                    s += uint32Assert(value: prop.value, accessor: accessor, name: "postRssItemHash", hexString: true)
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008906):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssSubscription")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008900):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssChannelLink")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008901):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssItemLink")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008904):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssChannel")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008905):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssItemXml")
+                case (CommonlyUsedPropertySet.PSETID_PostRss, 0x00008903):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "postRssItemGuid")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1678,12 +1698,17 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Common, 0x0000858F),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085DA),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085CE),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x0000850F),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x0000851B),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008542),
+                     (CommonlyUsedPropertySet.PSETID_Common, 0x00008513),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008063),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x0000800E),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x00008027),
                      (CommonlyUsedPropertySet.PSETID_Address, 0x000080EA),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200),
+                     (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008204),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000007),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000021),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000A),
@@ -2849,6 +2874,16 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1216")
         case PropertyId.tagSecureSubmitFlags.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSecureSubmitFlags")
+        case PropertyId.unknown0x6000.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6000")
+        case PropertyId.unknown0x6002.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6002")
+        case PropertyId.unknown0x681B.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x681B")
+        case PropertyId.tagItemTemporaryflags.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "itemTemporaryflags", hexString: true)
+        case PropertyId.tagOrdinalMost.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ordianlMost")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
