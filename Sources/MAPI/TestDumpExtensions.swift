@@ -1056,6 +1056,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-transport-endtoendlatency"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-traffictypediagnostic"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-crosstenant-network-message-id"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-transporttrafficsubtype"),
+                     (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-exchange-organization-transporttraffictype"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-has-attach"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-ms-publictraffictype"),
                      (CommonlyUsedPropertySet.PS_INTERNET_HEADERS, "x-gmx-html"),
@@ -1174,7 +1176,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (UUID(uuidString: "A719E259-2A9A-4FB8-BAB3-3A9F02970E4B")!, "Locations"),
                      (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "ExtensionsList"),
                      (UUID(uuidString: "403FC56B-CD30-47C5-86F8-EDE9E35A022B")!, "ComplianceTag"),
-                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3")!, "ConversationIndexTrackingEx"):
+                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3")!, "ConversationIndexTrackingEx"),
+                     (UUID(uuidString: "C7A4569B-F7AE-4DC2-9279-A8FE2F3CAF89")!, "RetentionTagEntryId"):
                     s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
                     s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
@@ -1706,6 +1709,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += uint32Assert(value: prop.value, accessor: accessor, name: "appointmentLastSequence")
                 case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000024):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "appointmentMessageClass")
+                case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000001):
+                    s += dateAssert(value: prop.value, accessor: accessor, name: "attendeeCriticalChange")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1731,6 +1736,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008245),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008200),
                      (CommonlyUsedPropertySet.PSETID_Appointment, 0x00008204),
+                     (CommonlyUsedPropertySet.PSETID_Appointment, 0x0000823E),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000007),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000021),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x0000000A),
