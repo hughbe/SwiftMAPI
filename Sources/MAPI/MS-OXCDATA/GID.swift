@@ -15,14 +15,14 @@ import Foundation
 /// Folder ID structure or message EntryID structure, as specified in section 2.2.4.2 are effectively a
 /// Global Identifier structure.
 public struct GID {
-    public var databaseGuid: UUID
-    public var globalCounter: UInt64
+    public let databaseGuid: UUID
+    public let globalCounter: UInt64
     
     public init(dataStream: inout DataStream) throws {
         /// DatabaseGuid (16 bytes): An unsigned integer identifying a Store object.
-        databaseGuid = try dataStream.readGUID(endianess: .littleEndian)
+        self.databaseGuid = try dataStream.readGUID(endianess: .littleEndian)
         
         /// GlobalCounter (6 bytes): An unsigned integer identifying the folder or message within its Store object.
-        globalCounter = try dataStream.readUInt48()
+        self.globalCounter = try dataStream.readUInt48()
     }
 }

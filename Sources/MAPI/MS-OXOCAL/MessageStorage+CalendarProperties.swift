@@ -1784,6 +1784,26 @@ public extension MessageStorage {
     var forwardNotificationRecipients: Data? {
         return getProperty(name: .lidForwardNotificationRecipients)
     }
+
+    /// [MS-OXOCAL] 2.2.10.1.4 PidTagExceptionStartTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The value of the PidTagExceptionStartTime property ([MS-OXPROPS] section 2.686) indicates the start date and time of the
+    /// exception in the local time zone of the computer when the exception is created.
+    /// This property is informational and cannot be relied on for critical information because if a user changes the client computer's time
+    /// zone after this property is written, the value of this property will no longer match what is expected by the client.
+    var exceptionStartTime: Date? {
+        return getProperty(id: .tagExceptionStartTime)
+    }
+    
+    /// [MS-OXOCAL] 2.2.10.1.5 PidTagExceptionEndTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The value of the PidTagExceptionEndTime property ([MS-OXPROPS] section 2.684) indicates the end date and time of the
+    /// exception in the local time zone of the computer when the exception is created.
+    /// This property is informational and cannot be relied on for critical information because if a user changes the client computer's
+    /// time zone after this property is written, the value of this property will no longer match what is expected by the client.
+    var exceptionEndTime: Date? {
+        return getProperty(id: .tagExceptionEndTime)
+    }
     
     /// [MS-OXOCAL] 2.2.10.2.5 PidLidExceptionReplaceTime Property
     /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)

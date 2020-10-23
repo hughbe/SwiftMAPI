@@ -1517,8 +1517,7 @@ public extension MessageStorage {
     /// The value of the PidTagArchiveDate property is calculated from the values of other properties as
     /// follows:
     /// PidTagArchiveDate = start date + PidTagArchivePeriod (section 2.2.1.58.7)
-    /// The start date is obtained from the last eight bytes of the PidTagStartDateEtc property (section
-    /// 2.2.1.58.4).
+    /// The start date is obtained from the last eight bytes of the PidTagStartDateEtc property (section 2.2.1.58.4).
     var archiveDate: Date? {
         return getProperty(id: .tagArchiveDate)
     }
@@ -1532,44 +1531,40 @@ public extension MessageStorage {
     /// section 2.2.5.2.3.
     /// [MS-OXCMSG] 2.2.1.59 PidNameMSIPLabels Property
     /// Type: PtypString [MS-OXCDATA] section 2.11.1
-    /// The PidNameMSIPLabels property ([MS-OXPROPS] section 2.460) contains the string that specifies
-    /// the CLP Labels information.
+    /// The PidNameMSIPLabels property ([MS-OXPROPS] section 2.460) contains the string that specifies the CLP Labels information.
     var msipLabels: String? {
         return getProperty(name: .nameMSIPLabels)
     }
     
     /// [MS-OXCMSG] 2.2.2.5 PidTagAttachSize Property
     /// Type: PtypInteger32, unsigned ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachSize property ([MS-OXPROPS] section 2.608) contains the size in bytes consumed
-    /// by the Attachment object on the server. This property is read-only for the client.
+    /// The PidTagAttachSize property ([MS-OXPROPS] section 2.608) contains the size in bytes consumed by the Attachment object
+    /// on the server. This property is read-only for the client.
     var attachSize: UInt32? {
         return getProperty(id: .tagAttachSize)
     }
     
     /// [MS-OXCMSG] 2.2.2.6 PidTagAttachNumber Property
     /// Type: PtypInteger32, unsigned ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachNumber property ([MS-OXPROPS] section 2.603) identifies the Attachment
-    /// object within its Message object. The value of this property MUST be unique among the Attachment
-    /// objects in a message.
+    /// The PidTagAttachNumber property ([MS-OXPROPS] section 2.603) identifies the Attachment object within its Message object.
+    /// The value of this property MUST be unique among the Attachment objects in a message.
     var attachNumber: UInt32? {
         return getProperty(id: .tagAttachNumber)
     }
     
     /// [MS-OXCMSG] 2.2.2.7 PidTagAttachDataBinary Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachDataBinary property ([MS-OXPROPS] section 2.589) contains the contents of the
-    /// file to be attached.
+    /// The PidTagAttachDataBinary property ([MS-OXPROPS] section 2.589) contains the contents of the file to be attached.
     var attachDataBinary: Data? {
         return getProperty(id: .tagAttachDataBinary)
     }
     
     /// [MS-OXCMSG] 2.2.2.8 PidTagAttachDataObject Property
     /// Type: PtypObject ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachDataObject property ([MS-OXPROPS] section 2.590) contains the binary
-    /// representation of the Attachment object in an application-specific format.
+    /// The PidTagAttachDataObject property ([MS-OXPROPS] section 2.590) contains the binary representation of the Attachment
+    /// object in an application-specific format.
     /// [MS-OXCFXICS] 2.2.1.7 Properties That Denote Subobjects
-    /// The properties in the following tables denote subobjects of the messaging objects and can be used
-    /// in the following:
+    /// The properties in the following tables denote subobjects of the messaging objects and can be used in the following:
     ///  The property inclusion and exclusion lists of ROPs that configure download operations. For
     /// example, the RopSynchronizationConfigure ROP (section 2.2.3.2.1.1) and the
     /// RopFastTransferSourceCopyTo ROP (section 2.2.3.1.1.1) both configure download operations.
@@ -1662,14 +1657,12 @@ public extension MessageStorage {
     
     /// [MS-OXCMSG] 2.2.2.10 PidTagAttachLongFilename Property
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAttachLongFilename property ([MS-OXPROPS] section 2.595) contains the full file name
-    /// and extension of the Attachment object.
+    /// The PidTagAttachLongFilename property ([MS-OXPROPS] section 2.595) contains the full file name and extension of the
+    /// Attachment object.
     /// [MS-OXOUM] 2.2.3.1.2 Message Content
-    /// As specified in [MS-OXORMMS], a rights-managed e-mail message consists of a wrapper message
-    /// with the original e-mail content encrypted as a BLOB in an attachment. The attachment has the
-    /// following properties:
-    ///  PidTagAttachLongFilename ([MS-OXCMSG] section 2.2.2.11): MUST be set to
-    /// "message.rpmsg".
+    /// As specified in [MS-OXORMMS], a rights-managed e-mail message consists of a wrapper message with the original e-mail
+    /// content encrypted as a BLOB in an attachment. The attachment has the following properties:
+    ///  PidTagAttachLongFilename ([MS-OXCMSG] section 2.2.2.11): MUST be set to "message.rpmsg".
     var attachLongFilename: String? {
         return getProperty(id: .tagAttachLongFilename)
     }
