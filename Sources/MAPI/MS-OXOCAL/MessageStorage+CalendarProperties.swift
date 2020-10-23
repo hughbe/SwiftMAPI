@@ -1407,29 +1407,6 @@ public extension MessageStorage {
         return getProperty(id: .tagRecipientProposedEndTime)
     }
     
-    /// [MS-OXOCAL] 2.2.4.10 RecipientRow Properties
-    /// A Meeting object has one RecipientRow structure, as specified in [MS-OXCDATA] section 2.8.3, for
-    /// each sendable attendee.
-    /// In addition, a RecipientRow structure can exist for the organizer of the Meeting object.
-    /// Unsendable attendees do not have a corresponding RecipientRow structure but SHOULD have a
-    /// RecipientRow structure in the PidLidAppointmentUnsendableRecipients property (section
-    /// 2.2.1.25).
-    /// The Appointment and Meeting Object Protocol specifies properties that can be set in the
-    /// RecipientProperties field of RecipientRow structures, as specified in [MS-OXCDATA] section
-    /// 2.8.3.2. These properties are listed in the sections 2.2.4.10.1 through 2.2.4.10.7.
-    /// [MS-OXOCAL] 2.2.4.10.7 Recipient Type Property
-    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-    /// This property is specified in [MS-OXCMSG]. The appropriate value is set as the recipient type for each
-    /// RecipientRow structure, as specified in [MS-OXCDATA] section 2.8.3, in the Meeting object. The
-    /// appropriate values for the recipient type are listed in the following table.
-    var recipientType: RecipientType? {
-        guard let rawValue: UInt32 = getProperty(id: .tagRecipientType) else {
-            return nil
-        }
-        
-        return RecipientType(rawValue: rawValue)
-    }
-    
     /// [MS-OXOCAL] 2.2.5.2 PidLidAttendeeCriticalChange Property
     /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
     /// The value of the PidLidAttendeeCriticalChange property ([MS-OXPROPS] section 2.38) specifies the

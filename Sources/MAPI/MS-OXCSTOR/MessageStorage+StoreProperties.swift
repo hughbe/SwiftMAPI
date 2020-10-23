@@ -167,15 +167,6 @@ public extension MessageStorage {
         return getProperty(id: .tagCodePageId)
     }
     
-    /// [MS-OXCSTOR] 2.2.2.1.2.2 PidTagDeleteAfterSubmit Property
-    /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagDeleteAfterSubmit property ([MS-OXPROPS] section 2.662) indicates whether a
-    /// transport deletes all submitted mail after transmission. An unset value or a value of FALSE indicates
-    /// that the mail is not deleted. The client can also delete this property.<15>
-    var deleteAfterSubmit: Bool? {
-        return getProperty(id: .tagDeleteAfterSubmit)
-    }
-    
     /// [MS-OXCSTOR] 2.2.2.1.2.4 PidTagOutOfOfficeState Property
     /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
     /// The PidTagOutOfOfficeState property ([MS-OXPROPS] section 2.849) indicates whether the user is
@@ -185,16 +176,7 @@ public extension MessageStorage {
     var outOfOfficeState: Bool? {
         return getProperty(id: .tagOutOfOfficeState)
     }
-    
-    /// [MS-OXCSTOR] 2.2.2.1.2.5 PidTagSentMailSvrEID Property
-    /// Type: PtypServerId ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagSentMailSvrEID property ([MS-OXPROPS] section 2.1005) contains the structure
-    /// identifying the Sent Items folder. An unset value indicates that the server won't move sent items to a
-    /// Sent Items folder after transmission. The client can also delete this property.
-    var sentMailSvrEID: Data? {
-        return getProperty(id: .tagSentMailSvrEID)
-    }
-    
+
     /// [MS-OXCSTOR] 2.2.2.2.2 PidTagAddressBookMessageId Property
     /// Type: PtypInteger64 ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAddressBookMessageId property ([MS-OXPROPS] section 2.545) contains the shortterm MID of the first message in the local site's offline address book public folder, if it exists and has a

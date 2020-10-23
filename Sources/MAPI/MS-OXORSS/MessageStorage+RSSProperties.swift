@@ -100,21 +100,4 @@ public extension MessageStorage {
     var postRssSubscription: String? {
         return getProperty(name: .lidPostRssSubscription)
     }
-    
-    /// [MS-OXORSS] 2.2.1.8 PidTagMessageDeliveryTime Property
-    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagMessageDeliveryTime property ([MS-OXPROPS] section 2.783) specifies the posting
-    /// date, in Coordinated Universal Time (UTC), of the item or entry. This property is optional.
-    /// This property is set as follows:
-    ///  For an RSS item, this property is set to the value of the pubDate element. If the pubDate
-    /// element is not present in the RSS item, this property is set to the value of the lastBuildDate
-    /// element.
-    ///  For an atom entry, this property is set to the value of the updated or published element. If
-    /// none of these elements is present under the entry element, then the updated element that is
-    /// under the feed element is used.
-    ///  This property can be set to the current time if none of the specified elements exist in the RSS item
-    /// or the atom entry.
-    var messageDeliveryTime: Date? {
-        return getProperty(id: .tagMessageDeliveryTime)
-    }
 }

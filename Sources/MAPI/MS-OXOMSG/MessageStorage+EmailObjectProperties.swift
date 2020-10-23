@@ -1700,6 +1700,8 @@ public extension MessageStorage {
         return getProperty(id: .tagReportingMessageTransferAgent)
     }
 
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
     /// [MS-OXOMSG] 2.2.2.36 PidTagSupplementaryInfo Property
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
     /// The PidTagSupplementaryInfo property ([MS-OXPROPS] section 2.1029) contains supplementary
@@ -1708,8 +1710,182 @@ public extension MessageStorage {
     var supplementaryInfo: String? {
         return getProperty(id: .tagSupplementaryInfo)
     }
+
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.1 PidTagRecipientType Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagRecipientType property ([MS-OXPROPS] section 2.903) represents the type of a recipient (2) on the message.
+    /// This property is set on each recipient (2). Valid values for this property are as follows.
+    /// [MS-OXOCAL] 2.2.4.10 RecipientRow Properties
+    /// A Meeting object has one RecipientRow structure, as specified in [MS-OXCDATA] section 2.8.3, for each sendable attendee.
+    /// In addition, a RecipientRow structure can exist for the organizer of the Meeting object. Unsendable attendees do not have a
+    /// corresponding RecipientRow structure but SHOULD have a RecipientRow structure in the PidLidAppointmentUnsendableRecipients
+    /// property (section 2.2.1.25).
+    /// The Appointment and Meeting Object Protocol specifies properties that can be set in the RecipientProperties field of RecipientRow
+    /// structures, as specified in [MS-OXCDATA] section 2.8.3.2. These properties are listed in the sections 2.2.4.10.1 through 2.2.4.10.7.
+    /// [MS-OXOCAL] 2.2.4.10.7 Recipient Type Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// This property is specified in [MS-OXCMSG]. The appropriate value is set as the recipient type for each RecipientRow structure,
+    /// as specified in [MS-OXCDATA] section 2.8.3, in the Meeting object. The appropriate values for the recipient type are listed in
+    /// the following table.
+    var recipientType: RecipientType? {
+        guard let value: UInt32 = getProperty(id: .tagRecipientType) else {
+            return nil
+        }
+        
+        return RecipientType(rawValue: value)
+    }
+
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.2 PidTagDeferredSendNumber Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// When sending a message is deferred, the PidTagDeferredSendNumber property ([MS-OXPROPS]
+    /// section 2.657) SHOULD be set along with the PidTagDeferredSendUnits property (section 2.2.3.3)
+    /// if the PidTagDeferredSendTime property (section 2.2.3.4) is absent. The value is set between
+    /// 0x00000000 and 0x000003E7 (0 and 999).
+    /// The PidTagDeferredSendNumber property is used to compute the value of the
+    /// PidTagDeferredSendTime property when the PidTagDeferredSendTime property is not present.
+    var deferredSendNumber: UInt32? {
+        return getProperty(id: .tagDeferredSendNumber)
+    }
+
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.3 PidTagDeferredSendUnits Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagDeferredSendUnits property ([MS-OXPROPS] section 2.659) specifies the unit of time by
+    /// which the value of the PidTagDeferredSendNumber property (section 2.2.3.2) is multiplied. If set,
+    /// the PidTagDeferredSendUnits property has one of the values listed in the following table.
+    var deferredSendUnits: MessageUnits? {
+        guard let value: UInt32 = getProperty(id: .tagDeferredSendUnits) else {
+            return nil
+        }
+        
+        return MessageUnits(rawValue: value)
+    }
     
-    /// [MS-OXPROPS] 2.2.3.11 PidTagClientSubmitTime Property
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.4 PidTagDeferredSendTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagDeferredSendTime property ([MS-OXPROPS] section 2.658) can be present if a client
+    /// would like to defer sending the message after a specific amount of time, as determined by the
+    /// implementation.
+    /// If the PidTagDeferredSendUnits property (section 2.2.3.3) and the PidTagDeferredSendNumber
+    /// property (section 2.2.3.2) are present, the value of this property is recomputed by using the following
+    /// formula and the original value is ignored. In this formula, TimeOf(PidTagDeferredSendUnits)
+    /// converts the property into the appropriate multiplier based on its value, as specified for the
+    /// PidTagDeferredSendUnits property.
+    /// PidTagDeferredSendTime = PidTagClientSubmitTime +
+    /// PidTagDeferredSendNumber *
+    /// TimeOf(PidTagDeferredSendUnits)
+    /// If the value of the PidTagDeferredSendTime property is earlier than the current time (in UTC), the
+    /// message is sent immediately
+    var deferredSendTime: Date? {
+        return getProperty(id: .tagDeferredSendTime)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.5 PidTagExpiryNumber Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagExpiryNumber property ([MS-OXPROPS] section 2.682) is used with the
+    /// PidTagExpiryUnits property (section 2.2.3.6) to define the expiry send time. If this property is
+    /// present, the value is set between 0x00000000 and 0x000003E7 (0 and 999).
+    var expiryNumber: UInt32? {
+        return getProperty(id: .tagExpiryNumber)
+    }
+
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.6 PidTagExpiryUnits Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagExpiryUnits property ([MS-OXPROPS] section 2.684) is used to describe the unit of time
+    /// that the value of the PidTagExpiryNumber property (section 2.2.3.5) multiplies. If set, the following
+    /// are the valid values of this property.
+    var expiryUnits: MessageUnits? {
+        guard let value: UInt32 = getProperty(id: .tagExpiryUnits) else {
+            return nil
+        }
+        
+        return MessageUnits(rawValue: value)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.7 PidTagExpiryTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagExpiryTime property ([MS-OXPROPS] section 2.683) can be present when a client
+    /// requests to receive an expiry event if the message arrives late.
+    /// If the PidTagExpiryNumber property (section 2.2.3.5) and the PidTagExpiryUnits property
+    /// (section 2.2.3.6) are both present, the value of this property is recomputed by the following formula;
+    /// the original value is ignored.
+    /// PidTagExpiryTime = PidTagClientSubmitTime +
+    /// PidTagExpiryNumber *
+    /// TimeOf(PidTagExpiryUnits)
+    var expiryTime: Date? {
+        return getProperty(id: .tagExpiryTime)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.8 PidTagDeleteAfterSubmit Property
+    /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagDeleteAfterSubmit property ([MS-OXPROPS] section 2.662) indicates whether the
+    /// original message is deleted after the message is sent. If the property is not present, the server uses
+    /// the value 0x00.
+    /// The valid values for this property are specified in the following table.
+    /// [MS-OXCSTOR] 2.2.2.1.2.2 PidTagDeleteAfterSubmit Property
+    /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagDeleteAfterSubmit property ([MS-OXPROPS] section 2.662) indicates whether a
+    /// transport deletes all submitted mail after transmission. An unset value or a value of FALSE indicates
+    /// that the mail is not deleted. The client can also delete this property.<15>
+    var deleteAfterSubmit: Bool? {
+        return getProperty(id: .tagDeleteAfterSubmit)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.9 PidTagMessageDeliveryTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The server sets the value of the PidTagMessageDeliveryTime property ([MS-OXPROPS] section
+    /// 2.783) to the current time (in UTC) when it receives a message.
+    /// [MS-OXORSS] 2.2.1.8 PidTagMessageDeliveryTime Property
+    /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagMessageDeliveryTime property ([MS-OXPROPS] section 2.783) specifies the posting date, in Coordinated Universal
+    /// Time (UTC), of the item or entry. This property is optional.
+    /// This property is set as follows:
+    ///  For an RSS item, this property is set to the value of the pubDate element. If the pubDate element is not present in the RSS
+    /// item, this property is set to the value of the lastBuildDate element.
+    ///  For an atom entry, this property is set to the value of the updated or published element. If none of these elements is present
+    /// under the entry element, then the updated element that is under the feed element is used.
+    ///  This property can be set to the current time if none of the specified elements exist in the RSS item or the atom entry.
+    var messageDeliveryTime: Date? {
+        return getProperty(id: .tagMessageDeliveryTime)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.10 PidTagSentMailSvrEID Property
+    /// Type: PtypServerId ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagSentMailSvrEID property ([MS-OXPROPS] section 2.1005) represents the Sent Items folder for the message.
+    /// This folder MUST NOT be a search folder. The server requires write permission on the folder so that the sent e-mail message
+    /// can be copied to the Sent Items folder. If this property is present, a copy of the message is created in the specified folder after
+    /// the message is sent.
+    /// [MS-OXCSTOR] 2.2.2.1.2.5 PidTagSentMailSvrEID Property
+    /// Type: PtypServerId ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagSentMailSvrEID property ([MS-OXPROPS] section 2.1005) contains the structure identifying the Sent Items folder.
+    /// An unset value indicates that the server won't move sent items to a Sent Items folder after transmission.
+    /// The client can also delete this property.
+    var sentMailSvrEID: Data? {
+        return getProperty(id: .tagSentMailSvrEID)
+    }
+    
+    /// [MS-OXOMSG] 2.2.3 E-Mail Submission Properties
+    /// The following are properties of the recipients (2) identified in the recipient table. These properties are used to control server behavior during message submission.
+    /// [MS-OXOMSG] 2.2.3.11 PidTagClientSubmitTime Property
     /// Type: PtypTime ([MS-OXCDATA] section 2.11.1)
     /// The server sets the value of the PidTagClientSubmitTime property ([MS-OXPROPS] section 2.629)
     /// to the current time (in UTC) when the e-mail message is submitted.

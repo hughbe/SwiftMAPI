@@ -596,6 +596,15 @@ public extension MessageStorage {
         return getProperty(id: .tagAddressBookExtensionAttribute15)
     }
     
+    /// [MS-OXOABK] 2.2.3.35 PidTagAddressBookDisplayTypeExtended
+    /// Data type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagAddressBookDisplayTypeExtended property ([MS-OXPROPS] section 2.509) is limited
+    /// to Recipient objects. The PidTagAddressBookDisplayTypeExtended property SHOULD be
+    /// present on objects on an NSPI server or an offline address book (OAB).<22>
+    var addressBookDisplayTypeExtended: UInt32? {
+        return getProperty(id: .tagAddressBookDisplayTypeExtended)
+    }
+    
     /// [MS-OXOABK] 2.2.4.1 PidTagSurname
     /// Data type: PtypString ([MS-OXCDATA] section 2.11.1)
     /// The PidTagSurname property ([MS-OXPROPS] section 2.1030) contains a mail user's family name.
