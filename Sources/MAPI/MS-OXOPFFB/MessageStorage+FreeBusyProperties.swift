@@ -105,7 +105,7 @@ public extension MessageStorage {
     /// 2.2.1.2.1) but refer to appointments that are marked as either busy or OOF on the associated
     /// Calendar object.
     var scheduleInfoMonthsMerged: [UInt32]? {
-        return getProperty(id: .tagScheduleInfoMonthsMergedOragWlinkFolderType)
+        return getProperty(id: .tagScheduleInfoMonthsMergedOrTagWlinkFolderType)
     }
     
     /// [MS-OXOPFFB] 2.2.1.2.8 PidTagScheduleInfoFreeBusyMerged Property

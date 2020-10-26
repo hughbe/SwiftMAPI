@@ -50,7 +50,11 @@ public extension MessageStorage {
     /// with 9 indicating the highest likelihood. This property SHOULD be set by the server's spam filter
     /// before the Junk Email rule is executed.
     var contentFilterSpamConfidenceLevel: Int32? {
-        return getProperty(id: .tagContentFilterSpamConfidenceLevel)
+        guard let rawValue: UInt32 = getProperty(id: .tagContentFilterSpamConfidenceLevel) else {
+            return nil
+        }
+        
+        return Int32(bitPattern: rawValue)
     }
     
     /// [MS-OXCSPAM] 2.2.2.1 PidTagJunkAddRecipientsToSafeSendersList Property
@@ -72,8 +76,12 @@ public extension MessageStorage {
     /// from contacts are never treated as junk. If this property is set to 0 (zero), the Junk Email rule MUST
     /// specify conditions such that e-mail messages from contacts can be treated as junk. The conditions of
     /// the Junk Email rule are specified in the PidTagExtendedRuleMessageCondition property ([MSOXORULE] section 2.2.4.1.10). For details about creating the Junk Email rule, see section 3.1.4.1.
-    var junkIncludeContacts: UInt32? {
-        return getProperty(id: .tagJunkIncludeContacts)
+    var junkIncludeContacts: Bool? {
+        guard let rawValue: UInt32 = getProperty(id: .tagJunkIncludeContacts) else {
+            return nil
+        }
+        
+        return rawValue != 0
     }
     
     /// [MS-OXCSPAM] 2.2.2.3 PidTagJunkPermanentlyDelete Property
@@ -82,8 +90,12 @@ public extension MessageStorage {
     /// spam messages can be permanently deleted. If this property is set to 1, messages identified as spam
     /// can be permanently deleted. If this property is set to 0 (zero), messages identified as spam cannot be
     /// permanently deleted.
-    var junkPermanentlyDelete: UInt32? {
-        return getProperty(id: .tagJunkPermanentlyDelete)
+    var junkPermanentlyDelete: Bool? {
+        guard let rawValue: UInt32 = getProperty(id: .tagJunkPermanentlyDelete) else {
+            return nil
+        }
+        
+        return rawValue != 0
     }
     
     /// [MS-OXCSPAM] 2.2.2.4 PidTagJunkPhishingEnableLinks Property

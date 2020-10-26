@@ -19,18 +19,11 @@ public struct Record {
     public let username: String
     
     public init(dataStream: inout DataStream) throws {
-        func readDate() throws -> Date {
-            let rawValue: UInt32 = try dataStream.read(endianess: .littleEndian)
-            let secondsToUnixEpoch: UInt64 = 11644473600
-            let unixTimestamp = UInt64(rawValue) * 60 + secondsToUnixEpoch
-            return Date(timeIntervalSince1970: TimeInterval(unixTimestamp))
-        }
-        
         /// StartTime (4 bytes): The start time of the Meeting object in minutes since midnight, January 1, 1601, UTC.
-        self.startTime = try readDate()
+        self.startTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         
         /// EndTime (4 bytes): The end time of the Meeting object in minutes since midnight, January 1, 1601, UTC.
-        self.endTime = try readDate()
+        self.endTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         
         /// GlobalObjectIdSize (4 bytes): The size, in bytes, of the GlobalObjectId field.
         self.globalObjectIdSize = try dataStream.read(endianess: .littleEndian)

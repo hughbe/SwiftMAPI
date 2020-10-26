@@ -790,3 +790,170 @@ extension MeetingType: EnumCaseRepresentable {
         (.delegatorCopy, ".delegatorCopy")
     ]
 }
+
+extension WlinkFlags: EnumCaseRepresentable {
+    public static let caseNames: [(element: WlinkFlags, name: String)] = [
+        (.publicFolder, ".publicFolder"),
+        (.imapFolder, ".imapFolder"),
+        (.webDavFolder, ".webDavFolder"),
+        (.sharePointFolder, ".sharePointFolder"),
+        (.rootFolder, ".rootFolder"),
+        (.sharedOut, ".sharedOut"),
+        (.sharedIn, ".sharedIn"),
+        (.personFolder, ".personFolder"),
+        (.iCal, ".iCal"),
+        (.overlay, ".overlay"),
+        (.oneOffName, ".oneOffName")
+    ]
+}
+
+extension WlinkType: EnumCaseRepresentable {
+    public static let caseNames: [(element: WlinkType, name: String)] = [
+        (.normalFolder, ".normalFolder"),
+        (.searchFolder, ".searchFolder"),
+        (.sharedFolder, ".sharedFolder"),
+        (.groupHeaderShortcut, ".groupHeaderShortcut")
+    ]
+}
+
+extension WlinkSection: EnumCaseRepresentable {
+    public static let caseNames: [(element: WlinkSection, name: String)] = [
+        (.mail, ".mail"),
+        (.na, ".na"),
+        (.calendar, ".calendar"),
+        (.contacts, ".contacts"),
+        (.tasks, ".tasks"),
+        (.notes, ".notes"),
+        (.journal, ".journal")
+    ]
+}
+
+extension WlinkGroupType: EnumCaseRepresentable {
+    public static let caseNames: [(element: WlinkGroupType, name: String)] = [
+        (.undefined, ".undefined"),
+        (.myDepartment, ".myDepartment"),
+        (.otherDepartment, ".otherDepartment"),
+        (.directReportGroup, ".directReportGroup"),
+        (.coworkerGroup, ".coworkerGroup"),
+        (.distributionList, ".distributionList")
+    ]
+}
+
+extension RoamingDatatypes: EnumCaseRepresentable {
+    public static let caseNames: [(element: RoamingDatatypes, name: String)] = [
+        (.containsXmlStream, ".containsXmlStream"),
+        (.containsDictionaryStream, ".containsDictionaryStream")
+    ]
+}
+
+extension RuleState: EnumCaseRepresentable {
+    public static let caseNames: [(element: RuleState, name: String)] = [
+        (.enabled, ".enabled"),
+        (.error, ".error"),
+        (.onlyWhenOutOfOffice, ".onlyWhenOutOfOffice"),
+        (.keepOutOfOfficeHistory, ".keepOutOfOfficeHistory"),
+        (.exitLevel, ".exitLevel"),
+        (.skipIfSpamConfidenceLevelIsSafe, ".skipIfSpamConfidenceLevelIsSafe"),
+        (.ruleParseError, ".ruleParseError")
+    ]
+}
+
+extension PropertyName.Kind: EnumCaseRepresentable {
+    public static let caseNames: [(element: PropertyName.Kind, name: String)] = [
+        (.identifiedByLIDField, ".identifiedByLIDField"),
+        (.identifiedByNameField, ".identifiedByNameField"),
+        (.noAssociatedField, ".noAssociatedField")
+    ]
+}
+
+extension ActionBlock.ActionType: EnumCaseRepresentable {
+    public static let caseNames: [(element: ActionBlock.ActionType, name: String)] = [
+        (.move, ".move"),
+        (.copy, ".copy"),
+        (.reply, ".reply"),
+        (.oofReply, ".oofReply"),
+        (.deferAction, ".deferAction"),
+        (.bounce, ".bounce"),
+        (.forward, ".forward"),
+        (.delegate, ".delegate"),
+        (.tag, ".tag"),
+        (.delete, ".delete"),
+        (.markAsRead, ".markAsRead")
+    ]
+}
+
+extension ActionBlock.Flavor: EnumCaseRepresentable {
+    public static let caseNames: [(element: ActionBlock.Flavor, name: String)] = [
+        (.pr, ".pr"),
+        (.nc, ".nc"),
+        (.at, ".at"),
+        (.tm, ".ns"),
+        (.st, ".st")
+    ]
+}
+
+extension Restriction.RestrictType: EnumCaseRepresentable {
+    public static let caseNames: [(element: Restriction.RestrictType, name: String)] = [
+        (.and, ".and"),
+        (.or, ".or"),
+        (.not, ".not"),
+        (.content, ".content"),
+        (.property, ".property"),
+        (.compareProperties, ".compareProperties"),
+        (.bitMask, ".bitMask"),
+        (.size, ".size"),
+        (.exist, ".exist"),
+        (.subObject, ".subObject"),
+        (.comment, ".comment"),
+        (.count, ".count")
+    ]
+}
+
+extension PropertyType: EnumCaseRepresentable {
+    public static let caseNames: [(element: PropertyType, name: String)] = [
+        (.unspecified, ".unspecified"),
+        (.null, ".null"),
+        (.integer16, ".integer16"),
+        (.integer32, ".integer32"),
+        (.floating32, ".floating32"),
+        (.floating64, ".floating64"),
+        (.currency, ".currency"),
+        (.floatingTime, ".floatingTime"),
+        (.errorCode, ".errorCode"),
+        (.boolean, ".boolean"),
+        (.objectOrEmbeddedTable, ".objectOrEmbeddedTable"),
+        (.integer64, ".integer64"),
+        (.string8, ".string8"),
+        (.string, ".string"),
+        (.guid, ".guid"),
+        (.serverId, ".serverId"),
+        (.restriction, ".restriction"),
+        (.ruleAction, ".ruleAction"),
+        (.binary, ".binary"),
+        (.multipleInteger16, ".multipleInteger16"),
+        (.multipleInteger32, ".multipleInteger32"),
+        (.multipleFloating32, ".multipleFloating32"),
+        (.multipleFloating64, ".multipleFloating64"),
+        (.multipleCurrency, ".multipleCurrency"),
+        (.multipleFloatingTime, ".multipleFloatingTime"),
+        (.multipleInteger64, ".multipleInteger64"),
+        (.multipleString8, ".multipleString8"),
+        (.multipleString, ".multipleString"),
+        (.multipleTime, ".multipleTime"),
+        (.multipleGuid, ".multipleGuid"),
+        (.multipleBinary, ".multipleBinary"),
+        (.unknown, ".unknown")
+    ]
+}
+
+extension Restriction.RelationalOperator: EnumCaseRepresentable {
+    public static let caseNames: [(element: Restriction.RelationalOperator, name: String)] = [
+        (.lessThan, ".lessThan"),
+        (.lessThanOrEqual, ".lessThanOrEqual"),
+        (.greaterThan, ".greaterThan"),
+        (.greaterThanOrEqualTo, ".greaterThanOrEqualTo"),
+        (.equalTo, ".equalTo"),
+        (.notEqualTo, ".notEqualTo"),
+        (.memberOfDistributionList, ".memberOfDistributionList"),
+    ]
+}

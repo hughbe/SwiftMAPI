@@ -148,13 +148,6 @@ public struct RecurrencePattern {
         /// DeletedInstanceDates field.
         self.deletedInstanceCount = try dataStream.read(endianess: .littleEndian)
         
-        func readDate() throws -> Date {
-            let rawValue: UInt32 = try dataStream.read(endianess: .littleEndian)
-            let secondsToUnixEpoch: UInt64 = 11644473600
-            let unixTimestamp = UInt64(rawValue) * 60 + secondsToUnixEpoch
-            return Date(timeIntervalSince1970: TimeInterval(unixTimestamp))
-        }
-        
         /// DeletedInstanceDates (variable): An array of dates, each of which is the original instance date of
         /// either a deleted instance or a modified instance for this recurrence. The number of dates
         /// contained in this array is specified by the DeletedInstanceCount field. Each date is stored as the
@@ -168,7 +161,7 @@ public struct RecurrencePattern {
         var deletedInstanceDates: [Date] = []
         deletedInstanceDates.reserveCapacity(Int(self.deletedInstanceCount))
         for _ in 0..<self.deletedInstanceCount {
-            let deletedInstanceDate = try readDate()
+            let deletedInstanceDate = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
             deletedInstanceDates.append(deletedInstanceDate)
         }
         
@@ -190,23 +183,21 @@ public struct RecurrencePattern {
         var modifiedInstanceDates: [Date] = []
         modifiedInstanceDates.reserveCapacity(Int(self.modifiedInstanceCount))
         for _ in 0..<self.modifiedInstanceCount {
-            let modifiedInstanceDate = try readDate()
+            let modifiedInstanceDate = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
             modifiedInstanceDates.append(modifiedInstanceDate)
         }
         
         self.modifiedInstanceDates = modifiedInstanceDates
     
-        /// StartDate (4 bytes): An integer that specifies the date of the first occurrence. The value is the
-        /// number of minutes between midnight, January 1, 1601, and midnight of the date of the first
-        /// occurrence.
-        self.startDate = try readDate()
+        /// StartDate (4 bytes): An integer that specifies the date of the first occurrence. The value is the number of minutes between
+        /// midnight, January 1, 1601, and midnight of the date of the first occurrence.
+        self.startDate = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
 
-        /// EndDate (4 bytes): An integer that specifies the ending date for the recurrence. The value is the
-        /// number of minutes between midnight, January 1, 1601, and midnight of the date of the last
-        /// occurrence. When the value of the EndType field is 0x00002022 (end after n occurrences), this
-        /// value is calculated based on the number of occurrences If the recurrence does not have an end
+        /// EndDate (4 bytes): An integer that specifies the ending date for the recurrence. The value is the number of minutes between
+        /// midnight, January 1, 1601, and midnight of the date of the last occurrence. When the value of the EndType field is 0x00002022
+        /// (end after n occurrences), this value is calculated based on the number of occurrences If the recurrence does not have an end
         /// date, the value of the EndDate field MUST be set to 0x5AE980DF.
-        self.endDate = try readDate()
+        self.endDate = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
     }
     
     /// RecurFrequency (2 bytes): An integer that specifies the frequency of the recurring series.

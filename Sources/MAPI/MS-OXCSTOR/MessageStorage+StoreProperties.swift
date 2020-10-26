@@ -46,7 +46,11 @@ public extension MessageStorage {
     /// maximum size, in kilobytes, of a message a user is allowed to submit for transmission to another user.
     /// An unset value or a value of -1 indicates that there is no limit.
     var maximumSubmitMessageSize: Int32? {
-        return getProperty(id: .tagMaximumSubmitMessageSize)
+        guard let rawValue: UInt32 = getProperty(id: .tagMaximumSubmitMessageSize) else {
+            return nil
+        }
+        
+        return Int32(bitPattern: rawValue)
     }
     
     /// [MS-OXCSTOR] 2.2.2.1.1.3 PidTagProhibitReceiveQuota Property
@@ -55,7 +59,11 @@ public extension MessageStorage {
     /// size, in kilobytes, a user is allowed to accumulate in their mailbox, before no further mail will be
     /// delivered. An unset value or a value of -1 indicates that there is no limit.
     var prohibitReceiveQuota: Int32? {
-        return getProperty(id: .tagProhibitReceiveQuota)
+        guard let rawValue: UInt32 = getProperty(id: .tagProhibitReceiveQuota) else {
+            return nil
+        }
+        
+        return Int32(bitPattern: rawValue)
     }
     
     /// [MS-OXCSTOR] 2.2.2.1.1.4 PidTagProhibitSendQuota Property
@@ -64,7 +72,11 @@ public extension MessageStorage {
     /// in kilobytes, a user is allowed to accumulate in their mailbox, before the user can no longer submit
     /// any more mail. An unset value or a value of -1 indicates that there is no limit.
     var prohibitSendQuota: Int32? {
-        return getProperty(id: .tagProhibitSendQuota)
+        guard let rawValue: UInt32 = getProperty(id: .tagProhibitSendQuota) else {
+            return nil
+        }
+        
+        return Int32(bitPattern: rawValue)
     }
     
     /// [MS-OXCSTOR] 2.2.2.1.1.5 PidTagStoreState Property

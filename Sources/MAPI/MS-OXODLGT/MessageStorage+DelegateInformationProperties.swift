@@ -34,7 +34,7 @@ public extension MessageStorage {
     /// delegate.
     /// This property MUST be set on the Delegate Information object.
     var scheduleInfoDelegatorWantsCopy: Bool? {
-        return getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrWlinkGroupHeaderID)
+        return getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID)
     }
     
     /// [MS-OXODLGT] 2.2.2.2.2 PidTagScheduleInfoDelegatorWantsInfo Property
@@ -71,7 +71,7 @@ public extension MessageStorage {
     /// section 2.11.1) property, which can cause a loss of fidelity when converting from Unicode.
     /// Requirements for this property are specified in section 3.1.4.3.3.
     var scheduleInfoDelegateNamesW: [String]? {
-        return getProperty(id: .tagScheduleInfoDelegateNamesWOrWlinkFlags)
+        return getProperty(id: .tagScheduleInfoDelegateNamesWOrTagWlinkFlags)
     }
     
     /// [MS-OXODLGT] 2.2.2.2.5 PidTagScheduleInfoDelegateEntryIds Property

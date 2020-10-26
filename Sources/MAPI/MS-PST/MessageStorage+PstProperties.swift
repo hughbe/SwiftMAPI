@@ -505,6 +505,19 @@ public extension MessageStorage {
     var replFlags: UInt32? {
         return getProperty(id: .tagReplFlags)
     }
+    
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
+    /// object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
+    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
+    /// data rows, and MUST contain the following property columns.
+    /// 0x7003 PtypInteger32 PidTagViewDescriptorFlags View descriptor flags. Y
+    var viewDescriptorFlags: UInt32? {
+        return getProperty(id: .tagViewDescriptorFlags)
+    }
 
     /// PidTagValidFolderMask
     /// Not documented in specification but known on internet

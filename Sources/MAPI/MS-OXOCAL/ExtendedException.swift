@@ -45,21 +45,14 @@ public struct ExtendedException {
         
         /// ReservedBlockEE1 (variable): This field is reserved.
         self.reservedBlockEE1 = try dataStream.readBytes(count: Int(self.reservedBlockEE1Size))
-        
-        func readDate() throws -> Date {
-            let rawValue: UInt32 = try dataStream.read(endianess: .littleEndian)
-            let secondsToUnixEpoch: UInt64 = 11644473600
-            let unixTimestamp = UInt64(rawValue) * 60 + secondsToUnixEpoch
-            return Date(timeIntervalSince1970: TimeInterval(unixTimestamp))
-        }
-        
+
         /// StartDateTime* (4 bytes): The start time of the exception in local time in minutes since midnight,
         /// January 1, 1601. *This field is present only when the ARO_SUBJECT flag or the
         /// ARO_LOCATION flag is set in the OverrideFlags field of the ExtendedException structure's
         /// associated ExceptionInfo structure. For details, see the description of the OverrideFlags field in
         /// section 2.2.1.44.2.
         if overrideFlags.contains(.subject) || overrideFlags.contains(.location) {
-            self.startDateTime = try readDate()
+            self.startDateTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         } else {
             self.startDateTime = nil
         }
@@ -70,7 +63,7 @@ public struct ExtendedException {
         /// associated ExceptionInfo structure. For details, see the description of the OverrideFlags field in
         /// section 2.2.1.44.2.
         if overrideFlags.contains(.subject) || overrideFlags.contains(.location) {
-            self.endDateTime = try readDate()
+            self.endDateTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         } else {
             self.endDateTime = nil
         }
@@ -81,7 +74,7 @@ public struct ExtendedException {
         /// associated ExceptionInfo structure. For details, see the description of the OverrideFlags field in
         /// section 2.2.1.44.2.
         if overrideFlags.contains(.subject) || overrideFlags.contains(.location) {
-            self.originalStartDate = try readDate()
+            self.originalStartDate = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         } else {
             self.originalStartDate = nil
         }

@@ -1247,15 +1247,16 @@ public extension MessageStorage {
     /// Value Meaning
     /// 0x00000001 Suppress delivery reports.
     /// 0x00000002 Suppress non-delivery reports.
-    /// 0x00000004 Suppress read notifications from clients that receive
-    /// the message.
-    /// 0x00000008 Suppress non-read notifications from clients that
-    /// receive the message.
+    /// 0x00000004 Suppress read notifications from clients that receive the message.
+    /// 0x00000008 Suppress non-read notifications from clients that receive the message.
     /// 0x00000010 Suppress Out of Office (OOF) messages.
-    /// 0x00000020 Suppress all auto-reply messages other than OOF
-    /// notifications.
+    /// 0x00000020 Suppress all auto-reply messages other than OOF notifications.
     var autoResponseSuppress: Int32? {
-        return getProperty(id: .tagAutoResponseSuppress)
+        guard let rawValue: UInt32 = getProperty(id: .tagAutoResponseSuppress) else {
+            return nil
+        }
+        
+        return Int32(bitPattern: rawValue)
     }
 
     /// [MS-OXOMSG] 2.2.1.78 PidTagMessageEditorFormat Property

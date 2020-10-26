@@ -3505,6 +3505,10 @@ public enum PropertyId: UInt16 {
     /// PidTagAssociatedContentCount
     /// Not documented in specification but known on internet
     /// Contains the count of items in the associated contents table of the folder.
+    /// Associated properties: PR_ASSOC_CONTENT_COUNT
+    /// Identifier: 0x3617
+    /// Data type: PT_LONG
+    /// Area: Folder
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagassociatedcontentcount-canonical-property
     case tagAssociatedContentCount = 0x3617
 
@@ -8029,6 +8033,14 @@ public enum PropertyId: UInt16 {
     case tagMapiFormComposeCommand = 0x682F
     
     // case unknown0x68230 = 0x68230
+    
+    // case unknown0x6830 = 0x6830
+    
+    // case unknown0x6831 = 0x6831
+    
+    // case unknown0x6832 = 0x6832
+    
+    case unknown0x6833 = 0x6833
 
     // case unknown0x6834 = 0x6834
 
@@ -8042,7 +8054,7 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_WB_SF_LAST_USED
     case tagSearchFolderLastUsed = 0x6834
 
-    // case unknown0x6835 = 0x6835
+    case unknown0x6835 = 0x6835
 
     // case unknown0x6836 = 0x6836
 
@@ -8065,13 +8077,13 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x683B = 0x683B
 
-    // case unknown0x683C = 0x683C
+    case unknown0x683C = 0x683C
 
-    // case unknown0x683D = 0x683D
+    case unknown0x683D = 0x683D
 
     // case unknown0x683E = 0x683E
 
-    // case unknown0x683F = 0x683F
+    case unknown0x683F = 0x683F
 
     // case unknown0x6840 = 0x6840
 
@@ -8112,7 +8124,7 @@ public enum PropertyId: UInt16 {
     /// Area: Configuration
     /// Defining reference: [MS-OXOCFG] section 2.2.9.3
     /// Alternate names:
-    case tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrWlinkGroupHeaderID = 0x6842
+    case tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID = 0x6842
 
     /// [MS-OXPROPS] 2.975 PidTagScheduleInfoDontMailDelegates
     /// Canonical name: PidTagScheduleInfoDontMailDelegates
@@ -8262,7 +8274,7 @@ public enum PropertyId: UInt16 {
     /// Area: Configuration
     /// Defining reference: [MS-OXOCFG] section 2.2.9.6
     /// Alternate names: PR_WLINK_FLAGS
-    case tagScheduleInfoDelegateNamesWOrWlinkFlags = 0x684A
+    case tagScheduleInfoDelegateNamesWOrTagWlinkFlags = 0x684A
 
     /// [MS-OXPROPS]2.972 PidTagScheduleInfoDelegatorWantsInfo
     /// Canonical name: PidTagScheduleInfoDelegatorWantsInfo
@@ -8332,7 +8344,7 @@ public enum PropertyId: UInt16 {
     /// Area: Configuration
     /// Defining reference: [MS-OXOCFG] section 2.2.9.11
     /// Alternate names: PR_WLINK_FOLDER_TYPE
-    case tagScheduleInfoMonthsMergedOragWlinkFolderType = 0x684F
+    case tagScheduleInfoMonthsMergedOrTagWlinkFolderType = 0x684F
 
     /// [MS-OXPROPS] 2.979 PidTagScheduleInfoFreeBusyMerged
     /// Canonical name: PidTagScheduleInfoFreeBusyMerged
@@ -8453,7 +8465,37 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_SCHDINFO_FREEBUSY_OOF
     case tagScheduleInfoFreeBusyAway = 0x6856
 
-    // case unknown0x6857 = 0x6857
+    case unknown0x6857 = 0x6857
+    
+    // case unknown0x6858 = 0x6858
+    
+    case unknown0x6859 = 0x6859
+    
+    // case unknown0x685A = 0x685A
+    
+    // case unknown0x685B = 0x685B
+    
+    // case unknown0x685C = 0x685C
+    
+    case unknown0x685D = 0x685D
+    
+    case unknown0x685E = 0x685E
+    
+    // case unknown0x685F = 0x685F
+    
+    // case unknown0x6860 = 0x6860
+    
+    // case unknown0x6861 = 0x6861
+    
+    // case unknown0x6862 = 0x6862
+    
+    // case unknown0x6863 = 0x6863
+    
+    // case unknown0x6864 = 0x6864
+    
+    // case unknown0x6865 = 0x6865
+    
+    // case unknown0x6866 = 0x6866
 
     // case unknown0x6867 = 0x6867
 
@@ -8844,8 +8886,16 @@ public enum PropertyId: UInt16 {
     /// Defining reference: [MS-OXOCFG] section 2.2.2.3
     /// Alternate names: PR_ROAMING_XMLSTREAM
     case tagRoamingXmlStream = 0x7C08
-
-    // case unknown0x7C09 = 0x7C09
+    
+    /// PidTagRoamingBinary
+    /// Not documented in specification but known on internet 
+    /// Contains a message stream associated with a subclass of the IPM.Configuration class.
+    /// Associated properties: PR_ROAMING_BINARYSTREAM
+    /// Identifier: 0x7C09
+    /// Data type: PT_BINARY
+    /// Area: Configuration
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagroamingbinary-canonical-property
+    case tagRoamingBinary = 0x7C09
     
     // case unknown0x7C0A = 0x7C0A
     

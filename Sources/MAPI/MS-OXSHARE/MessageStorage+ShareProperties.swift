@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 06/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXSHARE] 2.2 Message Syntax
@@ -169,8 +170,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidLidSharingProviderGuid property ([MS-OXPROPS] section 2.266) MUST be set to
     /// %xAE.F0.06.00.00.00.00.00.C0.00.00.00.00.00.00.46.
-    var sharingProviderGuid: Data? {
-        return getProperty(name: .lidSharingProviderGuid)
+    var sharingProviderGuid: UUID? {
+        guard let data: Data = getProperty(name: .lidSharingProviderGuid) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.read(type: UUID.self)
     }
     
     /// [MS-OXSHARE] 2.2.2.13 PidNameXSharingProviderGuid Property

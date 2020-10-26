@@ -18,7 +18,7 @@ public struct MessageRights: OptionSet {
 
     /// If this flag is set, the server MUST allow the specified user's client to read any Message object in the folder.
     /// If this flag is not set, the server MUST NOT allow the user's client to read Message objects that are owned by other users.
-    static let readAny = MessageRights(rawValue: 0x00000001)
+    public static let readAny = MessageRights(rawValue: 0x00000001)
     
     /// If this flag is set, the server MUST allow the specified user's client to create new Message objects in the folder.
     /// If this flag is not set, the server MUST NOT allow the user's client to create new Message objects in the folder.

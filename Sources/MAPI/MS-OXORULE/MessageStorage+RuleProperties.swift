@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 03/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXORULE] 2.2 Message Syntax
@@ -276,8 +277,13 @@ public extension MessageStorage {
     /// PidTagRuleActions property (section 2.2.1.3.1.10) serves for standard rules; however, it contains
     /// additional information about the version of the rule (2) and about the named properties used.
     /// The format of the PidTagExtendedRuleMessageActions property is as follows.
-    var extendedRuleMessageActions: Data? {
-        return getProperty(id: .tagExtendedRuleMessageActions)
+    var extendedRuleMessageActions: ExtendedRuleMessageActions? {
+        guard let data: Data = getProperty(id: .tagExtendedRuleMessageActions) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ExtendedRuleMessageActions(dataStream: &dataStream)
     }
         
     /// [MS-OXORULE] 2.2.4.1.10 PidTagExtendedRuleMessageCondition Property
@@ -292,8 +298,13 @@ public extension MessageStorage {
     /// PidTagExtendedRuleMessageCondition property under the value specified by the
     /// PidTagExtendedRuleSizeLimit property.
     /// The format of the PidTagExtendedRuleMessageCondition property is as follows.
-    var extendedRuleMessageCondition: Data? {
-        return getProperty(id: .tagExtendedRuleMessageCondition)
+    var extendedRuleMessageCondition: ExtendedRuleMessageCondition? {
+        guard let data: Data = getProperty(id: .tagExtendedRuleMessageCondition) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? ExtendedRuleMessageCondition(dataStream: &dataStream)
     }
     
     /// [MS-OXORULE] 2.2.6.2 PidTagDamBackPatched Property
@@ -424,10 +435,14 @@ public extension MessageStorage {
     
     /// [MS-OXORULE] 2.2.9.2 PidTagReplyTemplateId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagReplyTemplateId property ([MS-OXPROPS] section 2.914) specifies the GUID for the
-    /// reply template.
-    var replyTemplateId: Data? {
-        return getProperty(id: .tagReplyTemplateId)
+    /// The PidTagReplyTemplateId property ([MS-OXPROPS] section 2.914) specifies the GUID for the reply template.
+    var replyTemplateId: UUID? {
+        guard let data: Data = getProperty(id: .tagReplyTemplateId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.read(type: UUID.self)
     }
     
     /// [MS-OXORULE] 2.2.9.3 PidTagRwRulesStream Property

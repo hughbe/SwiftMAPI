@@ -55,8 +55,13 @@ public extension MessageStorage {
     /// The GUID of the search folder definition message MUST match the GUID of the corresponding
     /// search folder container. For details about the relationship between the search folder definition
     /// message and the search folder container, see section 2.2.4.
-    var searchFolderId: Data? {
-        return getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrWlinkGroupHeaderID)
+    var searchFolderId: UUID? {
+        guard let data: Data = getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.read(type: UUID.self)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.2 PidTagSearchFolderTemplateId
@@ -83,30 +88,35 @@ public extension MessageStorage {
 
     /// [MS-OXOSRCH] 2.2.1.2.4 PidTagSearchFolderLastUsed
     /// Type: PtypInteger32
-    /// The PidTagSearchFolderLastUsed property ([MS-OXPROPS] section 2.986) specifies the last time
-    /// the search folder was accessed. It is formatted as the number of minutes since midnight
-    /// (Coordinated Universal Time (UTC)) January 1, 1601. This property is set to the current time when
-    /// the search folder definition message is created.
-    var searchFolderLastUsed: UInt32? {
-        return getProperty(id: .tagSearchFolderLastUsed)
+    /// The PidTagSearchFolderLastUsed property ([MS-OXPROPS] section 2.986) specifies the last time the search folder was accessed.
+    /// It is formatted as the number of minutes since midnight (Coordinated Universal Time (UTC)) January 1, 1601. This property is set to
+    /// the current time when the search folder definition message is created.
+    var searchFolderLastUsed: Date? {
+        guard let rawValue: UInt32 = getProperty(id: .tagSearchFolderLastUsed) else {
+            return nil
+        }
+        
+        return Date(minutesSince1601: rawValue)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.5 PidTagSearchFolderExpiration
     /// Type: PtypInteger32
-    /// The PidTagSearchFolderExpiration property ([MS-OXPROPS] section 2.984) specifies the time at
-    /// which the search folder container will be stale and has to be updated or re-created. It is formatted
-    /// as the number of minutes since midnight (UTC) January 1, 1601.
-    var searchFolderExpiration: UInt32? {
-        return getProperty(id: .tagSearchFolderExpiration)
+    /// The PidTagSearchFolderExpiration property ([MS-OXPROPS] section 2.984) specifies the time at which the search folder container
+    /// will be stale and has to be updated or re-created. It is formatted as the number of minutes since midnight (UTC) January 1, 1601.
+    var searchFolderExpiration: Date? {
+        guard let rawValue: UInt32 = getProperty(id: .tagSearchFolderExpiration) else {
+            return nil
+        }
+        
+        return Date(minutesSince1601: rawValue)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.6 PidTagSearchFolderStorageType
     /// Type: PtypInteger32
-    /// The PidTagSearchFolderStorageType property ([MS-OXPROPS] section 2.988) contains flags that
-    /// control the presence and content of certain fields within the PidTagSearchFolderDefinition property
-    /// (section 2.2.1.2.8 ). These flags are duplicated within the PidTagSearchFolderDefinition property.
-    /// The specific flags to use depend on the template; section 2.2.3 specifies the correct flags for each
-    /// template definition.
+    /// The PidTagSearchFolderStorageType property ([MS-OXPROPS] section 2.988) contains flags that control the presence and content
+    /// of certain fields within the PidTagSearchFolderDefinition property (section 2.2.1.2.8 ). These flags are duplicated within the
+    /// PidTagSearchFolderDefinition property.
+    /// The specific flags to use depend on the template; section 2.2.3 specifies the correct flags for each template definition.
     /// The flags are stored as a 4-byte integer. The following table shows the flags in big-endian order.
     /// (The flags are in network byte order within the PidTagSearchFolderDefinition property.)
     var searchFolderStorageType: OutlookMessageSearchFolderStorageType? {

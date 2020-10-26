@@ -85,8 +85,7 @@ public enum PropertyType: UInt16 {
     /// [MS-DTYP]: FILETIME
     case time = 0x0040
     
-    /// 16 bytes; a GUID with Data1, Data2, and Data3 fields in little-endian format
-    /// [MS-DTYP]: GUID
+    /// 16 bytes; a GUID with Data1, Data2, and Data3 fields in little-endian format [MS-DTYP]: GUID
     case guid = 0x0048
     
     /// Variable size; a 16-bit COUNT field followed by a structure as specified in section 2.11.1.4.
@@ -95,8 +94,7 @@ public enum PropertyType: UInt16 {
     /// Variable size; a byte array representing one or more Restriction structures as specified in section 2.12.
     case restriction = 0x00FD
     
-    /// Variable size; a 16-bit COUNT field followed by that many rule action structures, as
-    /// specified in [MS-OXORULE] section 2.2.5.
+    /// Variable size; a 16-bit COUNT field followed by that many rule action structures, as specified in [MS-OXORULE] section 2.2.5.
     case ruleAction = 0x00FE
     
     /// Variable size; a COUNT field followed by that many bytes.
@@ -139,4 +137,8 @@ public enum PropertyType: UInt16 {
     case multipleBinary = 0x1102
     
     case unknown = 0xFFFF
+    
+    public var isMultiValued: Bool {
+        return self.rawValue & 0x1000 != 0 && self != .unknown
+    }
 }

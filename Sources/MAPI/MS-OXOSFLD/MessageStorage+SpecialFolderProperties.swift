@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 02/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXOSFLD] 2.2.3 Binary Identification Properties
@@ -14,38 +15,78 @@ import Foundation
 /// mailbox is that of a delegate. For details about delegates, see [MS-OXODLGT].
 public extension MessageStorage {
     /// [MS-OXOSFLD] Contains the entry ID of the Calendar folder
-    var ipmAppointmentEntryId: Data? {
-        return getProperty(id: .tagIpmAppointmentEntryId)
+    var ipmAppointmentEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmAppointmentEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Contacts folder
-    var ipmContactEntryId: Data? {
-        return getProperty(id: .tagIpmContactEntryId)
+    var ipmContactEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmContactEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Journal folder
-    var ipmJournalEntryId: Data? {
-        return getProperty(id: .tagIpmJournalEntryId)
+    var ipmJournalEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmJournalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Notes folder
-    var ipmNoteEntryId: Data? {
-        return getProperty(id: .tagIpmNoteEntryId)
+    var ipmNoteEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmNoteEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Tasks folder
-    var ipmTaskEntryId: Data? {
-        return getProperty(id: .tagIpmTaskEntryId)
+    var ipmTaskEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmTaskEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Reminders folder
-    var remindersEntryId: Data? {
-        return getProperty(id: .tagRemindersOnlineEntryId)
+    var remindersOnlineEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagRemindersOnlineEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+
     }
     
     /// [MS-OXOSFLD] Contains the entry ID of the Drafts folder
-    var ipmDraftsEntryId: Data? {
-        return getProperty(id: .tagIpmDraftsEntryId)
+    var ipmDraftsEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagIpmDraftsEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+
     }
     
     /// [MS-OXOSFLD] 2.2.4 PidTagAdditionalRenEntryIds Property

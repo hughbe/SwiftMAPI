@@ -52,11 +52,10 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [UInt1
                     key == PropertyId.tagIpmContactEntryId.rawValue ||
                     key == PropertyId.tagIpmJournalEntryId.rawValue ||
                     key == PropertyId.tagIpmTaskEntryId.rawValue ||
-                    key == PropertyId.tagIpmNoteEntryId.rawValue {
+                    key == PropertyId.tagIpmNoteEntryId.rawValue ||
+                    key == PropertyId.tagStoreEntryId.rawValue ||
+                    key == PropertyId.tagWlinkStoreEntryId.rawValue {
                 let entryId = try! getEntryID(dataStream: &dataStream, size: dataStream.count)
-                return "\(entryId)"
-            } else if key == PropertyId.tagStoreEntryId.rawValue || key == PropertyId.tagWlinkStoreEntryId.rawValue {
-                let entryId = try! StoreEntryID(dataStream: &dataStream)
                 return "\(entryId)"
             }
 

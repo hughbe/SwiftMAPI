@@ -52,4 +52,18 @@ public extension MessageStorage {
     var itemTemporaryflags: UInt32? {
         return getProperty(id: .tagItemTemporaryflags)
     }
+    
+    /// PidTagRoamingBinary
+    /// Contains a message stream associated with a subclass of the IPM.Configuration class.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagroamingbinary-canonical-property
+    var roamingBinary: Data? {
+        return getProperty(id: .tagRoamingBinary)
+    }
+    
+    /// PidTagAssociatedContentCount
+    /// Contains the count of items in the associated contents table of the folder.
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagassociatedcontentcount-canonical-property
+    var associatedContentCount: UInt32? {
+        return getProperty(id: .tagAssociatedContentCount)
+    }
 }

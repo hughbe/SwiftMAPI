@@ -976,13 +976,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagStoreEntryId property ([MS-OXPROPS] section 2.1028) contains the unique EntryID of
     /// the message store where an object resides. The format of this property is specified in [MSOXCDATA] section 2.2.4.
-    var storeEntryId: StoreEntryID? {
+    var storeEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagStoreEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data: data)
-        return try? StoreEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     // [MS-OXCMSG] 2.2.1.45 PidTagTrustSender

@@ -29,21 +29,14 @@ public struct ExceptionInfo {
     public let appointmentColor: UInt32?
     
     public init(dataStream: inout DataStream) throws {
-        func readDate() throws -> Date {
-            let rawValue: UInt32 = try dataStream.read(endianess: .littleEndian)
-            let secondsToUnixEpoch: UInt64 = 11644473600
-            let unixTimestamp = UInt64(rawValue) * 60 + secondsToUnixEpoch
-            return Date(timeIntervalSince1970: TimeInterval(unixTimestamp))
-        }
-        
         /// StartDateTime (4 bytes): The start time of the exception in local time in minutes since midnight, January 1, 1601.
-        self.startDateTime = try readDate()
+        self.startDateTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         
         /// EndDateTime (4 bytes): The end time of the exception in local time in minutes since midnight, January 1, 1601.
-        self.endDateTime = try readDate()
+        self.endDateTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         
         /// OriginalStartTime (4 bytes): The original starting time of the exception in local time in minutes since midnight, January 1, 1601.
-        self.originalStartTime = try readDate()
+        self.originalStartTime = Date(minutesSince1601: try dataStream.read(endianess: .littleEndian))
         
         /// OverrideFlags (2 bytes): A bit field that specifies what data in the ExceptionInfo structure has a value different
         /// from the recurring series. The valid flags for this field are summarized in the following table.

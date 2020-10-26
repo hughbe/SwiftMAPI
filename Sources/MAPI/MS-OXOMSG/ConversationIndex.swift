@@ -10,19 +10,18 @@ import Foundation
 
 /// [MS-OXOMSG] 2.2.1.3 PidTagConversationIndex Property
 /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-/// The PidTagConversationIndex property ([MS-OXPROPS] section 2.644) indicates the relative
-/// position of this message within a conversation thread. It is set according to the description in the
-/// following diagram.
+/// The PidTagConversationIndex property ([MS-OXPROPS] section 2.644) indicates the relative position of this message within a
+/// conversation thread. It is set according to the description in the following diagram.
 public struct ConversationIndex {
     public var header: ConversationIndexHeader
     public var responseLevels: [ConversationIndexResponseLevel]
     
     public init(dataStream: inout DataStream) throws {
         /// Conversation Index Header (22 bytes): Set according to the description in the following diagram.
-        header = try ConversationIndexHeader(dataStream: &dataStream)
+        self.header = try ConversationIndexHeader(dataStream: &dataStream)
         
         /// Response Levels (5 bytes each): Set according to the description in the following diagram.
-        responseLevels = []
+        self.responseLevels = []
         while dataStream.position < dataStream.count {
             let responseLevel = try ConversationIndexResponseLevel(dataStream: &dataStream)
             responseLevels.append(responseLevel)

@@ -47,12 +47,18 @@ private func escapeString(string: String) -> String {
     return "\"\(s)\""
 }
 
-private func stringAssert(value: Any?, accessor: String, name: String) -> String {
-    if value is Data {
-        return "XCTAssertNil(\(accessor).\(name))\n"
+private func stringAssert(value: Any?, accessor: String, name: String, encoding: String.Encoding? = nil) -> String {
+    let actual: String
+    if let value = value as? Data {
+        guard let encoding = encoding else {
+            return "XCTAssertNil(\(accessor).\(name))\n"
+        }
+        
+        actual = String(bytes: value, encoding: encoding)!
+    } else {
+        actual = value! as! String
     }
 
-    let actual = value! as! String
     if actual.count > 750 {
         return "XCTAssertNotNil(\(accessor).\(name))\n"
     }
@@ -69,7 +75,7 @@ private func guidAssert(value: Any?, accessor: String, name: String) -> String {
     let actual: UUID
     if let value = value as? Data {
         var dataStream = DataStream(data: value)
-        actual = try! dataStream.read(type: UUID.self)
+        actual = try! dataStream.readGUID(endianess: .littleEndian)
     } else {
         actual = value! as! UUID
     }
@@ -153,7 +159,13 @@ private func multipleDataAssert(value: Any?, accessor: String, name: String) -> 
 }
 
 private func dateAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual = value! as! Date
+    let actual: Date
+    if let rawValue = value as? UInt32 {
+        actual = Date(minutesSince1601: rawValue)
+    } else {
+        actual = value! as! Date
+    }
+
     return "XCTAssertEqual(\(actual.timeIntervalSince1970), \(accessor).\(name)!.timeIntervalSince1970)\n"
 }
 
@@ -170,7 +182,14 @@ private func xidAssert(value: Any?, accessor: String, name: String) -> String {
 }
 
 private func enumAssert<T>(value: Any?, accessor: String, name: String, type: T.Type) -> String where T: RawRepresentable, T: EnumCaseRepresentable, T.RawValue: FixedWidthInteger, T.Element: RawRepresentable, T.Element.RawValue == T.RawValue {
-    guard let actual = T(rawValue: value as! T.RawValue) else {
+    let rawValue: T.RawValue
+    if let value = value as? UInt32, T.RawValue.self == Int32.self {
+        rawValue = Int32(bitPattern: value) as! T.RawValue
+    } else {
+        rawValue = value as! T.RawValue
+    }
+
+    guard let actual = T(rawValue: rawValue) else {
         return "XCTAssertNil(\(accessor).\(name))\n"
     }
 
@@ -201,6 +220,27 @@ private func predecessorChangeListAssert(value: Any?, accessor: String, name: St
             s += "XCTAssertEqual(\(value.localId.hexString), \(accessor).\(name)!.values[\(offset)].localId)\n"
         }
     }
+
+    return s
+}
+
+private func folderEntryIdAssert(value: Any?, accessor: String) -> String {
+    let actual: FolderEntryID
+    if let value = value as? FolderEntryID {
+        actual = value
+    } else {
+        var dataStream = DataStream(data: value as! Data)
+        actual = try! FolderEntryID(dataStream: &dataStream)
+    }
+    
+    var s = ""
+
+    s += "XCTAssertEqual(\(actual.flags.hexString), \(accessor).flags)\n"
+    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.providerUid)\"), \(accessor).providerUid)\n"
+    s += "XCTAssertEqual(\(actual.folderType.stringRepresentation), \(accessor).folderType)\n"
+    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.databaseGuid)\"), \(accessor).databaseGuid)\n"
+    s += "XCTAssertEqual(\(actual.globalCounter), \(accessor).globalCounter)\n"
+    s += "XCTAssertEqual(\(actual.pad.hexString), \(accessor).pad)\n"
 
     return s
 }
@@ -245,16 +285,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
 
         return s
     } else if let folderEntryID = actual as? FolderEntryID {
-        var s = ""
-
-        s += "XCTAssertEqual(\(folderEntryID.flags.hexString), (\(accessor).\(name) as? FolderEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(folderEntryID.providerUid)\"), (\(accessor).\(name) as? FolderEntryID)!.providerUid)\n"
-        s += "XCTAssertEqual(\(folderEntryID.folderType.stringRepresentation), (\(accessor).\(name) as? FolderEntryID)!.folderType)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(folderEntryID.databaseGuid)\"), (\(accessor).\(name) as? FolderEntryID)!.databaseGuid)\n"
-        s += "XCTAssertEqual(\(folderEntryID.globalCounter), (\(accessor).\(name) as? FolderEntryID)!.globalCounter)\n"
-        s += "XCTAssertEqual(\(folderEntryID.pad.hexString), (\(accessor).\(name) as? FolderEntryID)!.pad)\n"
-
-        return s
+        return folderEntryIdAssert(value: folderEntryID, accessor: "(\(accessor).\(name) as? FolderEntryID)!")
     } else if let generalEntryID = actual as? GeneralEntryID {
         var s = ""
 
@@ -282,7 +313,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
 
 private func conversationIndexAssert(value: Any?, accessor: String, name: String) -> String {
     var dataStream = DataStream(data: value as! Data)
-    guard let actual = try? ConversationIndex(dataStream: &dataStream) else {
+    guard dataStream.count > 16, let actual = try? ConversationIndex(dataStream: &dataStream) else {
         return "XCTAssertNil(\(accessor).\(name))\n"
     }
 
@@ -828,6 +859,167 @@ private func startDateEtcAssert(value: Any?, accessor: String, name: String) -> 
     return s
 }
 
+private func taggedPropertyAssert(value: TaggedPropertyValue, accessor: String) -> String {
+    var s = ""
+    
+    s += "XCTAssertEqual(\(value.propertyTag.type.stringRepresentation), \(accessor).propertyTag.type)\n"
+    s += "XCTAssertEqual(\(value.propertyTag.id.hexString), \(accessor).propertyTag.id)\n"
+    if let propertyValue = value.propertyValue.propertyValue {
+        if type(of: propertyValue) == UInt32.self {
+            s += "XCTAssertEqual(\((propertyValue as! UInt32).hexString), \(accessor).propertyValue.propertyValue as! UInt32)\n"
+        } else {
+            fatalError("NYI: \(type(of: propertyValue))")
+        }
+    } else {
+        s += "XCTAssertNil(\(accessor).propertyValue.propertyValue)\n"
+    }
+    
+    return s
+}
+
+private func extendedRuleMessageConditionAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    guard let actual = try? ExtendedRuleMessageCondition(dataStream: &dataStream) else {
+        return "XCTAssertNil(\(accessor).\(name))\n"
+    }
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.noOfNamedProps.hexString), \(accessor).\(name)!.namedPropertyInformation.noOfNamedProps)\n"
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.propIds.count), \(accessor).\(name)!.namedPropertyInformation.propIds.count)\n"
+    for (offset, element) in actual.namedPropertyInformation.propIds.enumerated() {
+        s += "XCTAssertEqual(\(element.hexString), \(accessor).\(name)!.namedPropertyInformation.propIds[\(offset)])\n"
+    }
+
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedPropertiesSize.hexString), \(accessor).\(name)!.namedPropertyInformation.namedPropertiesSize)\n"
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedProperties.count), \(accessor).\(name)!.namedPropertyInformation.namedProperties.count)\n"
+    for (offset, element) in actual.namedPropertyInformation.namedProperties.enumerated() {
+        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        if let lid = element.lid {
+            s += "XCTAssertEqual(\(lid.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].lid)\n"
+        }
+        if let name = element.name {
+            s += "XCTAssertEqual(\(element.nameSize!.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.name!)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+        }
+    }
+
+    func restrictionAssert(value: Restriction, accessor: String) -> String {
+        var s = ""
+        
+        s += "XCTAssertEqual(\(value.restrictType.stringRepresentation), \(accessor).restrictType)\n"
+        
+        if let packet = value.packet as? Restriction.AndRestriction {
+            s += "XCTAssertEqual(\(packet.restrictCount), (\(accessor).packet as? Restriction.AndRestriction)!.restrictCount)\n"
+            s += "XCTAssertEqual(\(packet.restricts.count), (\(accessor).packet as? Restriction.AndRestriction)!.restricts.count)\n"
+            for (offset, element) in packet.restricts.enumerated() {
+                s += restrictionAssert(value: element, accessor: "(\(accessor).packet as? Restriction.AndRestriction)!.restricts[\(offset)]")
+            }
+        } else if let packet = value.packet as? Restriction.OrRestriction {
+            s += "XCTAssertEqual(\(packet.restrictCount), (\(accessor).packet as? Restriction.OrRestriction)!.restrictCount)\n"
+            s += "XCTAssertEqual(\(packet.restricts.count), (\(accessor).packet as? Restriction.OrRestriction)!.restricts.count)\n"
+            for (offset, element) in packet.restricts.enumerated() {
+                s += restrictionAssert(value: element, accessor: "(\(accessor).packet as? Restriction.OrRestriction)!.restricts[\(offset)]")
+            }
+        } else if let packet = value.packet as? Restriction.ExistRestriction {
+            s += "XCTAssertEqual(\(packet.propTag.type.stringRepresentation), (\(accessor).packet as? Restriction.ExistRestriction)!.propTag.type)\n"
+            s += "XCTAssertEqual(\(packet.propTag.id.hexString), (\(accessor).packet as? Restriction.ExistRestriction)!.propTag.id)\n"
+        } else if let packet = value.packet as? Restriction.PropertyRestriction {
+            s += "XCTAssertEqual(\(packet.relOp.stringRepresentation), (\(accessor).packet as? Restriction.PropertyRestriction)!.relOp)\n"
+            s += "XCTAssertEqual(\(packet.propTag.type.stringRepresentation), (\(accessor).packet as? Restriction.PropertyRestriction)!.propTag.type)\n"
+            s += "XCTAssertEqual(\(packet.propTag.id.hexString), (\(accessor).packet as? Restriction.PropertyRestriction)!.propTag.id)\n"
+            s += taggedPropertyAssert(value: packet.taggedValue, accessor: "(\(accessor).packet as? Restriction.PropertyRestriction)!.taggedValue")
+        } else if let packet = value.packet as? Restriction.NotRestriction {
+            s += restrictionAssert(value: packet.restriction, accessor: "(\(accessor).packet as? Restriction.NotRestriction)!.restriction")
+        } else if let packet = value.packet as? Restriction.SubObjectRestriction {
+            s += "XCTAssertEqual(\(packet.subobject.type.stringRepresentation), (\(accessor).packet as? Restriction.SubObjectRestrictionRestriction)!.subobject.type)\n"
+            s += "XCTAssertEqual(\(packet.subobject.id.hexString), (\(accessor).packet as? Restriction.SubObjectRestrictionRestriction)!.subobject.id)\n"
+            s += restrictionAssert(value: packet.restriction, accessor: "(\(accessor).packet as? Restriction.SubObjectRestrictionRestriction)!.restriction")
+        } else {
+            fatalError("NYI: \(type(of: value.packet))")
+        }
+
+        return s
+    }
+    
+    s += restrictionAssert(value: actual.ruleRestriction, accessor: "\(accessor).\(name)!.ruleRestriction")
+    
+    return s
+}
+
+private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! ExtendedRuleMessageActions(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.noOfNamedProps), \(accessor).\(name)!.namedPropertyInformation.noOfNamedProps)\n"
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.propIds.count), \(accessor).\(name)!.namedPropertyInformation.propIds.count)\n"
+    for (offset, element) in actual.namedPropertyInformation.propIds.enumerated() {
+        s += "XCTAssertEqual(\(element.hexString), \(accessor).\(name)!.namedPropertyInformation.propIds[\(offset)])\n"
+    }
+    
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedPropertiesSize.hexString), \(accessor).\(name)!.namedPropertyInformation.namedPropertiesSize)\n"
+    s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedProperties.count), \(accessor).\(name)!.namedPropertyInformation.namedProperties.count)\n"
+    for (offset, element) in actual.namedPropertyInformation.namedProperties.enumerated() {
+        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        if let lid = element.lid {
+            s += "XCTAssertEqual(\(lid.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].lid)\n"
+        }
+        if let name = element.name {
+            s += "XCTAssertEqual(\(element.nameSize!.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+            s += "XCTAssertEqual(\(escapeString(string: element.name!)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
+            s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+        }
+    }
+    
+    s += "XCTAssertEqual(\(actual.ruleVersion.hexString), \(accessor).\(name)!.ruleVersion)\n"
+    s += "XCTAssertEqual(\(actual.ruleActionsBuffer.noOfActions), \(accessor).\(name)!.ruleActionsBuffer.noOfActions)\n"
+    s += "XCTAssertEqual(\(actual.ruleActionsBuffer.actionBlocks.count), \(accessor).\(name)!.ruleActionsBuffer.actionBlocks.count)\n"
+    for (offset, element) in actual.ruleActionsBuffer.actionBlocks.enumerated() {
+        s += "XCTAssertEqual(\(element.actionLength.hexString), \(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionLength)\n"
+        s += "XCTAssertEqual(\(element.actionType.stringRepresentation), \(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionType)\n"
+        s += "XCTAssertEqual(\(element.actionFlavor.stringRepresentation), \(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionFlavor)\n"
+        s += "XCTAssertEqual(\(element.actionFlags.hexString), \(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionFlags)\n"
+        
+        if let actionData = element.actionData {
+            if let actionData = actionData as? ActionBlock.MoveCopyActionDataExtended {
+                s += "XCTAssertEqual(\(actionData.storeEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).storeEIDSize)\n"
+                if let storeEID = actionData.storeEID {
+                    s += entryIdAssert(value: storeEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)", name: "storeEID")
+                } else {
+                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).storeEID)\n"
+                }
+                s += "XCTAssertEqual(\(actionData.folderEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).folderEIDSize)\n"
+                if let folderEID = actionData.folderEID {
+                    s += entryIdAssert(value: folderEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)", name: "folderEID")
+                } else {
+                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).folderEID)\n"
+                }
+            } else if let actionData = actionData as? TaggedPropertyValue {
+                s += taggedPropertyAssert(value: actionData, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? TaggedPropertyValue)!")
+            } else {
+                fatalError("NYI: \(type(of: actionData))")
+            }
+        } else {
+            s += "XCTAssertNil(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData)\n"
+        }
+    }
+    
+    return s
+}
+
 private func unknownAssert(value: Any?, accessor: String, fullName: String) -> String {
     guard let value = value else {
         return "XCTAssertNil(\(accessor).\(fullName))"
@@ -1177,7 +1369,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "ExtensionsList"),
                      (UUID(uuidString: "403FC56B-CD30-47C5-86F8-EDE9E35A022B")!, "ComplianceTag"),
                      (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3")!, "ConversationIndexTrackingEx"),
-                     (UUID(uuidString: "C7A4569B-F7AE-4DC2-9279-A8FE2F3CAF89")!, "RetentionTagEntryId"):
+                     (UUID(uuidString: "C7A4569B-F7AE-4DC2-9279-A8FE2F3CAF89")!, "RetentionTagEntryId"),
+                     (UUID(uuidString: "58B6F260-0251-4293-9737-2EF23187F89D")!, "NavigationNodeCalendarArgbColor"):
                     s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
                     s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
@@ -1711,6 +1904,12 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += stringAssert(value: prop.value, accessor: accessor, name: "appointmentMessageClass")
                 case (CommonlyUsedPropertySet.PSETID_Meeting, 0x00000001):
                     s += dateAssert(value: prop.value, accessor: accessor, name: "attendeeCriticalChange")
+                case (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A14):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "sharingLocalType")
+                case (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A04):
+                    s += stringAssert(value: prop.value, accessor: accessor, name: "sharingRemotePath")
+                case (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A01):
+                    s += guidAssert(value: prop.value, accessor: accessor, name: "sharingProviderGuid")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -1761,6 +1960,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000008),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000003),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000001),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080E1),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EC),
+                     (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EA),
                      (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A025),
                      (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A024),
@@ -1771,7 +1973,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A043),
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A044),
                      (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A045),
-                     (UUID(uuidString: "86030200-0000-0000-c000-000000000046")!, 0x00008004):
+                     (UUID(uuidString: "86030200-0000-0000-c000-000000000046")!, 0x00008004),
+                     (UUID(uuidString: "29f3ab55-554d-11d0-a97c-00a0c911f50a")!, 0x0000A074):
                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 default:
                     failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
@@ -2439,17 +2642,17 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagIpmContactEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmContactEntryId")
         case PropertyId.tagIpmAppointmentEntryId.rawValue:
-            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmAppointmentEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmAppointmentEntryId")
         case PropertyId.tagIpmJournalEntryId.rawValue:
-            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmJournalEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmJournalEntryId")
         case PropertyId.tagIpmTaskEntryId.rawValue:
-            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmTaskEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmTaskEntryId")
         case PropertyId.tagRemindersOnlineEntryId.rawValue:
-            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagRemindersOnlineEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "remindersOnlineEntryId")
         case PropertyId.tagIpmNoteEntryId.rawValue:
-            s += entryIdAssert(value: prop.value, accessor: accessor, name: "tagIpmNoteEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmNoteEntryId")
         case PropertyId.tagFreeBusyEntryIds.rawValue:
-            s += multipleDataAssert(value: prop.value, accessor: accessor, name: "tagFreeBusyEntryIds")
+            s += multipleDataAssert(value: prop.value, accessor: accessor, name: "freeBusyEntryIds")
         case PropertyId.tagReplChangenum.rawValue:
             s += int64Assert(value: prop.value, accessor: accessor, name: "replChangenum")
         case PropertyId.tagFreeBusyCountMonths.rawValue:
@@ -2922,6 +3125,154 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += stringAssert(value: prop.value, accessor: accessor, name: "callbackTelephoneNumber")
         case PropertyId.unknown0x3A77.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3A77")
+        case PropertyId.tagScheduleInfoMonthsMergedOrTagWlinkFolderType.rawValue:
+            if prop.value is [UInt32] {
+                s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "tagScheduleInfoMonthsMerged")
+            } else {
+                s += guidAssert(value: prop.value, accessor: accessor, name: "wlinkFolderType")
+            }
+        case PropertyId.tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID.rawValue:
+            if prop.value is Bool {
+                s += boolAssert(value: prop.value, accessor: accessor, name: "scheduleInfoDelegatorWantsCopy")
+            } else {
+                s += guidAssert(value: prop.value, accessor: accessor, name: "wlinkGroupHeaderID")
+            }
+        case PropertyId.tagScheduleInfoDelegateNamesWOrTagWlinkFlags.rawValue:
+            if prop.value is [String] {
+                s += multipleStringAssert(value: prop.value, accessor: accessor, name: "scheduleInfoDelegateNamesW")
+            } else {
+                s += optionSetAssert(value: prop.value, accessor: accessor, name: "wlinkFlags", type: WlinkFlags.self)
+            }
+        case PropertyId.tagFreeBusyPublishStartOrTagSearchFolderTagOrTagWlinkSaveStamp.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "wlinkSaveStamp", hexString: true)
+        case PropertyId.tagScheduleInfoDelegatorWantsInfoOrTagWlinkOrdinal.rawValue:
+            if prop.value is Bool {
+                s += boolAssert(value: prop.value, accessor: accessor, name: "scheduleInfoDelegatorWantsInfo")
+            } else {
+                s += dataAssert(value: prop.value, accessor: accessor, name: "wlinkOrdinal")
+            }
+        case PropertyId.tagFreeBusyMessageEmailAddressOrTagWlinkType.rawValue:
+            if prop.value is String {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "freeBusyMessageEmailAddress")
+            } else {
+                s += enumAssert(value: prop.value, accessor: accessor, name: "wlinkType", type: WlinkType.self)
+            }
+        case PropertyId.tagScheduleInfoFreeBusyTentativeOrTagWlinkSection.rawValue:
+            if prop.value is [Data] {
+                s += multipleDataAssert(value: prop.value, accessor: accessor, name: "scheduleInfoFreeBusyTentative")
+            } else {
+                s += enumAssert(value: prop.value, accessor: accessor, name: "wlinkSection", type: WlinkSection.self)
+            }
+        case PropertyId.tagWlinkRecordKey.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "wlinkRecordKey")
+        case PropertyId.tagScheduleInfoFreeBusyMergedOrTagWlinkGroupClsid.rawValue:
+            if prop.value is [Data] {
+                s += multipleDataAssert(value: prop.value, accessor: accessor, name: "scheduleInfoFreeBusyMerged")
+            } else {
+                s += guidAssert(value: prop.value, accessor: accessor, name: "wlinkGroupClsid")
+            }
+        case PropertyId.tagScheduleInfoMonthsBusyOrTagWlinkCalendarColor.rawValue:
+            if prop.value is [UInt32] {
+                s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "scheduleInfoMonthsBusy")
+            } else {
+                s += int32Assert(value: prop.value, accessor: accessor, name: "wlinkCalendarColor")
+            }
+        case PropertyId.tagWlinkEntryId.rawValue:
+            s += folderEntryIdAssert(value: prop.value, accessor: "\(accessor).wlinkEntryId!")
+        case PropertyId.tagScheduleInfoMonthsTentativeOrTagWlinkGroupName.rawValue:
+            if prop.value is [UInt32] {
+                s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "scheduleInfoMonthsTentative")
+            } else {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "wlinkGroupName")
+            }
+        case PropertyId.tagWlinkStoreEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "wlinkStoreEntryId")
+        case PropertyId.tagWlinkClientID.rawValue:
+            s += guidAssert(value: prop.value, accessor: accessor, name: "wlinkClientID")
+        case PropertyId.tagWlinkROGroupType.rawValue:
+            s += enumAssert(value: prop.value, accessor: accessor, name: "wlinkROGroupType", type: WlinkGroupType.self)
+        case PropertyId.tagRoamingDatatypes.rawValue:
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "roamingDatatypes", type: RoamingDatatypes.self)
+        case PropertyId.unknown0x685D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x685D")
+        case PropertyId.tagRoamingDictionary.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "roamingDictionary", encoding: .utf8)
+        case PropertyId.tagRoamingXmlStream.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "roamingXmlStream", encoding: .utf8)
+        case PropertyId.tagRoamingBinary.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "roamingBinary")
+        case PropertyId.tagRuleMessageState.rawValue:
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "ruleMessageState", type: RuleState.self)
+        case PropertyId.tagRuleProvider.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "ruleProvider")
+        case PropertyId.tagRuleMessageName.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "ruleMessageName")
+        case PropertyId.tagRuleName.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "ruleName")
+        case PropertyId.tagRuleMessageUserFlags.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleMessageUserFlags", hexString: true)
+        case PropertyId.tagRuleUserFlags.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleUserFlags", hexString: true)
+        case PropertyId.tagJunkIncludeContacts.rawValue:
+            s += boolAssert(value: prop.value, accessor: accessor, name: "junkIncludeContacts")
+        case PropertyId.tagRuleMessageSequence.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleMessageSequence")
+        case PropertyId.tagRuleSequence.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleSequence")
+        case PropertyId.tagExtendedRuleMessageCondition.rawValue:
+            s += extendedRuleMessageConditionAssert(value: prop.value, accessor: accessor, name: "extendedRuleMessageCondition")
+        case PropertyId.tagRuleMessageProviderData.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "ruleMessageProviderData")
+        case PropertyId.tagRuleProviderData.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "ruleProviderData")
+        case PropertyId.tagRuleMessageProvider.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "ruleMessageProvider")
+        case PropertyId.tagRuleProvider.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "ruleProvider")
+        case PropertyId.tagExtendedRuleMessageActions.rawValue:
+            s += extendedRuleMessageActionsAssert(value: prop.value, accessor: accessor, name: "extendedRuleMessageActions")
+        case PropertyId.tagRuleMessageLevel.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleMessageLevel")
+        case PropertyId.tagRuleLevel.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "ruleLevel")
+        case PropertyId.tagSearchFolderExpiration.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "searchFolderExpiration")
+        case PropertyId.tagSearchFolderLastUsed.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "searchFolderLastUsed")
+        case PropertyId.tagViewDescriptorFlags.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "viewDescriptorFlags", hexString: true)
+        case PropertyId.unknown0x6833.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6833")
+        case PropertyId.unknown0x683F.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x683F")
+        case PropertyId.unknown0x6835.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6835")
+        case PropertyId.unknown0x683C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x683C")
+        case PropertyId.tagScheduleInfoMonthsAway.rawValue:
+            if prop.value is [UInt32] {
+                s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "scheduleInfoMonthsAway")
+            } else {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "tagScheduleInfoMonthsAway")
+            }
+        case PropertyId.tagScheduleInfoFreeBusyAway.rawValue:
+            if prop.value is [Data] {
+                s += multipleDataAssert(value: prop.value, accessor: accessor, name: "scheduleInfoFreeBusyAway")
+            } else {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "tagScheduleInfoFreeBusyAway")
+            }
+        case PropertyId.unknown0x685E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x685E")
+        case PropertyId.unknown0x6857.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6857")
+        case PropertyId.unknown0x6859.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6859")
+        case PropertyId.PR_AGING_PERIOD.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_AGING_PERIOD")
+        case PropertyId.unknown0x683D.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x683D")
+        case PropertyId.tagAttachAdditionalInformation.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "attachAdditionalInformation")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
