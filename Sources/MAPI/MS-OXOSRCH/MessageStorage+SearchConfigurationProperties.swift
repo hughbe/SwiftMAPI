@@ -66,11 +66,14 @@ public extension MessageStorage {
 
     /// [MS-OXOSRCH] 2.2.1.2.2 PidTagSearchFolderTemplateId
     /// Type: PtypInteger32
-    /// The PidTagSearchFolderTemplateId property ([MS-OXPROPS] section 2.990) specifies the ID of
-    /// the template that is being used for the search. For more details about search templates, see section
-    /// 2.2.3.
-    var searchFolderTemplateId: UInt32? {
-        return getProperty(id: .tagSearchFolderTemplateId)
+    /// The PidTagSearchFolderTemplateId property ([MS-OXPROPS] section 2.990) specifies the ID of the template that is being used for
+    /// the search. For more details about search templates, see section 2.2.3.
+    var searchFolderTemplateId: SearchFolderTemplateId? {
+        guard let rawValue: UInt32 = getProperty(id: .tagScheduleInfoResourceTypeOrTagSearchFolderTemplateId) else {
+            return nil
+        }
+        
+        return SearchFolderTemplateId(rawValue: rawValue)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.3 PidTagSearchFolderTag
@@ -113,18 +116,18 @@ public extension MessageStorage {
 
     /// [MS-OXOSRCH] 2.2.1.2.6 PidTagSearchFolderStorageType
     /// Type: PtypInteger32
-    /// The PidTagSearchFolderStorageType property ([MS-OXPROPS] section 2.988) contains flags that control the presence and content
-    /// of certain fields within the PidTagSearchFolderDefinition property (section 2.2.1.2.8 ). These flags are duplicated within the
+    /// The PidTagSearchFolderStorageType property ([MS-OXPROPS] section 2.988) contains flags that control the presence and content of
+    /// certain fields within the PidTagSearchFolderDefinition property (section 2.2.1.2.8 ). These flags are duplicated within the
     /// PidTagSearchFolderDefinition property.
     /// The specific flags to use depend on the template; section 2.2.3 specifies the correct flags for each template definition.
     /// The flags are stored as a 4-byte integer. The following table shows the flags in big-endian order.
     /// (The flags are in network byte order within the PidTagSearchFolderDefinition property.)
-    var searchFolderStorageType: OutlookMessageSearchFolderStorageType? {
+    var searchFolderStorageType: SearchFolderStorageType? {
         guard let rawValue: UInt32 = getProperty(id: .tagGatewayNeedsToRefreshOrTagSearchFolderStorageType) else {
             return nil
         }
         
-        return OutlookMessageSearchFolderStorageType(rawValue: rawValue.bigEndian)
+        return SearchFolderStorageType(rawValue: rawValue.bigEndian)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.7 PidTagSearchFolderEfpFlags
@@ -144,8 +147,13 @@ public extension MessageStorage {
     /// search. The template ID, specified in the PidTagSearchFolderTemplateId property (section
     /// 2.2.1.2.2), identifies the template to be used. For details about the templates and how they affect the
     /// fields of the PidTagSearchFolderDefinition property, see section 2.2.3.
-    var searchFolderDefinition: Data? {
-        return getProperty(id: .tagScheduleInfoDelegateEntryIdsOrTagSearchFolderDefinition)
+    var searchFolderDefinition: SearchFolderDefinition? {
+        guard let data: Data = getProperty(id: .tagScheduleInfoDelegateEntryIdsOrTagSearchFolderDefinition) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SearchFolderDefinition(dataStream: &dataStream)
     }
     
     /// [MS-OXOSRCH] 2.2.1.2.9 PidTagSearchFolderRecreateInfo

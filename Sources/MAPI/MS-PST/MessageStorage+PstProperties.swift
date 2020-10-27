@@ -508,26 +508,34 @@ public extension MessageStorage {
     
     /// [MS-PST] 2.4.4.6 FAI Contents Table
     /// The FAI contents table is a TC node identified with an NID_TYPE of
-    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
-    /// object.
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder object.
     /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
-    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
-    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
-    /// data rows, and MUST contain the following property columns.
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F).
+    /// The FAI contents table template MUST have no data rows, and MUST contain the following property columns.
     /// 0x7003 PtypInteger32 PidTagViewDescriptorFlags View descriptor flags. Y
     var viewDescriptorFlags: UInt32? {
         return getProperty(id: .tagViewDescriptorFlags)
     }
+    
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F).
+    /// The FAI contents table template MUST have no data rows, and MUST contain the following property columns.
+    /// 0x7004 PtypBinary PidTagViewDescriptorLinkTo View descriptor link. Y
+    var viewDescriptorLinkTo: Data? {
+        return getProperty(id: .tagViewDescriptorLinkTo)
+    }
 
-    /// PidTagValidFolderMask
-    /// Not documented in specification but known on internet
-    /// Contains a bitmask of flags that indicate the validity of the entry identifiers of the folders in a message store.
-    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagvalidfoldermask-canonical-property
-    var validFolderMask: ValidFolderMask? {
-        guard let rawValue: UInt32 = getProperty(id: .tagValidFolderMask) else {
-            return nil
-        }
-        
-        return ValidFolderMask(rawValue: rawValue)
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F).
+    /// The FAI contents table template MUST have no data rows, and MUST contain the following property columns.
+    /// 0x7005 PtypBinary PidTagViewDescriptorViewFolder View descriptor Folder object. Y
+    var viewDescriptorViewFolder: Data? {
+        return getProperty(id: .tagViewDescriptorViewFolder)
     }
 }

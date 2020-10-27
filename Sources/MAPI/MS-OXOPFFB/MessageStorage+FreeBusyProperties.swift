@@ -13,6 +13,7 @@ import Foundation
 /// message store. The message is referred to as the free/busy message. The location of this message is
 /// specified in section 3.1.4.1.2. Unless otherwise specified, the free/busy message conforms to a
 /// Message object, as specified in [MS-OXCMSG].
+/// [MS-OXOPFFB] 2.2.1.4 Deprecated Properties
 public extension MessageStorage {
     /// [MS-OXOPFFB] 2.2.1.2.1 PidTagScheduleInfoMonthsTentative Property
     /// Type: PtypMultipleInteger32 ([MS-OXCDATA] section 2.11.1)
@@ -156,5 +157,26 @@ public extension MessageStorage {
     /// 2.2.3.14) of the Address Book object for the attendee or resource.
     var freeBusyMessageEmailAddress: String? {
         return getProperty(id: .tagFreeBusyMessageEmailAddressOrTagWlinkType)
+    }
+    
+    /// [MS-OXOPFFB] 2.2.1.4.1 PidTagGatewayNeedsToRefresh Property
+    /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagGatewayNeedsToRefresh property ([MS-OXPROPS] section 2.702) SHOULD NOT<2> be set and MUST be ignored upon receipt.
+    var gatewayNeedsToRefresh: Bool? {
+        return getProperty(id: .tagGatewayNeedsToRefreshOrTagSearchFolderStorageType)
+    }
+    
+    /// [MS-OXOPFFB] 2.2.1.4.2 PidTagScheduleInfoResourceType Property
+    /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagScheduleInfoResourceType property ([MS-OXPROPS] section 2.976) is set to 0 when sending and ignored on receipt.<3>
+    var scheduleInfoResourceType: UInt32? {
+        return getProperty(id: .tagScheduleInfoResourceTypeOrTagSearchFolderTemplateId)
+    }
+    
+    /// [MS-OXOPFFB] 2.2.1.4.3 PidTagScheduleInfoFreeBusy Property
+    /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
+    /// The PidTagScheduleInfoFreeBusy property ([MS-OXPROPS] section 2.967) SHOULD NOT be set and MUST be ignored upon receipt.
+    var scheduleInfoFreeBusy: UInt32? {
+        return getProperty(id: .tagScheduleInfoFreeBusy)
     }
 }

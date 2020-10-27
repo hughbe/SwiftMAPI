@@ -273,13 +273,13 @@ public extension MessageStorage {
     /// [MS-OXOCFG] 2.2.9.8 PidTagWlinkEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagWlinkEntryId property ([MS-OXPROPS] section 2.1061) specifies the EntryID of the folder pointed to by the shortcut.
-    var wlinkEntryId: FolderEntryID? {
+    var wlinkEntryId: EntryID? {
         guard let data: Data = getProperty(id: .tagWlinkEntryId) else {
             return nil
         }
 
         var dataStream = DataStream(data: data)
-        return try? FolderEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCFG] 2.2.9.9 PidTagWlinkRecordKey Property

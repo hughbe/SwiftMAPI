@@ -859,20 +859,30 @@ private func startDateEtcAssert(value: Any?, accessor: String, name: String) -> 
     return s
 }
 
+private func propertyValueAssert(value: Any?, accessor: String) -> String {
+    var s = ""
+
+    if let value = value {
+        if type(of: value) == UInt32.self {
+            s += "XCTAssertEqual(\((value as! UInt32).hexString), (\(accessor) as! UInt32))\n"
+        } else if type(of: value) == Data.self {
+            s += "XCTAssertEqual(\((value as! Data).hexString), [UInt8](\(accessor) as! Data))\n"
+        } else {
+            fatalError("NYI: \(type(of: value))")
+        }
+    } else {
+        s += "XCTAssertNil(\(accessor))\n"
+    }
+    
+    return s
+}
+
 private func taggedPropertyAssert(value: TaggedPropertyValue, accessor: String) -> String {
     var s = ""
     
     s += "XCTAssertEqual(\(value.propertyTag.type.stringRepresentation), \(accessor).propertyTag.type)\n"
     s += "XCTAssertEqual(\(value.propertyTag.id.hexString), \(accessor).propertyTag.id)\n"
-    if let propertyValue = value.propertyValue.propertyValue {
-        if type(of: propertyValue) == UInt32.self {
-            s += "XCTAssertEqual(\((propertyValue as! UInt32).hexString), \(accessor).propertyValue.propertyValue as! UInt32)\n"
-        } else {
-            fatalError("NYI: \(type(of: propertyValue))")
-        }
-    } else {
-        s += "XCTAssertNil(\(accessor).propertyValue.propertyValue)\n"
-    }
+    s += propertyValueAssert(value: value.propertyValue.propertyValue, accessor: "\(accessor).propertyValue.propertyValue");
     
     return s
 }
@@ -1017,6 +1027,134 @@ private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, nam
         }
     }
     
+    return s
+}
+
+private func searchFolderDefinitionAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! SearchFolderDefinition(dataStream: &dataStream)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.version.hexString), \(accessor).\(name)!.version)\n"
+    s += "XCTAssertEqual(\(actual.flags.stringRepresentation), \(accessor).\(name)!.flags)\n"
+    s += "XCTAssertEqual(\(actual.numericalSearch.hexString), \(accessor).\(name)!.numericalSearch)\n"
+    s += "XCTAssertEqual(\(actual.textSearchLength.hexString), \(accessor).\(name)!.textSearchLength)\n"
+    if let textSearchExtendedLength = actual.textSearchExtendedLength {
+        s += "XCTAssertEqual(\(textSearchExtendedLength.hexString), \(accessor).\(name)!.textSearchExtendedLength!)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.textSearchExtendedLength)\n"
+    }
+    if let textSearch = actual.textSearch {
+        s += "XCTAssertEqual(\(escapeString(string: textSearch)), \(accessor).\(name)!.textSearch!)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.textSearch)\n"
+    }
+    s += "XCTAssertEqual(\(actual.skipBlock1Count.hexString), \(accessor).\(name)!.skipBlock1Count)\n"
+    s += "XCTAssertEqual(\(actual.skipBlock1.hexString), \(accessor).\(name)!.skipBlock1)\n"
+    s += "XCTAssertEqual(\(actual.deepSearch.hexString), \(accessor).\(name)!.deepSearch)\n"
+    s += "XCTAssertEqual(\(actual.folderList1Length.hexString), \(accessor).\(name)!.folderList1Length)\n"
+    if let folderList1ExtendedLength = actual.folderList1ExtendedLength {
+        s += "XCTAssertEqual(\(folderList1ExtendedLength.hexString), \(accessor).\(name)!.folderList1ExtendedLength!)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.folderList1ExtendedLength)\n"
+    }
+    if let folderList1 = actual.folderList1 {
+        s += "XCTAssertEqual(\(escapeString(string: folderList1)), \(accessor).\(name)!.folderList1!)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.folderList1)\n"
+    }
+    s += "XCTAssertEqual(\(actual.folderList2Length.hexString), \(accessor).\(name)!.folderList2Length)\n"
+    if let folderList2 = actual.folderList2 {
+        s += "XCTAssertEqual(\(folderList2.entryCount), \(accessor).\(name)!.folderList2!.entryCount)\n"
+        s += "XCTAssertEqual(\(folderList2.pad.hexString), \(accessor).\(name)!.folderList2!.pad)\n"
+        s += "XCTAssertEqual(\(folderList2.entryLengths.count), \(accessor).\(name)!.folderList2!.entryLengths.count)\n"
+        for (offset, element) in folderList2.entryLengths.enumerated() {
+            s += "XCTAssertEqual(\(element.length), \(accessor).\(name)!.folderList2!.entryLengths[\(offset)].length)\n"
+            s += "XCTAssertEqual(\(element.pad.hexString), \(accessor).\(name)!.folderList2!.entryLengths[\(offset)].pad)\n"
+        }
+        s += "XCTAssertEqual(\(folderList2.entryIDs.count), \(accessor).\(name)!.folderList2!.entryIDs.count)\n"
+        for (offset, element) in folderList2.entryIDs.enumerated() {
+            s += entryIdAssert(value: element, accessor: "\(accessor).\(name)!.folderList2?", name: "entryIDs[\(offset)]")
+        }
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.folderList2)\n"
+    }
+    if let addresses = actual.addresses {
+        s += "XCTAssertEqual(\(addresses.addressCount), \(accessor).\(name)!.addresses!.addressCount)\n"
+        s += "XCTAssertEqual(\(addresses.addresses.count), \(accessor).\(name)!.addresses!.addresses.count)\n"
+        for (offset, element) in addresses.addresses.enumerated() {
+            s += "XCTAssertEqual(\(element.propertyCount), \(accessor).\(name)!.addresses!.addresses[\(offset)].propertyCount)\n"
+            s += "XCTAssertEqual(\(element.pad.hexString), \(accessor).\(name)!.addresses!.addresses[\(offset)].pad)\n"
+            for (offset2, element2) in element.values.enumerated() {
+                s += "XCTAssertEqual(\(element2.tag.type.stringRepresentation), \(accessor).\(name)!.addresses!.addresses[\(offset)].values[\(offset2)].tag.type)\n"
+                s += "XCTAssertEqual(\(element2.tag.id.hexString), \(accessor).\(name)!.addresses!.addresses[\(offset)].values[\(offset2)].tag.id)\n"
+                s += propertyValueAssert(value: element2.value, accessor: "\(accessor).\(name)!.addresses!.addresses[\(offset)].values[\(offset2)].propertyValue")
+            }
+        }
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.addresses)\n"
+    }
+    s += "XCTAssertEqual(\(actual.skipBlock2Count.hexString), \(accessor).\(name)!.skipBlock2Count)\n"
+    s += "XCTAssertEqual(\(actual.skipBlock2.hexString), \(accessor).\(name)!.skipBlock2)\n"
+    if let searchRestriction = actual.searchRestriction {
+        func restrictionAssert(value: SearchFolderDefinition.Restriction, accessor: String) -> String {
+            var s = ""
+            
+            s += "XCTAssertEqual(\(value.restrictionType.stringRepresentation), \(accessor).restrictType)\n"
+
+            if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.AndRestriction {
+                s += "XCTAssertEqual(\(restrictionData.count), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.AndRestriction)!.count)\n"
+                s += "XCTAssertEqual(\(restrictionData.restrictions.count), (\(accessor)restrictionData as? SearchFolderDefinition.Restriction.AndRestriction)!.restrictions.count)\n"
+                for (offset, element) in restrictionData.restrictions.enumerated() {
+                    s += restrictionAssert(value: element, accessor: "(\(accessor).restrictionData as? SearchFolderDefinition.Restriction.AndRestriction)!.restrictions[\(offset)]")
+                }
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.NotRestriction {
+                s += "XCTAssertEqual(\(restrictionData.subrestriction), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.NotRestriction)!.subrestriction)\n"
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction {
+                s += "XCTAssertEqual(\(restrictionData.relOp.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.relOp)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.tag.type)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.tag.id)\n"
+                s += "XCTAssertEqual(\(restrictionData.value.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.value.tag.type)\n"
+                s += "XCTAssertEqual(\(restrictionData.value.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.value.tag.id)\n"
+                s += propertyValueAssert(value: restrictionData.value.value, accessor: "(\(accessor).restrictionData as? SearchFolderDefinition.Restriction.PropertyRestriction)!.value.value")
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.OrRestriction {
+                s += "XCTAssertEqual(\(restrictionData.count), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.OrRestriction)!.count)\n"
+                s += "XCTAssertEqual(\(restrictionData.restrictions.count), (\(accessor)restrictionData as? SearchFolderDefinition.Restriction.OrRestriction)!.restrictions.count)\n"
+                for (offset, element) in restrictionData.restrictions.enumerated() {
+                    s += restrictionAssert(value: element, accessor: "(\(accessor).restrictionData as? SearchFolderDefinition.Restriction.OrRestriction)!.restrictions[\(offset)]")
+                }
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction {
+                s += "XCTAssertEqual(\(restrictionData.bitmapRelOp.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.bitmapRelOp)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.tag.type)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.tag.id)\n"
+                s += "XCTAssertEqual(\(restrictionData.comparand.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.value.comparand)\n"
+            } else {
+                fatalError("NYI: \(type(of: value.restrictionData))")
+            }
+            
+            return s
+        }
+        
+        s += restrictionAssert(value: searchRestriction, accessor: "\(accessor).\(name)!.searchRestriction!)")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.searchRestriction)\n"
+    }
+    if let advancedSearchLow = actual.advancedSearchLow,
+       let advancedSearchHigh = actual.advancedSearchHigh,
+       let advancedSearch = actual.advancedSearch {
+        s += "XCTAssertEqual(\(advancedSearchLow.hexString), \(accessor).\(name)!.advancedSearchLow!)\n"
+        s += "XCTAssertEqual(\(advancedSearchHigh.hexString), \(accessor).\(name)!.advancedSearchHigh!)\n"
+        s += "XCTAssertEqual(\(advancedSearch.hexString), \(accessor).\(name)!.advancedSearch!)\n"
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.advancedSearchLow)\n"
+        s += "XCTAssertNil(\(accessor).\(name)!.advancedSearchHigh)\n"
+        s += "XCTAssertNil(\(accessor).\(name)!.advancedSearch)\n"
+
+    }
+    s += "XCTAssertEqual(\(actual.skipBlock3Count.hexString), \(accessor).\(name)!.skipBlock3Count)\n"
+    s += "XCTAssertEqual(\(actual.skipBlock3.hexString), \(accessor).\(name)!.skipBlock3)\n"
+
     return s
 }
 
@@ -1960,6 +2098,23 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000008),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000003),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, 0x00000001),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A72),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A77),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A74),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A71),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A73),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A7E),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A75),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A78),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A76),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A70),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A79),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A8F),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A84),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A7B),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A7D),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A7A),
+                     (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A80),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080E1),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EC),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EA),
@@ -3178,7 +3333,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 s += int32Assert(value: prop.value, accessor: accessor, name: "wlinkCalendarColor")
             }
         case PropertyId.tagWlinkEntryId.rawValue:
-            s += folderEntryIdAssert(value: prop.value, accessor: "\(accessor).wlinkEntryId!")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "wlinkEntryId")
         case PropertyId.tagScheduleInfoMonthsTentativeOrTagWlinkGroupName.rawValue:
             if prop.value is [UInt32] {
                 s += multipleUInt32Assert(value: prop.value, accessor: accessor, name: "scheduleInfoMonthsTentative")
@@ -3273,6 +3428,30 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x683D")
         case PropertyId.tagAttachAdditionalInformation.rawValue:
             s += dataAssert(value: prop.value, accessor: accessor, name: "attachAdditionalInformation")
+        case PropertyId.tagLastModificationTime.rawValue:
+            s += dateAssert(value: prop.value, accessor: accessor, name: "lastModificationTime")
+        case PropertyId.PR_SECURE_ORIGINATION.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SECURE_ORIGINATION")
+        case PropertyId.tagRights.rawValue:
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "rights", type: MessageRights.self)
+        case PropertyId.tagComment.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "comment")
+        case PropertyId.tagFreeBusyPublishEndOrTagSearchFolderEfpFlags.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "searchFolderEfpFlags", hexString: true)
+        case PropertyId.tagScheduleInfoResourceTypeOrTagSearchFolderTemplateId.rawValue:
+            s += enumAssert(value: prop.value, accessor: accessor, name: "searchFolderTemplateId", type: SearchFolderTemplateId.self)
+        case PropertyId.tagGatewayNeedsToRefreshOrTagSearchFolderStorageType.rawValue:
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "searchFolderStorageType", type: SearchFolderStorageType.self)
+        case PropertyId.tagScheduleInfoDelegateEntryIdsOrTagSearchFolderDefinition.rawValue:
+            s += searchFolderDefinitionAssert(value: prop.value, accessor: accessor, name: "searchFolderDefinition")
+        case PropertyId.unknown0x681C.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x681C")
+        case PropertyId.unknown0x681E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x681E")
+        case PropertyId.tagViewDescriptorViewFolder.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "viewDescriptorViewFolder")
+        case PropertyId.unknown0x6837.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6837")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

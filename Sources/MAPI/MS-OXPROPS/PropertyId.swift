@@ -15,7 +15,15 @@ public enum PropertyId: UInt16 {
     /// Area: Address Book
     /// Defining reference: [MS-OXOABKT] section 2.2.2
     /// Alternate names: PR_EMS_TEMPLATE_BLOB
-    case tagTemplateData = 0x0001
+    /// PidTagAcknowledgementMode
+    /// Not documented in specification but known on internet
+    /// Contains the identifier of the mode for message acknowledgment.
+    /// Associated properties: PR_ACKNOWLEDGEMENT_MODE
+    /// Identifier: 0x0001
+    /// Data type: PT_LONG
+    /// Area: Exchange
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagacknowledgementmode-canonical-property
+    case tagTemplateDataOrTagAcknowledgementMode = 0x0001
 
     /// [MS-OXPROPS] 2.577 PidTagAlternateRecipientAllowed
     /// Canonical name: PidTagAlternateRecipientAllowed
@@ -27,12 +35,15 @@ public enum PropertyId: UInt16 {
     /// Consuming references: [MS-OXCFXICS], [MS-OXCICAL], [MS-OXODOC], [MS-OXTNEF]
     /// Alternate names: PR_ALTERNATE_RECIPIENT_ALLOWED, ptagAlternateRecipientAllowed
     case tagAlternateRecipientAllowed = 0x0002
-
-    /// PidTagAcknowledgementMode
-    /// Not documented in specification but known on internet
-    /// Contains the identifier of the mode for message acknowledgment.
-    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagacknowledgementmode-canonical-property
-    case tagAcknowledgementMode = 0x0003
+    
+    /// PidTagAuthorizingUsers Canonical Property
+    /// Contains a list of entry identifiers for users who have authorized the sending of a message.
+    /// Associated properties: PR_AUTHORIZING_USERS
+    /// Identifier: 0x0003
+    /// Data type: PT_BINARY
+    /// Area: Exchange
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagauthorizingusers-canonical-property
+    case tagAuthorizingUsers = 0x0003
 
     /// [MS-OXPROPS] 2.613 PidTagAutoForwardComment
     /// Canonical name: PidTagAutoForwardComment
@@ -47,8 +58,7 @@ public enum PropertyId: UInt16 {
 
     /// [MS-OXPROPS] 2.614 PidTagAutoForwarded
     /// Canonical name: PidTagAutoForwarded
-    /// Description: Indicates that a Message object has been automatically generated or automatically
-    /// forwarded.
+    /// Description: Indicates that a Message object has been automatically generated or automatically forwarded.
     /// Property ID: 0x0005
     /// Data type: PtypBoolean, 0x000B
     /// Area: General Report Properties
@@ -57,51 +67,95 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_AUTO_FORWARDED, ptagAutoForwarded
     case tagAutoForwarded = 0x0005
 
-    /// PidTagContentConfidentialityAlgorithmId
+    /// PidTagContentConfidentialityAlgorithmId Canonical Property
     /// Not documented in specification but known on internet
     /// Contains an identifier for the algorithm used to confirm message content confidentiality.
+    /// Associated properties: PR_CONTENT_CONFIDENTIALITY_ALGORITHM_ID
+    /// Identifier: 0x0006
+    /// Data type: PT_BINARY
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-ie/office/client-developer/outlook/mapi/pidtagcontentconfidentialityalgorithmid-canonical-property
     case tagContentConfidentialityAlgorithmId = 0x0006
 
-    /// PidTagContentCorrelator
+    /// PidTagContentCorrelator Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a value the message sender can use to match a report with the original message.
+    /// Associated properties: PR_CONTENT_CORRELATOR
+    /// Identifier: 0x0007
+    /// Data type: PT_BINARY
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontentcorrelator-canonical-property
     case tagContentCorrelator = 0x0007
 
-    /// PidTagContentIdentifier
+    /// PidTagContentIdentifier Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a key value that enables the message recipient to identify its content.
+    /// Associated properties: PR_CONTENT_IDENTIFIER, PR_CONTENT_IDENTIFIER_A, PR_CONTENT_IDENTIFIER_W
+    /// Identifier: 0x0008
+    /// Data type: PT_STRING8, PT_UNICODE
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontentidentifier-canonical-property
     case tagContentIdentifier = 0x0008
 
-    /// PidTagContentLength
+    /// PidTagContentLength Canonical Property
     /// Not documented in specification but known on internet
-    /// Contains a message length, in bytes, passed to a client application or service provider to determine if a message of that length can be delivered.
+    /// Contains a message length, in bytes, passed to a client application or service provider to determine if a message of that length
+    /// can be delivered.
+    /// Associated properties: PR_CONTENT_LENGTH
+    /// Identifier: 0x0009
+    /// Data type: PT_LONG
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontentlength-canonical-property
     case tagContentLength = 0x0009
+    
+    /// PidTagContentReturnRequested Canonical Property
+    /// Contains TRUE if a message should be returned with a nondelivery report.
+    /// Associated properties: PR_CONTENT_RETURN_REQUESTED
+    /// Identifier: 0x000A
+    /// Data type: PT_BOOLEAN
+    /// Area: Report
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontentreturnrequested-canonical-property
+    case tagContentReturnRequested = 0x000A
 
-    /// PidTagConversationKey
+    /// PidTagConversationKey Canonical Property
     /// Not documented in specification but known on internet
-    /// Contains the conversation key used in Microsoft Outlook only when locating IPM.MessageManager messages, such as the message that contains download history for a Post Office Protocol (POP3) account. This property has been deprecated in Microsoft Exchange Server.
+    /// Contains the conversation key used in Microsoft Outlook only when locating IPM.MessageManager messages, such as the message
+    /// that contains download history for a Post Office Protocol (POP3) account. This property has been deprecated in Microsoft Exchange
+    /// Server.
+    /// Associated properties: PR_CONVERSATION_KEY
+    /// Identifier: 0x000B
+    /// Data type: PT_BINARY
+    /// Area: General messaging
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagconversationkey-canonical-property
     case tagConversationKey = 0x000B
 
-    /// PidTagConversionEits
+    /// PidTagConversionEits Canonical Property
     /// Not documented in specification but known on internet
     /// Contains the encoded information types (EITs) that are applied to a message in transit to describe conversions.
+    /// Associated properties: PR_CONVERSION_EITS
+    /// Identifier: 0x000C
+    /// Data type: PT_BINARY
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagconversioneits-canonical-property
     case tagConversionEits = 0x000C
 
-    /// PidTagConversionWithLossProhibited
+    /// PidTagConversionWithLossProhibited Canonical Property
     /// Not documented in specification but known on internet
     /// Contains TRUE if a message transfer agent (MTA) is prohibited from making message text conversions that lose information.
+    /// Associated properties: PR_CONVERSION_WITH_LOSS_PROHIBITED
+    /// Identifier: 0x000D
+    /// Data type: PT_BOOLEAN
+    /// Area: General configuration
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagconversionwithlossprohibited-canonical-property
     case tagConversionWithLossProhibited = 0x000D
 
-    /// PidTagConvertedEits
+    /// PidTagConvertedEits Canonical Property
     /// Not documented in specification but known on internet
     /// Contains an identifier for the types of text in a message after conversion.
+    /// Associated properties: PR_CONVERTED_EITS
+    /// Identifier: 0x000E
+    /// Data type: PT_BINARY
+    /// Area: Exchange
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagconvertedeits-canonical-property
     case tagConvertedEits = 0x000E
 
@@ -129,27 +183,43 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_DELIVER_TIME, ptagDeliverTime
     case tagDeliverTime = 0x0010
 
-    /// PidTagDiscardReason
+    /// PidTagDiscardReason Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a reason why a message transfer agent (MTA) has discarded a message.
+    /// Associated properties: PR_DISCARD_REASON
+    /// Identifier: 0x0011
+    /// Data type: PT_LONG
+    /// Area: MAPI envelope
     /// https://docs.microsoft.com/en-ie/office/client-developer/outlook/mapi/pidtagdiscardreason-canonical-property
     case tagDiscardReason = 0x0011
 
-    /// PidTagDisclosureOfRecipients
+    /// PidTagDisclosureOfRecipients Canonical Property
     /// Not documented in specification but known on internet
     /// Contains TRUE if disclosure of recipients is allowed.
+    /// Associated properties: PR_DISCLOSURE_OF_RECIPIENTS
+    /// Identifier: 0x0012
+    /// Data type: PT_BOOLEAN
+    /// Area: MAPI envelope
     /// https://docs.microsoft.com/en-ie/office/client-developer/outlook/mapi/pidtagdisclosureofrecipients-canonical-property
     case tagDisclosureOfRecipients = 0x0012
 
-    /// PidTagDistributionListExpansionHistory
+    /// PidTagDistributionListExpansionHistory Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a history showing how a distribution list has been expanded during message transmission.
+    /// Associated properties: PR_DL_EXPANSION_HISTORY
+    /// Identifier: 0x0013
+    /// Data type: PT_BINARY
+    /// Area: MAPI envelope
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagdistributionlistexpansionhistory-canonical-property
     case tagDistributionListExpansionHistory = 0x0013
 
-    /// PidTagDistributionListExpansionProhibited
+    /// PidTagDistributionListExpansionProhibited Canonical Property
     /// Not documented in specification but known on internet
     /// Contains TRUE if a message transfer agent (MTA) is prohibited from expanding distribution lists.
+    /// Associated properties: PR_DL_EXPANSION_PROHIBITED
+    /// Identifier: 0x0014
+    /// Data type: PT_BOOLEAN
+    /// Area: MAPI envelope
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagdistributionlistexpansionprohibited-canonical-property
     case tagDistributionListExpansionProhibited = 0x0014
 
@@ -166,9 +236,13 @@ public enum PropertyId: UInt16 {
     /// http://schemas.microsoft.com/exchange/expiry-date-iso
     case tagExpiryTime = 0x0015
 
-    /// PidTagImplicitConversionProhibited
+    /// PidTagImplicitConversionProhibited Canonical Property
     /// Not documented in specification but known on internet
     /// Contains TRUE if a message transfer agent (MTA) is prohibited from making implicit message text conversions.
+    /// Associated properties: PR_IMPLICIT_CONVERSION_PROHIBITED
+    /// Identifier: 0x0016
+    /// Data type: PT_BOOLEAN
+    /// Area: Server
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagimplicitconversionprohibited-canonical-property
     case tagImplicitConversionProhibited = 0x0016
 
@@ -183,10 +257,17 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_IMPORTANCE, ptagImportance, urn:schemas:httpmail:importance,
     /// http://schemas.microsoft.com/exchange/importance-long, http://schemas.microsoft.com/exchange/xpriority-long
     case tagImportance = 0x0017
+    
+    /// Source: Mapitags.h
+    case PR_IPM_ID = 0x0018
 
-    /// PidTagLatestDeliveryTime
+    /// PidTagLatestDeliveryTime Canonical Property
     /// Not documented in specification but known on internet
     /// Contains the latest date and time when a message transfer agent (MTA) should deliver a message.
+    /// Associated properties: PR_LATEST_DELIVERY_TIME
+    /// Identifier: 0x0019
+    /// Data type: PT_SYSTIME
+    /// Area: General messaging
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtaglatestdeliverytime-canonical-property
     case tagLatestDeliveryTime = 0x0019
 
@@ -203,27 +284,60 @@ public enum PropertyId: UInt16 {
     /// http://schemas.microsoft.com/exchange/outlookmessageclasshttp://schemas.microsoft.com/exchange/outlookmessageclass
     case tagMessageClass = 0x001A
 
-    /// PidTagMessageDeliveryId
+    /// PidTagMessageDeliveryId Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a message transfer system (MTS) identifier for a message delivered to a client application.
+    /// Associated properties: PR_MESSAGE_DELIVERY_ID
+    /// Identifier: 0x001B
+    /// Data type: PT_BINARY
+    /// Area: Server
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagmessagedeliveryid-canonical-property
     case tagMessageDeliveryId = 0x001B
-
-    /// PidTagMessageSecurityLabel
+    
+    // case unknown0x001C = 0x001C
+    
+    // case unknown0x001D = 0x001D
+    
+    /// PidTagMessageSecurityLabel Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a security label for a message.
+    /// Associated properties: PR_MESSAGE_SECURITY_LABEL
+    /// Identifier: 0x001E
+    /// Data type: PT_BINARY
+    /// Area: Server
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagmessagesecuritylabel-canonical-property
     case tagMessageSecurityLabel = 0x001E
+    
+    /// Source: Mapitags.h
+    case PR_OBSOLETED_IPMS = 0x001F
+    
+    /// PidTagOriginallyIntendedRecipientName Canonical Property
+    /// Not documented in specification but known on internet
+    /// Contains the encoded name of the originally intended recipient of an autoforwarded message.
+    /// Associated properties: PR_ORIGINALLY_INTENDED_RECIPIENT_NAME
+    /// Identifier: 0x0020
+    /// Data type: PT_BINARY
+    /// Area: Server
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginallyintendedrecipientname-canonical-property
+    case tagOriginallyIntendedRecipientName = 0x0020
 
-    /// PidTagOriginalEits
+    /// PidTagOriginalEits Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a copy of the original encoded information types (EITs) for message text.
+    /// Associated properties: PR_ORIGINAL_EITS
+    /// Identifier: 0x0021
+    /// Data type: PT_BINARY
+    /// Area: Server
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginaleits-canonical-property
     case tagOriginalEits = 0x0021
 
-    /// PidTagOriginatorCertificate
+    /// PidTagOriginatorCertificate Canonical Property
     /// Not documented in specification but known on internet
     /// Contains an ASN.1 certificate for the message originator.
+    /// Associated properties: PR_ORIGINATOR_CERTIFICATE
+    /// Identifier: 0x0022
+    /// Data type: PT_BINARY
+    /// Area: MIME
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginatorcertificate-canonical-property
     case tagOriginatorCertificate = 0x0022
 
@@ -240,7 +354,7 @@ public enum PropertyId: UInt16 {
     /// http://schemas.microsoft.com/exchange/deliveryreportrequested
     case tagOriginatorDeliveryReportRequested = 0x0023
 
-    /// PidTagOriginatorReturnAddress
+    /// PidTagOriginatorReturnAddress Canonical Property
     /// Not documented in specification but known on internet
     /// Contains the binary-encoded return address of the message originator.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagoriginatorreturnaddress-canonical-property
@@ -270,13 +384,13 @@ public enum PropertyId: UInt16 {
     /// urn:schemas:httpmail:priority
     case tagPriority = 0x0026
 
-    /// PidTagOriginCheck
+    /// PidTagOriginCheck Canonical Property
     /// Not documented in specification but known on internet
     /// Contains a binary verification value that enables a delivery report recipient to verify the origin of the original message.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagorigincheck-canonical-property
     case tagOriginCheck = 0x0027
 
-    /// PidTagProofOfSubmissionRequested
+    /// PidTagProofOfSubmissionRequested Canonical Property
     /// Not documented in specification but known on internet
     /// Contains an ASN.1 proof of submission value.
     /// https://docs.microsoft.com/en-nz/office/client-developer/outlook/mapi/pidtagproofofsubmissionrequested-canonical-property
@@ -5209,18 +5323,89 @@ public enum PropertyId: UInt16 {
     case unknown0x3D16 = 0x3D16
     
     // case unknown0x3D17 = 0x3D17
+    
+    // case unknown0x3DFF = 0x3DFF
+    
+    /// PidTagControlFlags Canonical Property
+    /// Contains a bitmask of flags governing the behavior of a control used in a dialog box built from a display table.
+    /// Associated properties: PR_CONTROL_FLAGS
+    /// Identifier: 0x3F00
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontrolflags-canonical-property
+    case tagControlFlags = 0x3F00
 
-    // case unknown0x3F07 = 0x3F07
+    /// PidTagControlStructure Canonical Property
+    /// Contains a pointer to a structure for a control used in a dialog box.
+    /// Associated properties: PR_CONTROL_STRUCTURE
+    /// Identifier: 0x3F01
+    /// Data type: PT_BINARY
+    /// Area: MAPI display table
+    case tagControlStructure = 0x3F01
+    
+    /// PidTagControlType Canonical Property
+    /// Contains a value indicating a control type for a control used in a dialog box.
+    /// Associated properties: PR_CONTROL_TYPE
+    /// Identifier: 0x3F02
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontroltype-canonical-property
+    case tagControlType = 0x3F02
+    
+    /// PidTagDeltaX Canonical Property
+    /// Contains the width of a dialog box control in standard Windows dialog units.
+    /// Associated properties: PR_DELTAX
+    /// Identifier: 0x3F03
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagdeltax-canonical-property
+    case tagDeltaX = 0x3F03
+    
+    /// PidTagDeltaY Canonical Property
+    /// Contains the height of a dialog box control in standard Windows dialog units.
+    /// Associated properties: PR_DELTAY
+    /// Identifier: 0x3F04
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagdeltay-canonical-property
+    case tagDeltaY = 0x3F04
+    
+    /// PidTagXCoordinate Canonical Property
+    /// Contains the x coordinate of the starting position (the upper-left corner) of a dialog box control, in standard Windows dialog units.
+    /// Associated properties: PR_XPOS
+    /// Identifier: 0x3F05
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagxcoordinate-canonical-property
+    case tagXCoordinate = 0x3F05
+    
+    /// PidTagYCoordinate Canonical Property
+    /// Contains the y coordinate of the starting position (the upper-left corner) of a dialog box control, in standard Windows dialog units.
+    /// Associated properties: PR_YPOS
+    /// Identifier: 0x3F06
+    /// Data type: PT_LONG
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagycoordinate-canonical-property
+    case tagYCoordinate = 0x3F06
+    
+    /// PidTagControlId Canonical Property
+    /// Contains a unique identifier for a control used in a dialog box.
+    /// Associated properties: PR_CONTROL_ID
+    /// Identifier: 0x3F07
+    /// Data type: PT_BINARY
+    /// Area: MAPI display table
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontrolid-canonical-property
+    case tagControlId = 0x3F07
 
     /// [MS-OXPROPS] 2.740 PidTagInitialDetailsPane
-    ///Canonical name: PidTagInitialDetailsPane
-    ///Description: Indicates which page of a display template to display first.
-    ///Property ID: 0x3F08
-    ///Data type: PtypInteger32, 0x0003
-    ///Area: MAPI Display Tables
-    ///Defining reference: [MS-OXOABK] section 2.2.3.33
-    ///Consuming Reference: [MS-OXNSPI]
-    ///Alternate names: PR_INITIAL_DETAILS_PANE
+    /// Canonical name: PidTagInitialDetailsPane
+    /// Description: Indicates which page of a display template to display first.
+    /// Property ID: 0x3F08
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: MAPI Display Tables
+    /// Defining reference: [MS-OXOABK] section 2.2.3.33
+    /// Consuming Reference: [MS-OXNSPI]
+    /// Alternate names: PR_INITIAL_DETAILS_PANE
     case tagInitialDetailsPane = 0x3F08
 
     // case unknown0x3F09 = 0x3F09
@@ -5299,10 +5484,13 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_DELEGATED_BY_RULE
     case tagDelegatedByRule = 0x3FE3
 
+    /// Source: Mapitag.h
     case PR_DESIGN_IN_PROGRESS = 0x3FE4
     
+    /// Source: Mapitag.h
     case PR_SECURE_ORIGINATION = 0x3FE5
 
+    /// Source: Mapitag.h
     case PR_PUBLISH_IN_ADDRESS_BOOK = 0x3FE6
 
     /// [MS-OXPROPS] 2.929 PidTagResolveMethod
@@ -7996,11 +8184,11 @@ public enum PropertyId: UInt16 {
     
     case unknown0x681B = 0x681B
     
-    // case unknown0x681C = 0x681C
+    case unknown0x681C = 0x681C
     
     // case unknown0x681D = 0x681D
     
-    // case unknown0x681E = 0x681E
+    case unknown0x681E = 0x681E
     
     // case unknown0x681F = 0x681F
 
@@ -8017,6 +8205,14 @@ public enum PropertyId: UInt16 {
     case tagReportingMessageTransferAgent = 0x6820
 
     // case unknown0x6821 = 0x6821
+    
+    // case unknown0x6822 = 0x6822
+    
+    // case unknown0x6823 = 0x6823
+    
+    // case unknown0x6824 = 0x6824
+    
+    // case unknown0x6825 = 0x6825
 
     // case unknown0x6826 = 0x6826
 
@@ -8058,7 +8254,7 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x6836 = 0x6836
 
-    // case unknown0x6837 = 0x6837
+    case unknown0x6837 = 0x6837
 
     // case unknown0x6838 = 0x6838
 
@@ -8087,15 +8283,23 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x6840 = 0x6840
 
+    /// [MS-OXPROPS] 2.985 PidTagScheduleInfoResourceType
+    /// Canonical name: PidTagScheduleInfoResourceType
+    /// Description: Set to 0x00000000 when sending and is ignored on receipt.
+    /// Property ID: 0x6841
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: Free/Busy Properties
+    /// Defining reference: [MS-OXOPFFB] section 2.2.1.4.2
+    /// Alternate names: PR_SCHDINFO_RESOURCE_TYPE
     /// [MS-OXPROPS] 2.996 PidTagSearchFolderTemplateId
-    ///Canonical name: PidTagSearchFolderTemplateId
-    ///Description: Contains the ID of the template that is being used for the search.
-    ///Property ID: 0x6841
-    ///Data type: PtypInteger32, 0x0003
-    ///Area: Search
-    ///Defining reference: [MS-OXOSRCH] section 2.2.1.2.2
-    ///Alternate names: PR_WB_SF_TEMPLATE_ID
-    case tagSearchFolderTemplateId = 0x6841
+    /// Canonical name: PidTagSearchFolderTemplateId
+    /// Description: Contains the ID of the template that is being used for the search.
+    /// Property ID: 0x6841
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: Search
+    /// Defining reference: [MS-OXOSRCH] section 2.2.1.2.2
+    /// Alternate names: PR_WB_SF_TEMPLATE_ID
+    case tagScheduleInfoResourceTypeOrTagSearchFolderTemplateId = 0x6841
 
     /// [MS-OXPROPS] 2.991 PidTagSearchFolderId
     /// Canonical name: PidTagSearchFolderId

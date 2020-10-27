@@ -15,15 +15,32 @@ import Foundation
 /// template definition.
 /// The flags are stored as a 4-byte integer. The following table shows the flags in big-endian order.
 /// (The flags are in network byte order within the PidTagSearchFolderDefinition property.)
-public enum OutlookMessageSearchFolderStorageType: UInt32 {
-    case B = 0x00000040
-    case C = 0x00000020
-    case D = 0x00000010
-    case E = 0x00000008
-    case F = 0x00000004
-    case G = 0x00000002
-    case H = 0x00000001
-    case J = 0x00004000
-    case K = 0x00002000
-    case L = 0x00001000
+public struct SearchFolderStorageType: OptionSet {
+    public let rawValue: UInt32
+    
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let B = SearchFolderStorageType(rawValue: 0x00000040)
+    
+    public static let C = SearchFolderStorageType(rawValue: 0x00000020)
+    
+    public static let D = SearchFolderStorageType(rawValue: 0x00000010)
+    
+    public static let E = SearchFolderStorageType(rawValue: 0x00000008)
+    
+    public static let F = SearchFolderStorageType(rawValue: 0x00000004)
+    
+    public static let G = SearchFolderStorageType(rawValue: 0x00000002)
+    
+    public static let H = SearchFolderStorageType(rawValue: 0x00000001)
+    
+    public static let J = SearchFolderStorageType(rawValue: 0x00004000)
+    
+    public static let K = SearchFolderStorageType(rawValue: 0x00002000)
+    
+    public static let L = SearchFolderStorageType(rawValue: 0x00001000)
+
+    public static let all: SearchFolderStorageType = [.B, .C, .D, .E, .F, .G, .H, .J, .K, .L]
 }

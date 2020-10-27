@@ -957,3 +957,53 @@ extension Restriction.RelationalOperator: EnumCaseRepresentable {
         (.memberOfDistributionList, ".memberOfDistributionList"),
     ]
 }
+
+extension SearchFolderStorageType: EnumCaseRepresentable {
+    public static let caseNames: [(element: SearchFolderStorageType, name: String)] = [
+        (.B, ".B"),
+        (.C, ".C"),
+        (.D, ".D"),
+        (.E, ".E"),
+        (.F, ".F"),
+        (.G, ".G"),
+        (.H, ".H"),
+        (.J, ".J"),
+        (.K, ".K"),
+        (.L, ".L")
+    ]
+}
+
+extension SearchFolderTemplateId: EnumCaseRepresentable {
+    public static let caseNames: [(element: SearchFolderTemplateId, name: String)] = [
+        (.unreadMessages, ".unreadMessages"),
+        (.markedForFollowUp, ".markedForFollowUp"),
+        (.unreadOrMarkedForFollowUp, ".unreadOrMarkedForFollowUp"),
+        (.importantMail, ".importantMail"),
+        (.conversations, ".conversations"),
+        (.fromASpecificPerson, ".fromASpecificPerson"),
+        (.sentDirectlyToMe, ".sentDirectlyToMe"),
+        (.sentToASpecificDistributionList, ".sentToASpecificDistributionList"),
+        (.largeMessages, ".largeMessages"),
+        (.oldMail, ".oldMail"),
+        (.withAttachments, ".withAttachments"),
+        (.mailReceivedThisWeek, ".mailReceivedThisWeek"),
+        (.withSpecificWords, ".withSpecificWords"),
+        (.categorized, ".categorized"),
+        (.custom, ".custom")
+    ]
+}
+
+extension SearchFolderDefinition.Restriction.RestrictionType: EnumCaseRepresentable {
+    public static let caseNames: [(element: SearchFolderDefinition.Restriction.RestrictionType, name: String)] = [
+        (.and, ".and"),
+        (.or, ".or"),
+        (.not, ".not"),
+        (.content, ".content"),
+        (.property, ".property"),
+        (.compare, ".compare"),
+        (.bitMask, ".bitMask"),
+        (.exist, ".exist"),
+        (.comment, ".comment"),
+        (.count, ".count")
+    ]
+}
