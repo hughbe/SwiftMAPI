@@ -237,6 +237,17 @@ public extension MessageStorage {
     /// [MS-NSPI] and [MS-OXNSPI] section 2.2.1.3, according to the object's type: DT_MAILUSER,
     /// DT_DISTLIST, DT_FORUM, DT_AGENT, DT_ORGANIZATION, DT_PRIVATE_DISTLIST, or
     /// DT_REMOTE_MAILUSER.<13>
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x3900 PtypInteger32 PidTagDisplayType Display type. 
     var displayType: DisplayType? {
         guard let rawValue: UInt32 = getProperty(id: .tagDisplayType) else {
             return nil
@@ -309,6 +320,17 @@ public extension MessageStorage {
     /// Internet "SMTP"
     /// X.400 Message Handling System "X400"
     /// X.500 Directory Services "X500"
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x3002 PtypString PidTagAddressType Type of recipient address. 
     var addressType: String? {
         return getProperty(id: .tagAddressType)
     }
@@ -319,8 +341,18 @@ public extension MessageStorage {
     /// object's e-mail address, expressed in X500 format, using the format that is particular to the type of
     /// object, as specified in section 2.2.1.1. This property MUST be present for every Address Book object.
     /// Its value MUST match the DN of the Permanent Entry ID for the object if the object is present on an
-    /// NSPI server. Its DN MUST follow the format particular to the type of object, as specified in section
-    /// 2.2.1.1.
+    /// NSPI server. Its DN MUST follow the format particular to the type of object, as specified in section 2.2.1.1.
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x3003 PtypString PidTagEmailAddress E-mail address of recipient.
     var emailAddress: String? {
         return getProperty(id: .tagEmailAddress)
     }
@@ -351,6 +383,17 @@ public extension MessageStorage {
     /// Embedding (OLE) objects. If this property is present, this property is set to either 0x01, indicating
     /// that the sender can receive all message contents, or 0x00, indicating that the sender of the e-mail
     /// message is using a different type of e-mail client. The default is 0x00.
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x3A40 PtypBoolean PidTagSendRichInfo Send Rich info for recipient.
     var sendRichInfo: Bool? {
         return getProperty(id: .tagSendRichInfo)
     }

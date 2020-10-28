@@ -90,6 +90,13 @@ public extension MessageStorage {
     ///  PidTagMessageCodepage, as specified in section 2.2.1.2
     ///  PidTagParentEntryId, as specified in section 2.2.1.4.
     ///  PidTagEntryId, as specified in section 2.2.1.5.
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list
+    /// the FAI Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of NID_ASSOC_CONTENTS_TABLE_TEMPLATE
+    /// (0x60F). The FAI contents table template MUST have no data rows, and MUST contain the following property columns.
+    /// 0x6800 PtypString PidTagOfflineAddressBookName OAB name. And it hasan alternate name PidTagOfflineAddressBookName_W. Y
     var offlineAddressBookName: String? {
         return getProperty(id: .tagOfflineAddressBookName)
     }

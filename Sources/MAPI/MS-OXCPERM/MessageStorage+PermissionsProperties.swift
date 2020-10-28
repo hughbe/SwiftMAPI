@@ -74,6 +74,17 @@ public extension MessageStorage {
     ///  PidTagEntryId, as specified in section 2.2.1.5.
     /// [MS-OXPFOAB] 2.2.1.5 PidTagEntryId
     /// This property contains the entry ID for the OAB public folder message. For details, see [MS-OXPROPS] section 2.674.<3>
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x0FFF PtypBinary PidTagEntryID EntryID of the recipient.
     var entryId: EntryID? {
         guard let data: Data = getProperty(id: .tagEntryId) else {
             return nil

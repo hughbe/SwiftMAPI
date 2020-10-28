@@ -15,7 +15,7 @@ public struct TaggedPropertyValue {
     public let propertyTag: PropertyTag
     public let propertyValue: PropertyValue
     
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, standard: Bool) throws {
         /// PropertyTag (4 bytes): A PropertyTag structure, as specified in section 2.9, giving the values of the PropertyId and
         /// PropertyType fields for the property.
         self.propertyTag = try PropertyTag(dataStream: &dataStream)
@@ -23,6 +23,6 @@ public struct TaggedPropertyValue {
         /// PropertyValue (variable): A PropertyValue structure, as specified in section 2.11.2.1. specifying the value of the
         /// property. Its syntax is specified by the PropertyType field of the PropertyTag structure, and its semantics by the
         /// PropertyId field of the PropertyTag structure.
-        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyTag.type)
+        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyTag.type, standard: standard)
     }
 }

@@ -63,6 +63,15 @@ public extension MessageStorage {
     /// Data type: PtypTime ([MS-OXCDATA] section 2.11.1)
     /// The PidTagCreationTime property ([MS-OXCMSG] section 2.2.2.3) contains the creation date and
     /// time for an Address Book object in Coordinated Universal Time (UTC).
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x3007 PtypTime PidTagCreationTime Creation time. 
     var creationTime: Date? {
         return getProperty(id: .tagCreationTime)
     }
@@ -82,6 +91,35 @@ public extension MessageStorage {
     /// Data type: PtypTime ([MS-OXCDATA] section 2.11.1)
     /// The PidTagLastModificationTime property ([MS-OXCMSG] section 2.2.2.2) contains the date and
     /// time that an Address Book object was last modified in Coordinated Universal Time (UTC).
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x3008 PtypTime PidTagLastModificationTime Last modification time of Message object Y
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x3008 PtypTime PidTagLastModificationTime Last modification time
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x3008 PtypTime PidTagLastModificationTime Last modification time of Message object 
     var lastModificationTime: Date? {
         return getProperty(id: .tagLastModificationTime)
     }
@@ -114,6 +152,17 @@ public extension MessageStorage {
     /// MAILUSER 0x00000006 A mail user, or any Address Book object that is not a distribution list or forum.
     /// DISTLIST 0x00000008 A distribution list.
     /// folder 0x00000003 A messaging forum, such as a bulletin board service or a public or shared folder.
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x0FFE PtypInteger32 PidTagObjectType Recipient Object type. 
     var objectType: ObjectType? {
         guard let rawValue: UInt32 = getProperty(id: .tagObjectType) else {
             return nil
@@ -135,6 +184,27 @@ public extension MessageStorage {
     /// The PidTagRecordKey property ([MS-OXCPRPT] section 2.2.1.8) contains a unique binarycomparable identifier for an Address Book object. This value MUST be present on all objects on an
     /// NSPI server and MUST match the value for the PidTagTemplateid property (section 2.2.3.3).
     /// The PidTagRecordKey property is not present on objects in an offline address book (OAB).
+    /// [MS-PST] 2.4.3 Message Store
+    /// At the PST level, the message store is the root of the PST, which is the rough equivalent of the top
+    /// of a Mailbox. The message store contains the top-level PST settings and metadata that are required to
+    /// access and manage the PST contents.
+    /// At the LTP Level, the message store is implemented as a regular PC. At the NDB Layer, the message
+    /// store is identified with a special internal NID value of NID_MESSAGE_STORE (0x21) (see section
+    /// 2.4.1). Any valid PST MUST have exactly one message store node.
+    /// [MS-PST] 2.4.3.1 Minimum Set of Required Properties
+    /// The following properties MUST be present in any valid message store PC.
+    /// 0x0FF9 PtypBinary PidTagRecordKey Record key. This is the Provider UID of this PST.
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x0FF9 PtypBinary PidTagRecordKey Record Key. 
     var recordKey: Data? {
         return getProperty(id: .tagRecordKey)
     }
@@ -153,6 +223,26 @@ public extension MessageStorage {
     /// ASCII string "EX: " followed by the DN for the object converted to all uppercase, followed by a zerobyte value. This value MUST be present for all Address Book objects on an NSPI server and MUST
     /// be in the aforementioned format.
     /// The PidTagSearchKey property is not present on objects in an offline address book (OAB).
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x300B PtypBinary PidTagSearchKey Message Search Key.
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x300B PtypBinary PidTagSearchKey Search Key.
     var searchKey: Data? {
         return getProperty(id: .tagSearchKey)
     }
@@ -368,6 +458,44 @@ public extension MessageStorage {
     /// Calendar object.
     /// The PidTagMessageClass property is further specified in [MS-OXOCAL] section 2.2.2.1.
     /// For more details about the PidTagMessageClass property, see [MS-OXPROPS] section 2.778.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x001A PtypString PidTagMessageClassW Message class. This property has an alternate name of PidTagMessageClass_W. Y
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
+    /// object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
+    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
+    /// data rows, and MUST contain the following property columns.
+    /// 0x001A PtypString PidTagMessageClass Message class. And it has an alternate name PidTagMessageClass_W. Y
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x001A PtypString PidTagMessageClass Message class. And it has an alternate name PidTagMessageClassW.
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x001A PtypString PidTagMessageClassW Message class. This property has an alternate name of PidTagMessageClass_W. 
     var messageClass: String? {
         return getProperty(id: .tagMessageClass)
     }
@@ -422,6 +550,53 @@ public extension MessageStorage {
     /// [MS-OXORMDR] 2.2.2.1 Properties Shared with the Message and Attachment Object Protocol
     ///  PidTagMessageFlags ([MS-OXCMSG] section 2.2.1.6)
     /// The semantics and accepted values are identical to those specified in [MS-OXCMSG].
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0E07 PtypInteger32 PidTagMessageFlags Message flags Y
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
+    /// object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
+    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
+    /// data rows, and MUST contain the following property columns.
+    /// 0x0E07 PtypInteger32 PidTagMessageFlags Message flags. Y
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x0E07 PtypInteger32 PidTagMessageFlags Message flags.
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0E07 PtypInteger32 PidTagMessageFlags Message flags
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0E07 PtypInteger32 PidTagMessageFlags Message flags 
     var messageFlags: MessageFlags? {
         guard let rawValue: UInt32 = getProperty(id: .tagMessageFlags) else {
             return nil
@@ -469,15 +644,91 @@ public extension MessageStorage {
     ///  PidTagParentEntryId, as specified in section 2.2.1.4.
     ///  PidTagEntryId, as specified in section 2.2.1.5.
     /// [MS-OXPFOAB] 2.2.1.3 PidTagMessageSize
-    /// This property contains the size of the message on the server. For details about this property, see [MSOXCMSG] section 2.2.1.7 and [MS-OXPROPS] section 2.787.
+    /// This property contains the size of the message on the server. For details about this property, see [MSOXCMSG] section 2.2.1.7
+    /// and [MS-OXPROPS] section 2.787.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0E08 PtypInteger32 PidTagMessageSize Message size Y
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x0E08 PtypInteger32 PidTagMessageSize Message size
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0E08 PtypInteger32 PidTagMessageSize Message size
     var messageSize: UInt32? {
         return getProperty(id: .tagMessageSize)
     }
 
     /// [MS-OXCMSG] 2.2.1.8 PidTagMessageStatus Property
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-    /// Specifies the status of a message in a contents table. Contains a bitwise OR of zero or more of the
-    /// following values.
+    /// Specifies the status of a message in a contents table. Contains a bitwise OR of zero or more of the following values.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0E17 PtypInteger32 PidTagMessageStatus Message status Y
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
+    /// object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
+    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
+    /// data rows, and MUST contain the following property columns.
+    /// 0x0E17 PtypInteger32 PidTagMessageStatus Message status. Y
+    /// [MS-PST] 2.4.5.1 Message Object PC
+    /// The Message object PC is a standard Property Context structure that contains the properties
+    /// associated with the Message object. Message object PC nodes are identified with an NID_TYPE of
+    /// NID_TYPE_NORMAL_MESSAGE.
+    /// [MS-PST] 2.4.5.1.1 Property Schema of a Message Object PC
+    /// Message objects have a rather complicated set of schemas and are out of the scope of discussion of
+    /// this document. However, the basic property schema of a general Message object is specified in [MSOXCMSG], [MS-OXOMSG] and [MS-OXPROPS]. From the PST perspective, the following properties
+    /// MUST be present in any valid Message object PC.
+    /// 0x0E17 PtypInteger32 PidTagMessageStatus Message status.
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0E17 PtypInteger32 PidTagMessageStatus Message status
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0E17 PtypInteger32 PidTagMessageStatus Message status
     var messageStatus: MessageStatus? {
         guard let rawValue: UInt32 = getProperty(id: .tagMessageStatus) else {
             return nil
@@ -581,9 +832,28 @@ public extension MessageStorage {
     
     /// [MS-OXCMSG] 2.2.1.11 PidTagImportance Property
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagImportance property ([MS-OXPROPS] section 2.738) indicates the level of importance
-    /// assigned by the end user to the Message object. This property MUST be set to one of the following
-    /// values.
+    /// The PidTagImportance property ([MS-OXPROPS] section 2.738) indicates the level of importance assigned by the end user
+    /// to the Message object. This property MUST be set to one of the following values.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0017 PtypInteger32 PidTagImportance Importance Y
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0017 PtypInteger32 PidTagImportance Importance
     var importance: MessageImportance? {
         guard let rawValue: UInt32 = getProperty(id: .tagImportance) else {
             return nil
@@ -620,6 +890,26 @@ public extension MessageStorage {
     /// Data type: PtypInteger32 ([MS-OXCDATA] section 2.11.1.6)
     /// The PidTagSensitivity property ([MS-OXPROPS] section 2.1001) gets or sets message and
     /// appointment sensitivity. The following table lists valid values.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0036 PtypInteger32 PidTagSensitivity Sensitivity Y
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0036 PtypInteger32 PidTagSensitivity Sensitivity 
     var sensitivity: MessageSensitivity? {
         guard let rawValue: UInt32 = getProperty(id: .tagSensitivity) else {
             return nil
@@ -835,17 +1125,17 @@ public extension MessageStorage {
         return getProperty(id: .tagTnefCorrelationKey)
     }
     
-    /// [MS-OXCMSG] 2.2.1.30 PidTagAddressBookDisplayNamePrintable Property
+    /// [MS-OXCMSG] 2.2.1.30 PidtagAddressBookDisplayNamePrintableOrTag7BitDisplayName Property
     /// Type: PtypString ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAddressBookDisplayNamePrintable property ([MS-OXPROPS] section 2.514) contains
+    /// The PidtagAddressBookDisplayNamePrintableOrTag7BitDisplayName property ([MS-OXPROPS] section 2.514) contains
     /// the printable string version of the display name.
-    /// [MS-OXOABK] 2.2.3.7 PidTagAddressBookDisplayNamePrintable
+    /// [MS-OXOABK] 2.2.3.7 PidtagAddressBookDisplayNamePrintableOrTag7BitDisplayName
     /// Data type: PtypString ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAddressBookDisplayNamePrintable property ([MS-OXPROPS] section 2.508) contains
+    /// The PidtagAddressBookDisplayNamePrintableOrTag7BitDisplayName property ([MS-OXPROPS] section 2.508) contains
     /// a displayable form of an Address Book object that can be rendered in the client user's own code
     /// page.
     var addressBookDisplayNamePrintable: String? {
-        return getProperty(id: .tagAddressBookDisplayNamePrintable)
+        return getProperty(id: .tagAddressBookDisplayNamePrintableOrTag7BitDisplayName)
     }
     
     /// [MS-OXCMSG] 2.2.1.31 PidTagCreatorEntryId Property
@@ -915,6 +1205,17 @@ public extension MessageStorage {
     /// The PidTagResponsibility property ([MS-OXPROPS] section 2.931) specifies whether another mail
     /// agent has ensured that the message will be delivered. This property is set to "TRUE" if another agent
     /// has accepted responsibility; otherwise, "FALSE".
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x0E0F PtypBoolean PidTagResponsibility Handling Responsibility. 
     var responsibility: Bool? {
         return getProperty(id: .tagResponsibility)
     }
@@ -1022,6 +1323,26 @@ public extension MessageStorage {
     /// message. This property corresponds to the Subject header field of [RFC822]. This property differs
     /// from the PidNameInternetSubject property ([MS-OXPROPS] section 2.443) only in that all
     /// characters encoded as specified in [RFC1522] are decoded and returned as Unicode characters.
+    /// [MS-PST] 2.4.4.5 Contents Table
+    /// The contents table is a TC node that is identified with an NID_TYPE of NID_TYPE_CONTENTS_TABLE.
+    /// Its function is to list the Message objects in the Folder object.
+    /// [MS-PST] 2.4.4.5.1 Contents Table Template
+    /// Each PST MUST have one contents table template, which is identified with an NID value of
+    /// NID_CONTENTS_TABLE_TEMPLATE (0x60E). The contents table template MUST have no data rows,
+    /// and MUST contain the property columns described in the following table. These properties represent
+    /// ONLY the required properties; additional properties can be added by newer versions of Outlook.
+    /// The right-most column indicates whether the property is copied from the Message object PC into the
+    /// Contents TC row when a new Message object is created.
+    /// 0x0037 PtypString PidTagSubjectW Subject. This property has an alternate name ofPidTagSubject_W. Y
+    /// [MS-PST] 2.4.8.6.2 Search Folder Object Contents Table (SFCT)
+    /// The Search Folder Object Contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_SEARCH_CONTENTS_TABLE. Its function is to list the Search Message objects in the
+    /// Folder object, which are Message objects that match the search Folder object's search criteria.
+    /// [MS-PST] 2.4.8.6.2.1 Search Folder Contents Table Template
+    /// Each PST MUST have one search folder contents table template, which is identified with an NID value
+    /// of NID_SEARCH_CONTENTS_TABLE_TEMPLATE (0x610). The search contents table template MUST
+    /// have no data rows, and MUST contain the following property columns.
+    /// 0x0037 PtypString PidTagSubjectW Subject. This property has an alternate name of PidTagSubject_W.
     var subject: String? {
         return getProperty(id: .tagSubject)
     }
@@ -1540,6 +1861,29 @@ public extension MessageStorage {
     /// Type: PtypInteger32, unsigned ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAttachSize property ([MS-OXPROPS] section 2.608) contains the size in bytes consumed by the Attachment object
     /// on the server. This property is read-only for the client.
+    /// [MS-PST] 2.4.6.1 Attachment Table
+    /// The Attachment Table is a standard TC structure where each of its rows maps to an Attachment
+    /// object. Each row contains sufficient metadata to identify or display a representation of the
+    /// Attachment object, but the full Attachment object data is stored in a separate subnode. The
+    /// Attachment table is optional, and can be absent from Message objects that do not contain any
+    /// Attachment objects.
+    /// [MS-PST] 2.4.6.1.1 Attachment Table Template
+    /// Each PST MUST have one attachment table template, which is identified with an NID value of
+    /// NID_ATTACHMENT_TABLE (0x671). The attachment table template defines the set of columns for
+    /// every new Attachment Table that is created. The attachment table template MUST have no data rows,
+    /// and MUST contain the following property columns.
+    /// 0x0E20 PtypInteger32 PidTagAttachmentSize Size of Attachment object.
+    /// [MS-PST] 2.4.6.2 Attachment Object PC
+    /// An Attachment object PC is a subnode with an NID_TYPE of NID_TYPE_ATTACHMENT, which
+    /// contains all the information about an Attachment object. Because of the size of most Attachment
+    /// objects being quite large, the binary data of the Attachment objects are stored in the subnode of the
+    /// Attachment object node (which is itself a subnode of the Message object node), and often, a data
+    /// tree is used to store the binary content. The number of Attachment object subnodes in a Message
+    /// object MUST equal the number of rows in the Attachment Table.
+    /// [MS-PST] 2.4.6.2.1 Property Schema of an Attachment Object PC
+    /// The basic property schema of a general Message object is specified in [MS-OXCMSG] and [MSOXPROPS]. From the PST perspective, the following properties MUST be present in any valid
+    /// Attachment object PC.
+    /// 0x0E20 PtypInteger32 PidTagAttachmentSize Size of Attachment object. 
     var attachSize: UInt32? {
         return getProperty(id: .tagAttachSize)
     }
@@ -1645,8 +1989,30 @@ public extension MessageStorage {
     /// The Differential Patch file MUST be the first attachment on this message.
     /// These attachments have their own properties, which are defined in the following subsections.
     /// [MS-OXPFOAB] 2.2.3.1.3.2 PidTagAttachMethod
-    /// This property MUST be set to 1 (ATTACH_BY_VALUE). For details, see [MS-OXPROPS] section
-    /// 2.592.<7>
+    /// This property MUST be set to 1 (ATTACH_BY_VALUE). For details, see [MS-OXPROPS] section 2.592.<7>
+    /// [MS-PST] 2.4.6.1 Attachment Table
+    /// The Attachment Table is a standard TC structure where each of its rows maps to an Attachment
+    /// object. Each row contains sufficient metadata to identify or display a representation of the
+    /// Attachment object, but the full Attachment object data is stored in a separate subnode. The
+    /// Attachment table is optional, and can be absent from Message objects that do not contain any
+    /// Attachment objects.
+    /// [MS-PST] 2.4.6.1.1 Attachment Table Template
+    /// Each PST MUST have one attachment table template, which is identified with an NID value of
+    /// NID_ATTACHMENT_TABLE (0x671). The attachment table template defines the set of columns for
+    /// every new Attachment Table that is created. The attachment table template MUST have no data rows,
+    /// and MUST contain the following property columns.
+    /// 0x3705 PtypInteger32 PidTagAttachMethod Attachment method.
+    /// [MS-PST] 2.4.6.2 Attachment Object PC
+    /// An Attachment object PC is a subnode with an NID_TYPE of NID_TYPE_ATTACHMENT, which
+    /// contains all the information about an Attachment object. Because of the size of most Attachment
+    /// objects being quite large, the binary data of the Attachment objects are stored in the subnode of the
+    /// Attachment object node (which is itself a subnode of the Message object node), and often, a data
+    /// tree is used to store the binary content. The number of Attachment object subnodes in a Message
+    /// object MUST equal the number of rows in the Attachment Table.
+    /// [MS-PST] 2.4.6.2.1 Property Schema of an Attachment Object PC
+    /// The basic property schema of a general Message object is specified in [MS-OXCMSG] and [MSOXPROPS]. From the PST perspective, the following properties MUST be present in any valid
+    /// Attachment object PC.
+    /// 0x3705 PtypInteger32 PidTagAttachMethod Attachment method.
     var attachMethod: AttachMethod? {
         guard let rawValue: UInt32 = getProperty(id: .tagAttachMethod) else {
             return nil
@@ -1734,6 +2100,18 @@ public extension MessageStorage {
     /// OAB file PidTagAttachFilename value MUST start with PidTagAttachFilename value SHOULD be
     /// Differential Patch b binpatch.oab
     /// Changes file c changes.oab
+    /// [MS-PST] 2.4.6.1 Attachment Table
+    /// The Attachment Table is a standard TC structure where each of its rows maps to an Attachment
+    /// object. Each row contains sufficient metadata to identify or display a representation of the
+    /// Attachment object, but the full Attachment object data is stored in a separate subnode. The
+    /// Attachment table is optional, and can be absent from Message objects that do not contain any
+    /// Attachment objects.
+    /// [MS-PST] 2.4.6.1.1 Attachment Table Template
+    /// Each PST MUST have one attachment table template, which is identified with an NID value of
+    /// NID_ATTACHMENT_TABLE (0x671). The attachment table template defines the set of columns for
+    /// every new Attachment Table that is created. The attachment table template MUST have no data rows,
+    /// and MUST contain the following property columns.
+    /// 0x3704 PtypString PidTagAttachFilenameW File name of Attachment object. 
     var attachFilename: String? {
         return getProperty(id: .tagAttachFilename)
     }
@@ -1790,6 +2168,29 @@ public extension MessageStorage {
     /// will be rendered in the same order as if the attachments had the values 2, 1, and 5. A detailed
     /// example of this property is provided in [MS-OXRTFEX] section 3.2.
     /// The value 0xFFFFFFFF indicates a hidden attachment that is not to be rendered in the main text.
+    /// [MS-PST] 2.4.6.1 Attachment Table
+    /// The Attachment Table is a standard TC structure where each of its rows maps to an Attachment
+    /// object. Each row contains sufficient metadata to identify or display a representation of the
+    /// Attachment object, but the full Attachment object data is stored in a separate subnode. The
+    /// Attachment table is optional, and can be absent from Message objects that do not contain any
+    /// Attachment objects.
+    /// [MS-PST] 2.4.6.1.1 Attachment Table Template
+    /// Each PST MUST have one attachment table template, which is identified with an NID value of
+    /// NID_ATTACHMENT_TABLE (0x671). The attachment table template defines the set of columns for
+    /// every new Attachment Table that is created. The attachment table template MUST have no data rows,
+    /// and MUST contain the following property columns.
+    /// 0x370B PtypInteger32 PidTagRenderingPosition Rendering position of Attachment object.
+    /// [MS-PST] 2.4.6.2 Attachment Object PC
+    /// An Attachment object PC is a subnode with an NID_TYPE of NID_TYPE_ATTACHMENT, which
+    /// contains all the information about an Attachment object. Because of the size of most Attachment
+    /// objects being quite large, the binary data of the Attachment objects are stored in the subnode of the
+    /// Attachment object node (which is itself a subnode of the Message object node), and often, a data
+    /// tree is used to store the binary content. The number of Attachment object subnodes in a Message
+    /// object MUST equal the number of rows in the Attachment Table.
+    /// [MS-PST] 2.4.6.2.1 Property Schema of an Attachment Object PC
+    /// The basic property schema of a general Message object is specified in [MS-OXCMSG] and [MSOXPROPS]. From the PST perspective, the following properties MUST be present in any valid
+    /// Attachment object PC.
+    /// 0x370B PtypInteger32 PidTagRenderingPosition Rendering position of Attachment object. 
     var renderingPosition: UInt32? {
         return getProperty(id: .tagRenderingPosition)
     }

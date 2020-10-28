@@ -37,6 +37,6 @@ public struct PropertyTag: CustomStringConvertible {
     }
     
     public var description: String {
-        return "\(idString) (\(type))"
+        return "PstPropertyId.\(idString) (\(type))"
     }
 }

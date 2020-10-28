@@ -85,7 +85,7 @@ public struct ActionBlock {
             /// [MS-OXORULE] 2.2.5.1.2.4 OP_FORWARD and OP_DELEGATE ActionData Structure
             /// The ActionData structure that MUST be used with the "OP_FORWARD" and "OP_DELEGATE" action (2)
             /// types is formatted as follows.
-            self.actionData = try ForwardDelegateActionData(dataStream: &dataStream)
+            self.actionData = try ForwardDelegateActionData(dataStream: &dataStream, standard: standard)
         case .bounce:
             /// [MS-OXORULE] 2.2.5.1.2.5 OP_BOUNCE ActionData Structure
             /// The OP_BOUNCE ActionData structure is specified as follows.
@@ -94,7 +94,7 @@ public struct ActionBlock {
             /// [MS-OXORULE] 2.2.5.1.2.6 OP_TAG ActionData Structure
             /// An OP_TAG ActionData structure is a TaggedPropertyValue structure, packaged as specified in
             /// [MS-OXCDATA] section 2.11.4.
-            self.actionData = try TaggedPropertyValue(dataStream: &dataStream)
+            self.actionData = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
         case .delete, .markAsRead:
             /// [MS-OXORULE] 2.2.5.1.2.7 OP_DELETE or OP_MARK_AS_READ ActionData Structure
             /// For the OP_DELETE or OP_MARK_AS_READ action types, the incoming messages are deleted<9>
@@ -338,7 +338,7 @@ public struct ActionBlock {
         public let recipientCount: UInt32
         public let recipientBlocks: [RecipientBlockData]
         
-        public init(dataStream: inout DataStream) throws {
+        public init(dataStream: inout DataStream, standard: Bool) throws {
             /// RecipientCount (4 bytes): An integer that specifies the number of RecipientBlockData structures, as specified
             /// in section 2.2.5.1.2.4.1, contained in the RecipientBlocks field. This number MUST be greater than zero.
             self.recipientCount = try dataStream.read(endianess: .littleEndian)
@@ -351,14 +351,14 @@ public struct ActionBlock {
             var recipientBlocks: [RecipientBlockData] = []
             recipientBlocks.reserveCapacity(Int(self.recipientCount))
             for _ in 0..<self.recipientCount {
-                let recipientBlock = try RecipientBlockData(dataStream: &dataStream)
+                let recipientBlock = try RecipientBlockData(dataStream: &dataStream, standard: standard)
                 recipientBlocks.append(recipientBlock)
             }
 
             self.recipientBlocks = recipientBlocks
         }
         
-        /// 2.2.5.1.2.4.1 RecipientBlockData Structure
+        /// [MS-OXORULE] 2.2.5.1.2.4.1 RecipientBlockData Structure
         /// The RecipientBlockData structure contains properties that specify information about a recipient (2). The client is
         /// required to, at a minimum, include the PidTagDisplayName ([MS-OXCFOLD] section 2.2.2.2.2.5), PidTagEmailAddress
         /// ([MS-OXOABK] section 2.2.3.14), and PidTagRecipientType ([MS-OXOMSG] section 2.2.3.1) properties; some
@@ -369,7 +369,7 @@ public struct ActionBlock {
             public let noOfProperties: UInt32
             public let propertyValues: [TaggedPropertyValue]
 
-            public init(dataStream: inout DataStream) throws {
+            public init(dataStream: inout DataStream, standard: Bool) throws {
                 /// Reserved (1 byte): This value is implementation-specific and not required for interoperability.<8>
                 self.reserved = try dataStream.read()
     
@@ -383,7 +383,7 @@ public struct ActionBlock {
                 var propertyValues: [TaggedPropertyValue] = []
                 propertyValues.reserveCapacity(Int(self.noOfProperties))
                 for _ in 0..<self.noOfProperties {
-                    let propertyValue = try TaggedPropertyValue(dataStream: &dataStream)
+                    let propertyValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
                     propertyValues.append(propertyValue)
                 }
                 

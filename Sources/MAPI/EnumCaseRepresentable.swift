@@ -232,7 +232,35 @@ extension ResponseStatus: EnumCaseRepresentable {
 
 extension StoreSupportMask: EnumCaseRepresentable {
     public static let caseNames: [(element: StoreSupportMask, name: String)] = [
-        (.unicodeOk, ".unicodeOk")
+        (.entryIdUnique, ".entryIdUnique"),
+        (.readOnly, ".readOnly"),
+        (.searchOk, ".searchOk"),
+        (.modifyOk, ".modifyOk"),
+        (.createOk, ".createOk"),
+        (.attachOk, ".attachOk"),
+        (.oleOk, ".oleOk"),
+        (.submitOk, ".submitOk"),
+        (.notifyOk, ".notifyOk"),
+        (.mvPropsOk, ".mvPropsOk"),
+        (.categorizeOk, ".categorizeOk"),
+        (.rtfOk, ".rtfOk"),
+        (.restrictionOk, ".restrictionOk"),
+        (.sortOk, ".sortOk"),
+        (.publicFolders, ".publicFolders"),
+        (.uncompressedRtf, ".uncompressedRtf"),
+        (.htmlOk, ".htmlOk"),
+        (.ansiOk, ".ansiOk"),
+        (.unicodeOk, ".unicodeOk"),
+        (.localStore, ".localStore"),
+        (.itemProc, ".itemProc"),
+        (.pusherOk, ".pusherOk"),
+        (.rulesOk, ".rulesOk")
+    ]
+}
+
+extension StoreState: EnumCaseRepresentable {
+    public static let caseNames: [(element: StoreState, name: String)] = [
+        (.hasSearches, ".hasSearches")
     ]
 }
 

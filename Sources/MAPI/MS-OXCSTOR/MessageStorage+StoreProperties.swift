@@ -81,20 +81,28 @@ public extension MessageStorage {
     
     /// [MS-OXCSTOR] 2.2.2.1.1.5 PidTagStoreState Property
     /// Type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagStoreState property ([MS-OXPROPS] section 2.1023) indicates whether the mailbox has
-    /// any active search folders. The value 0x00000000 indicates that the mailbox does not have active
-    /// search folders. The value 0x01000000 indicates that one or more active search folders have been
-    /// created.
-    var storeState: UInt32? {
-        return getProperty(id: .tagStoreState)
+    /// The PidTagStoreState property ([MS-OXPROPS] section 2.1023) indicates whether the mailbox has any active search folders.
+    /// The value 0x00000000 indicates that the mailbox does not have active search folders. The value 0x01000000 indicates that
+    /// one or more active search folders have been created.
+    var storeState: StoreState? {
+        guard let rawValue: UInt32 = getProperty(id: .tagStoreState) else {
+            return nil
+        }
+        
+        return StoreState(rawValue: rawValue)
     }
 
     /// [MS-OXCSTOR] 2.2.2.1.1.7 PidTagMailboxOwnerEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagMailboxOwnerEntryId property ([MS-OXPROPS] section 2.771) contains the EntryID in
-    /// the Global Address List (GAL) of the owner of the mailbox.
-    var mailboxOwnerEntryId: Data? {
-        return getProperty(id: .tagMailboxOwnerEntryId)
+    /// The PidTagMailboxOwnerEntryId property ([MS-OXPROPS] section 2.771) contains the EntryID in the Global Address List (GAL)
+    /// of the owner of the mailbox.
+    var mailboxOwnerEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagMailboxOwnerEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXCSTOR] 2.2.2.1.1.8 PidTagMailboxOwnerName Property

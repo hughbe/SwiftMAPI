@@ -34,6 +34,6 @@ public struct PropertyValue_r    {
         /// PropertyValue (variable): This value encodes the PropertyValue field of the PropertyValue
         /// structure, as specified in section 2.11.2.1. This is the actual value of the property represented by
         /// the PropertyValue_r structure. The type value is specified by the PropertyTag field.
-        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyTag.type)
+        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyTag.type, standard: true)
     }
 }

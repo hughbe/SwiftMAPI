@@ -32,6 +32,44 @@ public extension MessageStorage {
     /// Data type: PtypInteger32 ([MS-OXCDATA] section 2.11.1)
     /// The PidTagContentCount property ([MS-OXCFOLD] section 2.2.2.2.1.1) specifies the number of
     /// rows under the header row. This property is set whether the header row is collapsed or expanded.
+    /// [MS-PST] 2.4.4 Folders
+    /// Folder objects are hierarchical containers that are used to create a storage hierarchy for the
+    /// message store. In the PST architecture, a single root Folder object exists at the top of the message
+    /// store, from which an arbitrarily complex hierarchy of Folder objects descends to provide structured
+    /// storage for all the Messaging objects.
+    /// At the LTP level, a Folder object is a composite entity that is represented using four LTP constructs.
+    /// Specifically, each Folder object consists of one PC, which contains the properties directly associated
+    /// with the Folder object, and three TCs for information about the contents, hierarchy and other
+    /// associated information of the Folder object. Some Folder objects MAY have additional nodes that
+    /// pertain to Search, which is discussed in section 2.4.8.6.
+    /// At the NDB level, the 4 LTP constructs are persisted as 4 separate top-level nodes (that is, 4 different
+    /// NIDs). For identification purposes, the nidIndex portion for each of the NIDs is the same to indicate
+    /// that these nodes collectively make up a Folder object. However, each of the 4 NIDs has a different
+    /// nidType value to differentiate their respective function. The following diagram indicates the
+    /// relationships among these elements.
+    /// The following sections explain the structure and function of each of the 4 composite elements of a
+    /// Folder object,
+    /// [MS-PST] 2.4.4.1 Folder object PC
+    /// The Folder object PC is a PC that contains the immediate properties of the Folder object. The NID of
+    /// a Folder object PC MUST have an NID_TYPE of NID_TYPE_NORMAL_FOLDER.
+    /// [MS-PST] 2.4.4.1.1 Property Schema of a Folder object PC
+    /// The default property schema of a Folder object is specified in [MS-OXCFOLD] and [MS-OXPROPS].
+    /// However, the following properties MUST be present in any valid Folder object PC.
+    /// 0x3602 PtypInteger32 PidTagContentCount Total number of items in the Folder
+    /// [MS-PST] 2.4.4.4 Hierarchy Table
+    /// The hierarchy table is implemented as a TC. The NID of a hierarchy table MUST have an NID_TYPE of
+    /// NID_TYPE_HIERARCHY_TABLE. Its function is to list the immediate sub-Folder objects of the Folder
+    /// object. Note that the hierarchy table only contains sub-Folder object information. Information about
+    /// Message objects stored in the Folder object is stored in the Contents Table (section 2.4.4.5) instead
+    /// [MS-PST] 2.4.4.4.1 Hierarchy Table Template
+    /// Each PST MUST have one hierarchy table template, which is identified with an NID value of
+    /// NID_HIERARCHY_TABLE_TEMPLATE (0x60D). The hierarchy table template defines the set of columns
+    /// for every new hierarchy table that is created. The hierarchy table template MUST have no data rows,
+    /// and MUST contain the following property columns. The list of columns below represent the required
+    /// properties, and different versions of Outlook can add additional properties to the template.
+    /// The right-most column indicates whether the property is copied from the child Folder object PC into
+    /// the hierarchy TC row when a new child Folder object is created.
+    /// 0x3602 PtypInteger32 PidTagContentCount Total number of items in the Folder object. Y
     var contentCount: UInt32? {
         return getProperty(id: .tagContentCount)
     }
@@ -45,6 +83,44 @@ public extension MessageStorage {
     /// The PidTagContentUnreadCount property ([MS-OXCFOLD] section 2.2.2.2.1.2) specifies the
     /// number of rows under the header row that have the PidTagRead property ([MS-OXPROPS] section
     /// 2.878) set to "FALSE" (0x00). This value is set whether the header row is collapsed or expanded.
+    /// [MS-PST] 2.4.4 Folders
+    /// Folder objects are hierarchical containers that are used to create a storage hierarchy for the
+    /// message store. In the PST architecture, a single root Folder object exists at the top of the message
+    /// store, from which an arbitrarily complex hierarchy of Folder objects descends to provide structured
+    /// storage for all the Messaging objects.
+    /// At the LTP level, a Folder object is a composite entity that is represented using four LTP constructs.
+    /// Specifically, each Folder object consists of one PC, which contains the properties directly associated
+    /// with the Folder object, and three TCs for information about the contents, hierarchy and other
+    /// associated information of the Folder object. Some Folder objects MAY have additional nodes that
+    /// pertain to Search, which is discussed in section 2.4.8.6.
+    /// At the NDB level, the 4 LTP constructs are persisted as 4 separate top-level nodes (that is, 4 different
+    /// NIDs). For identification purposes, the nidIndex portion for each of the NIDs is the same to indicate
+    /// that these nodes collectively make up a Folder object. However, each of the 4 NIDs has a different
+    /// nidType value to differentiate their respective function. The following diagram indicates the
+    /// relationships among these elements.
+    /// The following sections explain the structure and function of each of the 4 composite elements of a
+    /// Folder object,
+    /// [MS-PST] 2.4.4.1 Folder object PC
+    /// The Folder object PC is a PC that contains the immediate properties of the Folder object. The NID of
+    /// a Folder object PC MUST have an NID_TYPE of NID_TYPE_NORMAL_FOLDER.
+    /// [MS-PST] 2.4.4.1.1 Property Schema of a Folder object PC
+    /// The default property schema of a Folder object is specified in [MS-OXCFOLD] and [MS-OXPROPS].
+    /// However, the following properties MUST be present in any valid Folder object PC.
+    /// 0x3603 PtypInteger32 PidTagContentUnreadCount Number of unread items in the Folder object.
+    /// [MS-PST] 2.4.4.4 Hierarchy Table
+    /// The hierarchy table is implemented as a TC. The NID of a hierarchy table MUST have an NID_TYPE of
+    /// NID_TYPE_HIERARCHY_TABLE. Its function is to list the immediate sub-Folder objects of the Folder
+    /// object. Note that the hierarchy table only contains sub-Folder object information. Information about
+    /// Message objects stored in the Folder object is stored in the Contents Table (section 2.4.4.5) instead
+    /// [MS-PST] 2.4.4.4.1 Hierarchy Table Template
+    /// Each PST MUST have one hierarchy table template, which is identified with an NID value of
+    /// NID_HIERARCHY_TABLE_TEMPLATE (0x60D). The hierarchy table template defines the set of columns
+    /// for every new hierarchy table that is created. The hierarchy table template MUST have no data rows,
+    /// and MUST contain the following property columns. The list of columns below represent the required
+    /// properties, and different versions of Outlook can add additional properties to the template.
+    /// The right-most column indicates whether the property is copied from the child Folder object PC into
+    /// the hierarchy TC row when a new child Folder object is created.
+    /// 0x3603 PtypInteger32 PidTagContentUnreadCount Number of unread items in the Folder object. Y 
     var contentUnreadCount: UInt32? {
         return getProperty(id: .tagContentUnreadCount)
     }
@@ -164,9 +240,46 @@ public extension MessageStorage {
     
     /// [MS-OXCFOLD] 2.2.2.2.1.12 PidTagSubfolders Property
     /// Type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagSubfolders property ([MS-OXPROPS] section 2.1026) specifies whether the folder has
-    /// any subfolders. The value of this property is nonzero if the folder has subfolders; the value is zero
-    /// otherwise.
+    /// The PidTagSubfolders property ([MS-OXPROPS] section 2.1026) specifies whether the folder has any subfolders.
+    /// The value of this property is nonzero if the folder has subfolders; the value is zero otherwise.
+    /// [MS-PST] 2.4.4 Folders
+    /// Folder objects are hierarchical containers that are used to create a storage hierarchy for the
+    /// message store. In the PST architecture, a single root Folder object exists at the top of the message
+    /// store, from which an arbitrarily complex hierarchy of Folder objects descends to provide structured
+    /// storage for all the Messaging objects.
+    /// At the LTP level, a Folder object is a composite entity that is represented using four LTP constructs.
+    /// Specifically, each Folder object consists of one PC, which contains the properties directly associated
+    /// with the Folder object, and three TCs for information about the contents, hierarchy and other
+    /// associated information of the Folder object. Some Folder objects MAY have additional nodes that
+    /// pertain to Search, which is discussed in section 2.4.8.6.
+    /// At the NDB level, the 4 LTP constructs are persisted as 4 separate top-level nodes (that is, 4 different
+    /// NIDs). For identification purposes, the nidIndex portion for each of the NIDs is the same to indicate
+    /// that these nodes collectively make up a Folder object. However, each of the 4 NIDs has a different
+    /// nidType value to differentiate their respective function. The following diagram indicates the
+    /// relationships among these elements.
+    /// The following sections explain the structure and function of each of the 4 composite elements of a
+    /// Folder object,
+    /// [MS-PST] 2.4.4.1 Folder object PC
+    /// The Folder object PC is a PC that contains the immediate properties of the Folder object. The NID of
+    /// a Folder object PC MUST have an NID_TYPE of NID_TYPE_NORMAL_FOLDER.
+    /// [MS-PST] 2.4.4.1.1 Property Schema of a Folder object PC
+    /// The default property schema of a Folder object is specified in [MS-OXCFOLD] and [MS-OXPROPS].
+    /// However, the following properties MUST be present in any valid Folder object PC.
+    /// 0x360A PtypBoolean PidTagSubfolders Whether the Folder object has any sub-Folder objects.
+    /// [MS-PST] 2.4.4.4 Hierarchy Table
+    /// The hierarchy table is implemented as a TC. The NID of a hierarchy table MUST have an NID_TYPE of
+    /// NID_TYPE_HIERARCHY_TABLE. Its function is to list the immediate sub-Folder objects of the Folder
+    /// object. Note that the hierarchy table only contains sub-Folder object information. Information about
+    /// Message objects stored in the Folder object is stored in the Contents Table (section 2.4.4.5) instead
+    /// [MS-PST] 2.4.4.4.1 Hierarchy Table Template
+    /// Each PST MUST have one hierarchy table template, which is identified with an NID value of
+    /// NID_HIERARCHY_TABLE_TEMPLATE (0x60D). The hierarchy table template defines the set of columns
+    /// for every new hierarchy table that is created. The hierarchy table template MUST have no data rows,
+    /// and MUST contain the following property columns. The list of columns below represent the required
+    /// properties, and different versions of Outlook can add additional properties to the template.
+    /// The right-most column indicates whether the property is copied from the child Folder object PC into
+    /// the hierarchy TC row when a new child Folder object is created.
+    /// 0x360A PtypBoolean PidTagSubfolders Whether the Folder object has any sub-Folder objects. Y
     var subfolders: Bool? {
         return getProperty(id: .tagSubfolders)
     }
@@ -248,9 +361,22 @@ public extension MessageStorage {
     /// [MS-XWDCAL] 2.2.8.7 PidTagContainerClass
     /// DAV property name: http://schemas.microsoft.com/exchange/outlookfolderclass
     /// Data type: PtypString ([MS-OXCDATA] section 2.11.1.6)
-    /// The PidTagContainerClass property ([MS-OXOCAL] section 2.2.11.1) gets or sets the container
-    /// class for the Calendar folder.
+    /// The PidTagContainerClass property ([MS-OXOCAL] section 2.2.11.1) gets or sets the container class for the Calendar folder.
     /// For more details about the PidTagContainerClass property, see [MS-OXPROPS] section 2.633.
+    /// [MS-PST] 2.4.4.4 Hierarchy Table
+    /// The hierarchy table is implemented as a TC. The NID of a hierarchy table MUST have an NID_TYPE of
+    /// NID_TYPE_HIERARCHY_TABLE. Its function is to list the immediate sub-Folder objects of the Folder
+    /// object. Note that the hierarchy table only contains sub-Folder object information. Information about
+    /// Message objects stored in the Folder object is stored in the Contents Table (section 2.4.4.5) instead.
+    /// [MS-PST] 2.4.4.4.1 Hierarchy Table Template
+    /// Each PST MUST have one hierarchy table template, which is identified with an NID value of
+    /// NID_HIERARCHY_TABLE_TEMPLATE (0x60D). The hierarchy table template defines the set of columns
+    /// for every new hierarchy table that is created. The hierarchy table template MUST have no data rows,
+    /// and MUST contain the following property columns. The list of columns below represent the required
+    /// properties, and different versions of Outlook can add additional properties to the template.
+    /// The right-most column indicates whether the property is copied from the child Folder object PC into
+    /// the hierarchy TC row when a new child Folder object is created.
+    /// 0x3613 PtypBinary PidTagContainerClass Container class of the sub-Folder object alternate name of PidTagContainerClass_W. This property has an Y
     var containerClass: String? {
         return getProperty(id: .tagContainerClass)
     }
@@ -303,9 +429,76 @@ public extension MessageStorage {
     /// The PidTagDisplayName property ([MS-OXPROPS] section 2.670) MUST be set to "Freebusy Data".
     /// [MS-OXOSRCH] 2.2.1.1.2 PidTagDisplayName
     /// Type: PtypString
-    /// The PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5) specifies the name of the
-    /// search folder. The client SHOULD use this property value as the display name of the search folder
-    /// container.
+    /// The PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5) specifies the name of the search folder. The client
+    /// SHOULD use this property value as the display name of the search folder container.
+    /// [MS-PST] 2.4.3 Message Store
+    /// At the PST level, the message store is the root of the PST, which is the rough equivalent of the top
+    /// of a Mailbox. The message store contains the top-level PST settings and metadata that are required to
+    /// access and manage the PST contents.
+    /// At the LTP Level, the message store is implemented as a regular PC. At the NDB Layer, the message
+    /// store is identified with a special internal NID value of NID_MESSAGE_STORE (0x21) (see section
+    /// 2.4.1). Any valid PST MUST have exactly one message store node.
+    /// [MS-PST] 2.4.3.1 Minimum Set of Required Properties
+    /// The following properties MUST be present in any valid message store PC.
+    /// 0x3001 PtypString PidTagDisplayName Display name of PST
+    /// [MS-PST] 2.4.4 Folders
+    /// Folder objects are hierarchical containers that are used to create a storage hierarchy for the
+    /// message store. In the PST architecture, a single root Folder object exists at the top of the message
+    /// store, from which an arbitrarily complex hierarchy of Folder objects descends to provide structured
+    /// storage for all the Messaging objects.
+    /// At the LTP level, a Folder object is a composite entity that is represented using four LTP constructs.
+    /// Specifically, each Folder object consists of one PC, which contains the properties directly associated
+    /// with the Folder object, and three TCs for information about the contents, hierarchy and other
+    /// associated information of the Folder object. Some Folder objects MAY have additional nodes that
+    /// pertain to Search, which is discussed in section 2.4.8.6.
+    /// At the NDB level, the 4 LTP constructs are persisted as 4 separate top-level nodes (that is, 4 different
+    /// NIDs). For identification purposes, the nidIndex portion for each of the NIDs is the same to indicate
+    /// that these nodes collectively make up a Folder object. However, each of the 4 NIDs has a different
+    /// nidType value to differentiate their respective function. The following diagram indicates the
+    /// relationships among these elements.
+    /// The following sections explain the structure and function of each of the 4 composite elements of a
+    /// Folder object,
+    /// [MS-PST] 2.4.4.1 Folder object PC
+    /// The Folder object PC is a PC that contains the immediate properties of the Folder object. The NID of
+    /// a Folder object PC MUST have an NID_TYPE of NID_TYPE_NORMAL_FOLDER.
+    /// [MS-PST] 2.4.4.1.1 Property Schema of a Folder object PC
+    /// The default property schema of a Folder object is specified in [MS-OXCFOLD] and [MS-OXPROPS].
+    /// However, the following properties MUST be present in any valid Folder object PC.
+    /// 0x3001 PtypString PidTagDisplayName Display name of the Folder object.
+    /// [MS-PST] 2.4.4.4 Hierarchy Table
+    /// The hierarchy table is implemented as a TC. The NID of a hierarchy table MUST have an NID_TYPE of
+    /// NID_TYPE_HIERARCHY_TABLE. Its function is to list the immediate sub-Folder objects of the Folder
+    /// object. Note that the hierarchy table only contains sub-Folder object information. Information about
+    /// Message objects stored in the Folder object is stored in the Contents Table (section 2.4.4.5) instead
+    /// [MS-PST] 2.4.4.4.1 Hierarchy Table Template
+    /// Each PST MUST have one hierarchy table template, which is identified with an NID value of
+    /// NID_HIERARCHY_TABLE_TEMPLATE (0x60D). The hierarchy table template defines the set of columns
+    /// for every new hierarchy table that is created. The hierarchy table template MUST have no data rows,
+    /// and MUST contain the following property columns. The list of columns below represent the required
+    /// properties, and different versions of Outlook can add additional properties to the template.
+    /// The right-most column indicates whether the property is copied from the child Folder object PC into
+    /// the hierarchy TC row when a new child Folder object is created.
+    /// 0x3001 PtypString PidTagDisplayName Display name of sub-Folder object. This property has an alternate name of PidTagDisplayName_W. Y
+    /// [MS-PST] 2.4.4.6 FAI Contents Table
+    /// The FAI contents table is a TC node identified with an NID_TYPE of
+    /// NID_TYPE_ASSOC_CONTENTS_TABLE. Its function is to list the FAI Message objects in the Folder
+    /// object.
+    /// [MS-PST] 2.4.4.6.1 FAI Contents Table Template
+    /// Each PST MUST have one FAI contents table template, which is identified with an NID value of
+    /// NID_ASSOC_CONTENTS_TABLE_TEMPLATE (0x60F). The FAI contents table template MUST have no
+    /// data rows, and MUST contain the following property columns.
+    /// 0x3001 PtypString PidTagDisplayName Display name. And it has an alternate name PidTagDisplayName_W. Y
+    /// [MS-PST] 2.4.5.3 Recipient Table
+    /// The Recipient Table is a standard Table Context structure that is identified with an NID_TYPE of
+    /// NID_TYPE_RECIPIENT_TABLE. With the exception of the recipient table template a Recipient Table
+    /// resides in the subnode of a Message object node. It contains the list of Recipients of the Message
+    /// object (one row per Recipient). A Recipient Table MUST exist for any Message object.
+    /// [MS-PST] 2.4.5.3.1 Recipient Table Template
+    /// Each PST MUST have one recipient table template, which is identified with an NID value of
+    /// NID_RECIPIENT_TABLE (0x692). The recipient table template defines the set of columns for every
+    /// new Recipient Table that is created. The recipient table template MUST have no data rows, and MUST
+    /// contain the following property columns.
+    /// 0x3001 PtypString PidTagDisplayName Display name of the recipient.  And it has an alternate name PidTagDisplayName_W.
     var displayName: String? {
         return getProperty(id: .tagDisplayName)
     }

@@ -338,7 +338,7 @@ public struct Restriction: RestrictionPacket {
             /// Each value of the property tag is compared with the value in the TaggedValue field. One successful match means that the
             /// restriction (2) is satisfied.
             /// Multivalued but not the same as the MultivalueInstance column in the table Multivalued Not supported.
-            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream)
+            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
         }
         
         /// FuzzyLevelLow (2 bytes): An unsigned integer. This field specifies the level of precision that the server enforces when
@@ -414,7 +414,7 @@ public struct Restriction: RestrictionPacket {
             self.propertyTag = try PropertyTag(dataStream: &dataStream)
             
             /// TaggedValue (variable): This value encodes the TaggedValue field of the ContentRestriction structure.
-            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream)
+            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
         }
     }
     
@@ -450,7 +450,7 @@ public struct Restriction: RestrictionPacket {
             /// describes the property value to be compared with. The TaggedValue field contains a property tag
             /// subfield that is distinct from the PropTag field of this structure. Only the property type portion of
             /// the TaggedValue structure's property tag subfield is used; the property ID is ignored.
-            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream)
+            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
         }
     }
     
@@ -511,7 +511,7 @@ public struct Restriction: RestrictionPacket {
             self.propTag = try PropertyTag(dataStream: &dataStream)
             
             /// TaggedValue (variable): This value encodes the TaggedValue field of the PropertyRestriction structure.
-            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream)
+            self.taggedValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
         }
     }
     
@@ -878,7 +878,7 @@ public struct Restriction: RestrictionPacket {
             var taggedValues: [TaggedPropertyValue] = []
             taggedValues.reserveCapacity(Int(self.taggedValuesCount))
             for _ in 0..<self.taggedValuesCount {
-                let taggedValue = try TaggedPropertyValue(dataStream: &dataStream)
+                let taggedValue = try TaggedPropertyValue(dataStream: &dataStream, standard: standard)
                 if taggedValue.propertyTag.type.isMultiValued {
                     throw MAPIError.corrupted
                 }

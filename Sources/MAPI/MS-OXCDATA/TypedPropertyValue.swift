@@ -13,7 +13,7 @@ public struct TypedPropertyValue {
     public let propertyType: PropertyType
     public let propertyValue: PropertyValue
     
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, standard: Bool) throws {
         /// PropertyType (2 bytes): An unsigned integer that specifies the data type of the property value, according to the table
         /// in section 2.11.1.
         let typeRaw: UInt16 = try dataStream.read(endianess: .littleEndian)
@@ -26,6 +26,6 @@ public struct TypedPropertyValue {
         /// PropertyValue (variable): A PropertyValue structure, as specified in section 2.11.2.1. specifying the value of the
         /// property. Its syntax is specified by the PropertyType field of the PropertyTag structure, and its semantics by the
         /// PropertyId field of the PropertyTag structure.
-        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyType)
+        self.propertyValue = try PropertyValue(dataStream: &dataStream, type: self.propertyType, standard: standard)
     }
 }

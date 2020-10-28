@@ -83,20 +83,20 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [UInt1
             } else if key == PropertyId.tagValidFolderMask.rawValue {
                 let mask = ValidFolderMask(rawValue: valueAsUInt32)
                 return mask.stringRepresentation
-            } else if key == PstPropertyId.tagMessageFlags.rawValue {
+            } else if key == PropertyId.tagMessageFlags.rawValue {
                 let flags = MessageFlags(rawValue: valueAsUInt32)
                 return flags.stringRepresentation
-            } else if key == PstPropertyId.tagMessageStatus.rawValue {
+            } else if key == PropertyId.tagMessageStatus.rawValue {
                 let flags = MessageStatus(rawValue: valueAsUInt32)
                 return flags.stringRepresentation
-            } else if key == PstPropertyId.tagDisplayType.rawValue, let displayType = DisplayType(rawValue: valueAsUInt32) {
+            } else if key == PropertyId.tagDisplayType.rawValue, let displayType = DisplayType(rawValue: valueAsUInt32) {
                 return displayType.stringRepresentation
-            } else if key == PstPropertyId.tagRecipientType.rawValue, let recipientType = RecipientType(rawValue: valueAsUInt32) {
+            } else if key == PropertyId.tagRecipientType.rawValue, let recipientType = RecipientType(rawValue: valueAsUInt32) {
                 return recipientType.stringRepresentation
             } else if key == PropertyId.tagRecipientFlags.rawValue {
                 let recipientFlags = RecipientFlags(rawValue: valueAsUInt32)
                 return recipientFlags.stringRepresentation
-            } else if key == PstPropertyId.tagObjectType.rawValue, let objectType = ObjectType(rawValue: valueAsUInt32) {
+            } else if key == PropertyId.tagObjectType.rawValue, let objectType = ObjectType(rawValue: valueAsUInt32) {
                 return objectType.stringRepresentation
             } else if key == PropertyId.tagResolveMethod.rawValue, let resolveMethod = ResolveMethod(rawValue: valueAsUInt32) {
                 return resolveMethod.stringRepresentation

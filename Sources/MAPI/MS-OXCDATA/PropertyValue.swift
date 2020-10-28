@@ -21,10 +21,10 @@ import WindowsDataTypes
 public struct PropertyValue {
     public let propertyValue: Any?
     
-    public init(dataStream: inout DataStream, type: PropertyType) throws {
+    public init(dataStream: inout DataStream, type: PropertyType, standard: Bool) throws {
         
         func readMultipleValues<T>(readFunc: (inout DataStream) throws -> T) throws -> [T] {
-            let count = try dataStream.readCOUNT(standard: true)
+            let count = try dataStream.readCOUNT(standard: standard)
             var results: [T] = []
             results.reserveCapacity(Int(count))
             for _ in 0..<count {
@@ -69,14 +69,14 @@ public struct PropertyValue {
         case .guid:
             self.propertyValue = try dataStream.readGUID(endianess: .littleEndian)
         case .serverId:
-            let _ = try dataStream.readCOUNT(standard: true)
+            let _ = try dataStream.readCOUNT(standard: standard)
             self.propertyValue = try ServerId(dataStream: &dataStream)
         case .restriction:
-            self.propertyValue = try Restriction(dataStream: &dataStream, standard: true)
+            self.propertyValue = try Restriction(dataStream: &dataStream, standard: standard)
         case .ruleAction:
-            self.propertyValue = try readMultipleValues { try RuleAction(dataStream: &$0, standard: true) }
+            self.propertyValue = try readMultipleValues { try RuleAction(dataStream: &$0, standard: standard) }
         case .binary:
-            let count = try dataStream.readCOUNT(standard: true)
+            let count = try dataStream.readCOUNT(standard: standard)
             self.propertyValue = Data(try dataStream.readBytes(count: Int(count)))
         case .multipleInteger16:
             self.propertyValue = try readMultipleValues { try $0.read(endianess: .littleEndian) as UInt16 }
@@ -102,7 +102,7 @@ public struct PropertyValue {
             self.propertyValue = try readMultipleValues { try $0.readGUID(endianess: .littleEndian) }
         case .multipleBinary:
             self.propertyValue = try readMultipleValues { (dataStream) -> Data in
-                let count = try dataStream.readCOUNT(standard: true)
+                let count = try dataStream.readCOUNT(standard: standard)
                 return Data(try dataStream.readBytes(count: Int(count)))
             }
         case .unknown:

@@ -5,8 +5,7 @@
 //  Created by Hugh Bellamy on 16/10/2020.
 //
 
-import Foundation
-
+/// Contains a bitmask of flags indicating details about a message submission.
 /// One or more of the following flags can be set for the PR_SUBMIT_FLAGS bitmask:
 /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagsubmitflags-canonical-property
 public struct SubmitFlags: OptionSet {
