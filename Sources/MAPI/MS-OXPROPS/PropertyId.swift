@@ -7172,28 +7172,42 @@ public enum PropertyId: UInt16 {
     // case unknown0x5FE8 = 0x5FE8
 
     // case unknown0x5FE9 = 0x5FE9
+    
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_TIME_RECALL = 0x5FEA
 
-    // case unknown0x5FEA = 0x5FEA
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_RECALL = 0x5FEB
 
-    case unknown0x5FEB = 0x5FEB
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_AUTORESPONSE_PROP_RESPONSE = 0x5FEC
 
-    // case unknown0x5FEC = 0x5FEC
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKING_MBIN_RESPONSE = 0x5FED
 
-    // case unknown0x5FED = 0x5FED
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_TIME_RESPONSE = 0x5FEE
 
-    // case unknown0x5FEE = 0x5FEE
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_RESPONSE = 0x5FEF
+    
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKING_MBIN_READ = 0x5FF0
+    
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_TIME_READ = 0x5FF1
 
-    case unknown0x5FEF = 0x5FEF
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_READ = 0x5FF2
 
-    // case unknown0x5FF1 = 0x5FF1
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKING_MBIN_DELIVERY = 0x5FF3
 
-    case unknown0x5FF2 = 0x5FF2
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_TIME_DELIVERY = 0x5FF4
 
-    // case unknown0x5FF3 = 0x5FF3
-
-    // case unknown0x5FF4 = 0x5FF4
-
-    case unknown0x5FF5 = 0x5FF5
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKSTATUS_DELIVERY = 0x5FF5
 
     /// [MS-OXPROPS] 2.899 PidTagRecipientDisplayName
     /// Canonical name: PidTagRecipientDisplayName
@@ -7217,11 +7231,14 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_RECIPIENT_ENTRYID, ptagRecipientEntryId
     case tagRecipientEntryId = 0x5FF7
 
-    // case unknown0x5FF8 = 0x5FF8
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_CONTACT_KEY = 0x5FF8
 
-    // case unknown0x5FF9 = 0x5FF9
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_TRACKING_MBIN = 0x5FF9
 
-    // case unknown0x5FFA = 0x5FFA
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_AUTORESPONSE_PROP = 0x5FFA
 
     /// [MS-OXPROPS] 2.908 PidTagRecipientTrackStatusTime
     /// Canonical name: PidTagRecipientTrackStatusTime
@@ -7234,7 +7251,8 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_RECIPIENT_TRACKSTATUS_TIME, ptagRecipientTrackStatusTime
     case tagRecipientTrackStatusTime = 0x5FFB
 
-    // case unknown0x5FFC = 0x5FFC
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_ATTENDANCE = 0x5FFC
 
     /// [MS-OXPROPS] 2.901 PidTagRecipientFlags
     /// Canonical name: PidTagRecipientFlags
@@ -7247,7 +7265,8 @@ public enum PropertyId: UInt16 {
     /// Alternate names: PR_RECIPIENT_FLAGS
     case tagRecipientFlags = 0x5FFD
 
-    // case unknown0x5FFE = 0x5FFE
+    /// Source: http://www.dimastr.com/redemption/enum_MAPITags.htm
+    case PR_RECIPIENT_COMMENT = 0x5FFE
 
     /// [MS-OXPROPS] 2.907 PidTagRecipientTrackStatus
     /// Canonical name: PidTagRecipientTrackStatus

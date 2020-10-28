@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 05/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXCSPAM] 2.2 Message Syntax
@@ -17,11 +18,15 @@ import Foundation
 public extension MessageStorage {
     /// [MS-OXCSPAM] 2.2.1.1 PidLidSpamOriginalFolder Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidSpamOriginalFolder property ([MS-OXPROPS] section 2.302) specifies the folder that
-    /// contained the message before the message was moved into the Junk Email folder. The value of this
-    /// property is the entry ID of the folder.
-    var spamOriginalFolder: Data? {
-        return getProperty(name: .lidSpamOriginalFolder)
+    /// The PidLidSpamOriginalFolder property ([MS-OXPROPS] section 2.302) specifies the folder that contained the message before the
+    /// message was moved into the Junk Email folder. The value of this property is the entry ID of the folder.
+    var spamOriginalFolder: EntryID? {
+        guard let data: Data = getProperty(name: .lidSpamOriginalFolder) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCSPAM] 2.2.1.2 PidNameExchangeJunkEmailMoveStamp Property

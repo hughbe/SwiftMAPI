@@ -55,7 +55,7 @@ private func stringAssert(value: Any?, accessor: String, name: String, encoding:
         }
         
         actual = String(bytes: value, encoding: encoding)!
-    } else if let _ = value as? UInt32 {
+    } else if let value = value as? UInt32, value == MAPI_E.NOT_FOUND.rawValue {
         return "XCTAssertNil(\(accessor).\(name))\n"
     } else {
         actual = value! as! String
@@ -85,7 +85,19 @@ private func guidAssert(value: Any?, accessor: String, name: String) -> String {
 }
 
 private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual = value! as! [UUID]
+    let actual: [UUID]
+    if let value = value as? Data {
+        var dataStream = DataStream(data: value)
+        var results: [UUID] = []
+        for _ in 0..<dataStream.count / 16 {
+            results.append(try! dataStream.read(type: UUID.self))
+        }
+        
+        actual = results
+    } else {
+        actual = value! as! [UUID]
+    }
+
     return "XCTAssertEqual([\(actual.map { "UUID(uuidString: \"\($0)\"" }.joined(separator: ", "))], \(accessor).\(name)!)\n"
 }
 
@@ -137,6 +149,10 @@ private func doubleAssert(value: Any?, accessor: String, name: String) -> String
 }
 
 private func dataAssert(value: Any?, accessor: String, name: String) -> String {
+    if let value = value as? UInt32, value == MAPI_E.NOT_FOUND.rawValue {
+        return "XCTAssertNil(\(accessor).\(name))\n"
+    }
+    
     let actual = value! as! Data
     if actual.count > 750 {
         return "XCTAssertNotNil(\(accessor).\(name))\n"
@@ -2058,6 +2074,8 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                     s += stringAssert(value: prop.value, accessor: accessor, name: "sharingRemotePath")
                 case (CommonlyUsedPropertySet.PSETID_Sharing, 0x00008A01):
                     s += guidAssert(value: prop.value, accessor: accessor, name: "sharingProviderGuid")
+                case (CommonlyUsedPropertySet.PSETID_Common, 0x0000859C):
+                    s += entryIdAssert(value: prop.value, accessor: accessor, name: "spamOriginalFolder")
                 case (CommonlyUsedPropertySet.PSETID_Common, 0x000085EB),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C2),
                      (CommonlyUsedPropertySet.PSETID_Common, 0x000085C3),
@@ -2499,7 +2517,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagSendInternetEncoding.rawValue:
             s += uint32Assert(value: prop.value, accessor: accessor, name: "sendInternetEncoding")
         case PropertyId.tagRecipientResourceState.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagRecipientResourceState")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "recipientResourceState", hexString: true)
         case PropertyId.tagSubjectPrefix.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "subjectPrefix")
         case PropertyId.tagStoreSupportMask.rawValue:
@@ -2624,20 +2642,20 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += boolAssert(value: prop.value, accessor: accessor, name: "responseRequested")
         case PropertyId.tagSendingSmtpAddress.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSendingSmtpAddress")
-        case PropertyId.unknown0x5FEF.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5FEF")
-        case PropertyId.unknown0x5FEB.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5FEB")
+        case PropertyId.PR_RECIPIENT_TRACKSTATUS_RESPONSE.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_RECIPIENT_TRACKSTATUS_RESPONSE")
+        case PropertyId.PR_RECIPIENT_TRACKSTATUS_RECALL.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_RECIPIENT_TRACKSTATUS_RECALL")
         case PropertyId.tagAccount.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "account")
         case PropertyId.tagDisplayTypeEx.rawValue:
             s += optionSetAssert(value: prop.value, accessor: accessor, name: "displayTypeEx", type: DisplayTypeEx.self)
         case PropertyId.tagAbProviders.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagAbProviders")
-        case PropertyId.unknown0x5FF5.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5FF5")
-        case PropertyId.unknown0x5FF2.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5FF2")
+            s += multipleGuidAssert(value: prop.value, accessor: accessor, name: "abProviders")
+        case PropertyId.PR_RECIPIENT_TRACKSTATUS_DELIVERY.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_RECIPIENT_TRACKSTATUS_DELIVERY")
+        case PropertyId.PR_RECIPIENT_TRACKSTATUS_READ.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_RECIPIENT_TRACKSTATUS_READ")
         case PropertyId.PR_SENT_REPRESENTING_SID.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SENT_REPRESENTING_SID")
         case PropertyId.unknown0x1207.rawValue:
@@ -2777,7 +2795,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagEndDate.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "endDate")
         case PropertyId.PR_DOTSTUFF_STATE_OR_PR_NICK_NAME_W.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_DOTSTUFF_STATE_OR_PR_NICK_NAME_W")
+            if prop.value is String {
+                s += stringAssert(value: prop.value, accessor: accessor, name: "nickName")
+            } else {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_DOTSTUFF_STATE_OR_PR_NICK_NAME_W")
+            }
         case PropertyId.unknown0x3D16.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3D16")
         case PropertyId.unknown0x36F8.rawValue:
@@ -3275,7 +3297,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x6000.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6000")
         case PropertyId.PR_NEW_NICK_NAME.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_NEW_NICK_NAME")
+            s += boolAssert(value: prop.value, accessor: accessor, name: "newNickName")
         case PropertyId.unknown0x681B.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x681B")
         case PropertyId.tagItemTemporaryflags.rawValue:
@@ -3467,9 +3489,9 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x6837.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6837")
         case PropertyId.PR_NICK_NAME_WEIGHT.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_NICK_NAME_WEIGHT")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "nickNameWeight", hexString: true)
         case PropertyId.PR_DROPDOWN_DISPLAY_NAME_W.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_DROPDOWN_DISPLAY_NAME_W")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "dropDownDisplayName")
         case PropertyId.unknown0x0000.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0000")
         default:

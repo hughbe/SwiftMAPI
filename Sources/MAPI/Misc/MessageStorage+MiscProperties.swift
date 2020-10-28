@@ -1251,16 +1251,43 @@ public extension MessageStorage {
     /// Contains a list of identifiers for address book providers in the current profile.
     /// Do not use this property. It is reserved for use by MAPI.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagabproviders-canonical-property
-    var abProviders: Data? {
-        return getProperty(id: .tagAbProviders)
+    var abProviders: [UUID]? {
+        guard let data: Data = getProperty(id: .tagAbProviders) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        let count = dataStream.count / 16
+        var results: [UUID] = []
+        results.reserveCapacity(count)
+        for _ in 0..<count {
+            let result = try! dataStream.read(type: UUID.self)
+            results.append(result)
+        }
+        
+        return results
     }
 
     /// PidTagTransportProviders Canonical Property
     /// Contains a list of identifiers of transport providers in the current profile.
     /// Do not use this property. It is reserved for use by MAPI.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagtransportproviders-canonical-property
-    var transportProviders: Data? {
-        return getProperty(id: .tagTransportProviders)
+    var transportProviders: [UUID]? {
+        guard let data: Data = getProperty(id: .tagTransportProviders) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        let count = dataStream.count / 16
+        var results: [UUID] = []
+        results.reserveCapacity(count)
+        for _ in 0..<count {
+            let result = try! dataStream.read(type: UUID.self)
+            results.append(result)
+        }
+        
+        return results
+
     }
 
     /// PidTagDefaultProfile Canonical Property
@@ -1725,5 +1752,17 @@ public extension MessageStorage {
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontrolid-canonical-property
     var controlId: Data? {
         return getProperty(id: .tagControlId)
+    }
+
+    /// [MS-OXPROPS] 2.777 PidTagRecipientResourceState
+    /// Canonical name: PidTagRecipientResourceState
+    /// Property ID: 0x5FDE
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: TransportRecipient
+    /// References: [MS-OXCFXICS], [MS-OXCMSG], [MS-OXOMSG]
+    /// Alternate names: PR_RECIPIENT_RESOURCESTATE
+    /// Not documented in specification - removed
+    var recipientResourceState: UInt32? {
+        return getProperty(id: .tagRecipientResourceState)
     }
 }
