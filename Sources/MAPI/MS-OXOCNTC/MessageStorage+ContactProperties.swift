@@ -1523,31 +1523,41 @@ public extension MessageStorage {
     
     /// [MS-OXOCNTC] 2.2.2.2.1 PidLidDistributionListMembers Property
     /// Type: PtypMultipleBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidDistributionListMembers property ([MS-OXPROPS] section 2.97) specifies the list of
-    /// EntryIDs of the objects corresponding to the members of the personal distribution list. Members of
-    /// the personal distribution list can be other personal distribution lists, electronic addresses contained in
-    /// a contact, Global Address List (GAL) members, or one-off email addresses. The format of each
-    /// EntryID MUST be either a One-Off EntryID structure ([MS-OXCDATA] section 2.2.5.1) or a
-    /// WrappedEntryId structure (section 2.2.2.2.4.1.1).
-    /// When setting this property, the client or the server MUST ensure its total size is less than 15,000
-    /// bytes.
-    var distributionListMembers: [Data]? {
-        return getProperty(name: .lidDistributionListMembers)
+    /// The PidLidDistributionListMembers property ([MS-OXPROPS] section 2.97) specifies the list of EntryIDs of the objects corresponding
+    /// to the members of the personal distribution list. Members of the personal distribution list can be other personal distribution lists,
+    /// electronic addresses contained in a contact, Global Address List (GAL) members, or one-off email addresses. The format of each
+    /// EntryID MUST be either a One-Off EntryID structure ([MS-OXCDATA] section 2.2.5.1) or a WrappedEntryId structure
+    /// (section 2.2.2.2.4.1.1).
+    /// When setting this property, the client or the server MUST ensure its total size is less than 15,000 bytes.
+    var distributionListMembers: [EntryID]? {
+        guard let data: [Data] = getProperty(name: .lidDistributionListMembers) else {
+            return nil
+        }
+        
+        return data.compactMap { data -> EntryID? in
+            var dataStream = DataStream(data: data)
+            return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+        }
     }
     
     /// [MS-OXOCNTC] 2.2.2.2.2 PidLidDistributionListOneOffMembers Property
     /// Type: PtypMultipleBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidDistributionListOneOffMembers property ([MS-OXPROPS] section 2.99) specifies the list
-    /// of one-off EntryIDs corresponding to the members of the personal distribution list. These one-off
-    /// EntryIDs encapsulate display names and email addresses of the personal distribution list members.
-    /// If the client or the server sets this property,<15> it MUST be synchronized with the
-    /// PidLidDistributionListMembers property (section 2.2.2.2.1): for each entry in the
-    /// PidLidDistributionListOneOffMembers property, there MUST be an entry in the same position in
-    /// the PidLidDistributionListMembers property.
-    /// When setting this property, the client or the server MUST ensure that its total size is less than 15,000
-    /// bytes.
-    var distributionListOneOffMembers: [Data]? {
-        return getProperty(name: .lidDistributionListOneOffMembers)
+    /// The PidLidDistributionListOneOffMembers property ([MS-OXPROPS] section 2.99) specifies the list of one-off EntryIDs corresponding
+    /// to the members of the personal distribution list. These one-off EntryIDs encapsulate display names and email addresses of the
+    /// personal distribution list members.
+    /// If the client or the server sets this property,<15> it MUST be synchronized with the PidLidDistributionListMembers property (section 2.2.2.2.1): for each entry in the
+    /// PidLidDistributionListOneOffMembers property, there MUST be an entry in the same position in the PidLidDistributionListMembers
+    /// property.
+    /// When setting this property, the client or the server MUST ensure that its total size is less than 15,000 bytes.
+    var distributionListOneOffMembers: [EntryID]? {
+        guard let data: [Data] = getProperty(name: .lidDistributionListOneOffMembers) else {
+            return nil
+        }
+        
+        return data.compactMap { data -> EntryID? in
+            var dataStream = DataStream(data: data)
+            return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+        }
     }
     
     /// [MS-OXOCNTC] 2.2.2.2.3 PidLidDistributionListChecksum Property
@@ -1580,7 +1590,12 @@ public extension MessageStorage {
     /// PidLidDistributionListOneOffMembers would be greater than 15,000 bytes. If this property is set,
     /// the PidLidDistributionListMembers, PidLidDistributionListOneOffMembers, and
     /// PidLidDistributionListChecksum (section 2.2.2.2.3) properties SHOULD<17> be ignored.
-    var distributionListStream: Data? {
-        return getProperty(name: .lidDistributionListStream)
+    var distributionListStream: DistributionListStream? {
+        guard let data: Data = getProperty(name: .lidDistributionListStream) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? DistributionListStream(dataStream: &dataStream)
     }
 }

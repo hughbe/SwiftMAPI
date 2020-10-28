@@ -20,11 +20,12 @@ public struct OneOffEntryID: EntryID {
     public var displayName: String
     public var addressType: String
     public var emailAddress: String
+    
+    public static let providerUid = UUID(uuid: uuid_t(0x81, 0x2b, 0x1f, 0xa4, 0xbe, 0xa3, 0x10, 0x19, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02))
 
     public init(dataStream: inout DataStream) throws {
-        /// Flags (4 bytes): This value is set to 0x00000000. Bits in this field indicate under what circumstances
-        /// a short-term EntryID is valid. However, in any EntryID stored in a property value, these 4 bytes
-        /// are zero, indicating a long-term EntryID.
+        /// Flags (4 bytes): This value is set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
+        /// However, in any EntryID stored in a property value, these 4 bytes are zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
         if self.flags != 0x00000000 {
             throw MAPIError.corrupted
@@ -33,9 +34,7 @@ public struct OneOffEntryID: EntryID {
         /// ProviderUID (16 bytes): The identifier of the provider that created the EntryID. This value is used to route EntryIDs to
         /// the correct provider and MUST be set to %x81.2B.1F.A4.BE.A3.10.19.9D.6E.00.DD.01.0F.54.02.
         self.providerUid = try dataStream.read(type: UUID.self)
-        
-        let oneOffUid = UUID(uuid: uuid_t(0x81, 0x2b, 0x1f, 0xa4, 0xbe, 0xa3, 0x10, 0x19, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02))
-        if self.providerUid != oneOffUid {
+        if self.providerUid != OneOffEntryID.providerUid {
             throw MAPIError.corrupted
         }
         
@@ -47,9 +46,8 @@ public struct OneOffEntryID: EntryID {
         
         /// Flags (2 bytes):
         /// Pad (1 bit): (mask 0x8000) Reserved. This value is set to '0'.
-        /// MAE (2 bits): (mask 0x0C00) The encoding used for Macintosh-specific data attachments, as
-        /// specified in [MS-OXCMAIL] section 2.1.3.4.3. The values for this field are specified in the following
-        /// table.
+        /// MAE (2 bits): (mask 0x0C00) The encoding used for Macintosh-specific data attachments, as specified in [MS-OXCMAIL]
+        /// section 2.1.3.4.3. The values for this field are specified in the following table.
         /// Name     | Word value | Field value     | Description
         /// -----------------------------------------------------
         /// BinHex          |  0x0000             | b'00'                              | BinHex encoded.
@@ -71,33 +69,29 @@ public struct OneOffEntryID: EntryID {
         /// b'0', the string fields following are multibyte character set (MBCS) characters terminated by a
         /// single 0 byte.
         /// R (2 bits): (mask 0x0060) Reserved. This value is set to b'00'.
-        /// L (1 bit): (mask 0x0010) A flag that indicates whether the server can look up an address in the
-        /// address book. If b'1', server cannot look up this user's email address in the address book. If b'0',
-        /// server can look up this user's email address in the address book.
+        /// L (1 bit): (mask 0x0010) A flag that indicates whether the server can look up an address in the address book. If b'1', server cannot
+        /// look up this user's email address in the address book. If b'0', server can look up this user's email address in the address book.
         /// Pad (4 bits): (mask 0x000F) Reserved. This value is set to b'0000'.
         self.entryFlags = OneOffEntryFlags(rawValue: try dataStream.read(endianess: .littleEndian))
         
-        /// DisplayName (variable): The recipient's display name (in the recipient table, the
-        /// PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5)) as a null-terminated string.
-        /// If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
+        /// DisplayName (variable): The recipient's display name (in the recipient table, the PidTagDisplayName property ([MS-OXCFOLD]
+        /// section 2.2.2.2.2.5)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
             self.displayName = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.displayName = try dataStream.readAsciiString()!
         }
 
-        /// AddressType (variable): The recipient's email address type (in the recipient table, the
-        /// PidTagAddressType property ([MS-OXOABK] section 2.2.3.13)) as a null-terminated string. If
-        /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
+        /// AddressType (variable): The recipient's email address type (in the recipient table, the PidTagAddressType property ([MS-OXOABK]
+        /// section 2.2.3.13)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
             self.addressType = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.addressType = try dataStream.readAsciiString()!
         }
 
-        /// EmailAddress (variable): The recipient's email address (in the recipient table, the
-        /// PidTagEmailAddress property ([MS-OXOABK] section 2.2.3.14)) as a null-terminated string. If
-        /// the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
+        /// EmailAddress (variable): The recipient's email address (in the recipient table, the PidTagEmailAddress property ([MS-OXOABK]
+        /// section 2.2.3.14)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
             self.emailAddress = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {

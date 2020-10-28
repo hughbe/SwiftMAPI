@@ -21,19 +21,19 @@ public struct FolderEntryID: EntryID {
     public let globalCounter: UInt64
     public let pad: UInt16
     
-    public init(dataStream: inout DataStream) throws {
-        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what
-        /// circumstances a short-term EntryID is valid. However, in any EntryID stored in a property value,
-        /// these 4 bytes MUST be zero, indicating a long-term EntryID.
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let position = dataStream.position
+        
+        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid. However, in any
+        /// EntryID stored in a property value,  these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
         if self.flags != 0x00000000 {
             throw MAPIError.corrupted
         }
         
-        /// Provider UID (16 bytes): The value of this field is determined by where the folder is located. For a
-        /// folder in a private mailbox, this value MUST be set to value of the MailboxGuid field from the
-        /// RopLogon ROP response buffer ([MS-OXCROPS] section 2.2.3.1.2). For a folder in the public
-        /// message store, this value MUST be set to %x1A.44.73.90.AA.66.11.CD.9B.C8.00.AA.00.2F.C4.5A.
+        /// Provider UID (16 bytes): The value of this field is determined by where the folder is located. For a folder in a private mailbox, this value MUST be set to
+        /// value of the MailboxGuid field from the RopLogon ROP response buffer ([MS-OXCROPS] section 2.2.3.1.2). For a folder in the public message store,
+        /// this value MUST be set to %x1A.44.73.90.AA.66.11.CD.9B.C8.00.AA.00.2F.C4.5A.
         self.providerUid = try dataStream.read(type: UUID.self)
         
         /// FolderType (2 bytes): One of several Store object types specified in the table in section 2.2.4.
@@ -53,6 +53,10 @@ public struct FolderEntryID: EntryID {
         /// Pad (2 bytes): This value MUST be set to zero.
         self.pad = try dataStream.read(endianess: .littleEndian)
         if self.pad != 0x0000 {
+            throw MAPIError.corrupted
+        }
+        
+        if dataStream.position - position != size {
             throw MAPIError.corrupted
         }
     }

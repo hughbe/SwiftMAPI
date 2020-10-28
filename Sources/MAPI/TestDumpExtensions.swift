@@ -248,7 +248,7 @@ private func folderEntryIdAssert(value: Any?, accessor: String) -> String {
         actual = value
     } else {
         var dataStream = DataStream(data: value as! Data)
-        actual = try! FolderEntryID(dataStream: &dataStream)
+        actual = try! FolderEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     var s = ""
@@ -320,9 +320,48 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         s += entryIdAssert(value: contactAddressEntryID.entryIdBytes, accessor: "(\(accessor).\(name) as? ContactAddressEntryID)!", name: "entryIdBytes")
 
         return s
+    } else if let wrappedEntryID = actual as? WrappedEntryId {
+        var s = ""
+
+        s += "XCTAssertEqual(\(wrappedEntryID.flags.hexString), (\(accessor).\(name) as? WrappedEntryId)!.flags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(wrappedEntryID.providerUid)\"), (\(accessor).\(name) as? WrappedEntryId)!.providerUid)\n"
+        s += "XCTAssertEqual(\(wrappedEntryID.type.hexString), (\(accessor).\(name) as? WrappedEntryId)!.type)\n"
+        s += entryIdAssert(value: wrappedEntryID.embeddedEntryID, accessor: "(\(accessor).\(name) as? WrappedEntryId)!", name: "embeddedEntryID")
+
+        return s
+    } else if let messageEntryID = actual as? MessageEntryID {
+        var s = ""
+
+        s += "XCTAssertEqual(\(messageEntryID.flags.hexString), (\(accessor).\(name) as? MessageEntryID)!.flags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.providerUid)\"), (\(accessor).\(name) as? MessageEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(messageEntryID.messageType.stringRepresentation), (\(accessor).\(name) as? MessageEntryID)!.messageType)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.folderDatabaseGuid)\"), (\(accessor).\(name) as? MessageEntryID)!.folderDatabaseGuid)\n"
+        s += "XCTAssertEqual(\(messageEntryID.folderGlobalCounter), (\(accessor).\(name) as? MessageEntryID)!.folderGlobalCounter)\n"
+        s += "XCTAssertEqual(\(messageEntryID.pad1.hexString), (\(accessor).\(name) as? MessageEntryID)!.pad1)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.messageDatabaseGuid)\"), (\(accessor).\(name) as? MessageEntryID)!.messageDatabaseGuid)\n"
+        s += "XCTAssertEqual(\(messageEntryID.messageGlobalCounter), (\(accessor).\(name) as? MessageEntryID)!.messageGlobalCounter)\n"
+        s += "XCTAssertEqual(\(messageEntryID.pad2.hexString), (\(accessor).\(name) as? MessageEntryID)!.pad2)\n"
+
+        return s
     }
     
     fatalError("NYI: \(type(of: actual))")
+}
+
+private func multipleEntryIdAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual = (value as! [Data]).map { data -> EntryID in
+        var dataStream = DataStream(data: data)
+        return try! getEntryID(dataStream: &dataStream, size: dataStream.count)
+    }
+    
+    var s = ""
+
+    s += "XCTAssertEqual(\(actual.count), \(accessor).\(name)!.count)\n"
+    for (offset, element) in actual.enumerated() {
+        s += entryIdAssert(value: element, accessor: accessor, name: "\(name)![\(offset)]")
+    }
+    
+    return s
 }
 
 private func conversationIndexAssert(value: Any?, accessor: String, name: String) -> String {
@@ -1973,11 +2012,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x0000804C):
                     s += uint32Assert(value: prop.value, accessor: accessor, name: "distributionListChecksum")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008055):
-                    s += multipleDataAssert(value: prop.value, accessor: accessor, name: "distributionListMembers")
+                    s += multipleEntryIdAssert(value: prop.value, accessor: accessor, name: "distributionListMembers")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008053):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "distributionListName")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x00008054):
-                    s += multipleDataAssert(value: prop.value, accessor: accessor, name: "distributionListOneOffMembers")
+                    s += multipleEntryIdAssert(value: prop.value, accessor: accessor, name: "distributionListOneOffMembers")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x0000802E):
                     s += stringAssert(value: prop.value, accessor: accessor, name: "yomiCompanyName")
                 case (CommonlyUsedPropertySet.PSETID_Address, 0x0000801C):
@@ -3494,6 +3533,16 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += stringAssert(value: prop.value, accessor: accessor, name: "dropDownDisplayName")
         case PropertyId.unknown0x0000.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0000")
+        case PropertyId.tagOriginalAuthorSearchKey.rawValue:
+            s += dataAssert(value: prop.value, accessor: accessor, name: "originalAuthorSearchKey")
+        case PropertyId.PR_ORIGINATOR_SEARCH_KEY.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORIGINATOR_SEARCH_KEY")
+        case PropertyId.unknown0x5D06.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x5D06")
+        case PropertyId.tagOriginalMessageEntryId.rawValue:
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "originalMessageEntryId")
+        case PropertyId.unknown0x3655.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3655")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
                 failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")

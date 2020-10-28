@@ -1765,4 +1765,21 @@ public extension MessageStorage {
     var recipientResourceState: UInt32? {
         return getProperty(id: .tagRecipientResourceState)
     }
+
+    /// (Removed 080404) [MS-OXPROPS] 2.645 PidTagOriginalMessageEntryId
+    /// Canonical name: PidTagOriginalMessageEntryId
+    /// Property ID: 0x300F
+    /// Data type: PtypBinary, 0x0102
+    /// Area: ID Properties
+    /// References: [MS-OXCSYNC]
+    /// Alternate names: PR_ORIG_ENTRYID
+    /// Not documented in specification - removed
+    var originalMessageEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagOriginalMessageEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
+    }
 }

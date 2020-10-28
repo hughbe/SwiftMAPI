@@ -22,8 +22,12 @@ public struct MessageEntryID: EntryID {
     public var messageDatabaseGuid: UUID
     public var messageGlobalCounter: UInt64
     public var pad2: UInt16
+    
+    public static let providerUid = UUID(uuid: uuid_t(0x1A, 0x44, 0x73, 0x90, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
 
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let position = dataStream.position
+        
         /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
         /// However, in any EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
@@ -35,11 +39,6 @@ public struct MessageEntryID: EntryID {
         /// be set to the value of the MailboxGuid field from the RopLogon ROP response buffer ([MS-OXCROPS] section 2.2.3.1.2). For a folder in the public
         /// message store, this value MUST be set to %x1A.44.73.90.AA.66.11.CD.9B.C8.00.AA.00.2F.C4.5A.
         self.providerUid = try dataStream.read(type: UUID.self)
-        
-        let providerUid = UUID(uuid: uuid_t(0x1A, 0x44, 0x73, 0x90, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
-        if self.providerUid != providerUid {
-            throw MAPIError.corrupted
-        }
         
         /// MessageType (2 bytes): One of several Store object types specified in the table in section 2.2.4.
         let messageTypeRaw: UInt16 = try dataStream.read(endianess: .littleEndian)
@@ -62,8 +61,8 @@ public struct MessageEntryID: EntryID {
             throw MAPIError.corrupted
         }
         
-        /// MessageDatabaseGuid (16 bytes): A GUID associated with the Store object of the message and
-        /// corresponding to the ReplicaId field of the Message ID structure, as specified in section 2.2.1.2.
+        /// MessageDatabaseGuid (16 bytes): A GUID associated with the Store object of the message and corresponding to the ReplicaId
+        /// field of the Message ID structure, as specified in section 2.2.1.2.
         self.messageDatabaseGuid = try dataStream.readGUID(endianess: .littleEndian)
 
         /// MessageGlobalCounter (6 bytes): An unsigned integer identifying the message.
@@ -75,6 +74,8 @@ public struct MessageEntryID: EntryID {
             throw MAPIError.corrupted
         }
 
-        assert(dataStream.remainingCount == 0)
+        if dataStream.position - position != size {
+            throw MAPIError.corrupted
+        }
     }
 }

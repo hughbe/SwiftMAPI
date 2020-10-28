@@ -36,15 +36,19 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
     let providerUid: UUID = try dataStream.read(type: UUID.self)
     dataStream.position = position
     switch providerUid {
-    case UUID(uuid: uuid_t(0xDC, 0xA7, 0x40, 0xC8, 0xC0, 0x42, 0x10, 0x1A, 0xB4, 0xB9, 0x08, 0x00, 0x2B, 0x2F, 0xE1, 0x82)):
+    case AddressBookEntryID.providerUid:
         return try AddressBookEntryID(dataStream: &dataStream, size: size)
-    case UUID(uuid: uuid_t(0x81, 0x2b, 0x1f, 0xa4, 0xbe, 0xa3, 0x10, 0x19, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02)):
+    case OneOffEntryID.providerUid:
         return try OneOffEntryID(dataStream: &dataStream)
-    case UUID(uuid: uuid_t(0xFE, 0x42, 0xAA, 0x0A, 0x18, 0xC7, 0x1A, 0x10, 0xE8, 0x85, 0x0B, 0x65, 0x1C, 0x24, 0x00, 0x00)):
+    case ContactAddressEntryID.providerUid:
         return try ContactAddressEntryID(dataStream: &dataStream)
+    case WrappedEntryId.providerUid:
+        return try WrappedEntryId(dataStream: &dataStream, size: size)
+    case MessageEntryID.providerUid:
+        return try MessageEntryID(dataStream: &dataStream, size: size)
     default:
         if size == 46 {
-            return try FolderEntryID(dataStream: &dataStream)
+            return try FolderEntryID(dataStream: &dataStream, size: size)
         }
 
         return try GeneralEntryID(dataStream: &dataStream)

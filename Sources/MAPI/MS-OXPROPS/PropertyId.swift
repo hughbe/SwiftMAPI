@@ -3400,7 +3400,14 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x300E = 0x300E
 
-    // case unknown0x030F = 0x300F
+    /// (Removed 080404) [MS-OXPROPS] 2.645 PidTagOriginalMessageEntryId
+    /// Canonical name: PidTagOriginalMessageEntryId
+    /// Property ID: 0x300F
+    /// Data type: PtypBinary, 0x0102
+    /// Area: ID Properties
+    /// References: [MS-OXCSYNC]
+    /// Alternate names: PR_ORIG_ENTRYID
+    case tagOriginalMessageEntryId = 0x300F
 
     /// [MS-OXPROPS] 2.1039 PidTagTargetEntryId
     /// Canonical name: PidTagTargetEntryId
@@ -4108,6 +4115,38 @@ public enum PropertyId: UInt16 {
     // case unknown0x3647 = 0x3647
 
     // case unknown0x3648 = 0x3648
+    
+    // case unknown0x3649 = 0x3649
+    
+    // case unknown0x364A = 0x364A
+    
+    // case unknown0x364B = 0x364B
+    
+    // case unknown0x364C = 0x364C
+    
+    // case unknown0x364D = 0x364D
+    
+    // case unknown0x364E = 0x364E
+    
+    // case unknown0x364F = 0x364F
+    
+    // case unknown0x3650 = 0x3650
+    
+    // case unknown0x3651 = 0x3651
+    
+    // case unknown0x3652 = 0x3652
+    
+    // case unknown0x3653 = 0x3653
+    
+    // case unknown0x3654 = 0x3654
+    
+    case unknown0x3655 = 0x3655
+    
+    // case unknown0x3656 = 0x3656
+    
+    // case unknown0x3657 = 0x3657
+
+    // case unknown0x3658 = 0x3658
 
     // case unknown0x3659 = 0x3659
 
@@ -6907,7 +6946,8 @@ public enum PropertyId: UInt16 {
     
     case unknown0x4060 = 0x4060
     
-    // case unknown0x4061 = 0x4061
+    /// Source: https://github.com/libyal/libfmapi/blob/master/libfmapi/libfmapi_property_type.c
+    case PR_ORIGINATOR_SEARCH_KEY = 0x4061
     
     case unknown0x4062 = 0x4062
     
@@ -7043,11 +7083,57 @@ public enum PropertyId: UInt16 {
 
     // case unknown0x4085 = 0x4085
 
-    /// Not documented in specification - known on internet
+    // case unknown0x5036 = 0x5036
+    
     case unknown0x5037 = 0x5037
+    
+    // case unknown0x5038 = 0x5038
+    
+    // case unknown0x5901 = 0x5901
 
+    /// [MS-OXPROPS] 2.747 PidTagInternetMailOverrideFormat
+    /// Canonical name: PidTagInternetMailOverrideFormat
+    /// Description: Indicates the encoding method and HTML inclusion for attachments.
+    /// Property ID: 0x5902
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: MIME Properties
+    /// Defining reference: [MS-OXOMSG] section 2.2.1.11
+    /// Consuming references: [MS-OXCFXICS], [MS-OXCICAL]
+    /// Alternate names: PR_INETMAIL_OVERRIDE_FORMAT, ptagInetMailOverrideFormat
     case tagInternetMailOverrideFormat = 0x5902
+    
+    // case unknown0x5903 = 0x5903
+    
+    // case unknown0x5904 = 0x5904
+    
+    // case unknown0x5905 = 0x5905
+    
+    // case unknown0x5906 = 0x5906
+    
+    // case unknown0x5907 = 0x5907
+    
+    // case unknown0x5908 = 0x5908
+    
+    /// [MS-OXPROPS] 2.790 PidTagMessageEditorFormat
+    /// Canonical name: PidTagMessageEditorFormat
+    /// Description: Specifies the format that an email editor can use for editing the message body.
+    /// Property ID: 0x5909
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: Miscellaneous Properties
+    /// Defining reference: [MS-OXOMSG] section 2.2.1.78
+    /// Consuming references: [MS-OXCFXICS], [MS-OXTNEF]
     case tagMessageEditorFormat = 0x5909
+    
+    // case unknown0x5D00 = 0x5D00
+
+    /// PidTagSenderSmtpAddress Canonical Property
+    /// Not documented in specification - known on internet
+    /// Contains the format of the Simple Mail Transport Protocol (SMTP) email address of the sending mailbox owner.
+    /// Associated properties: PR_SENDER_SMTP_ADDRESS, PR_SENDER_SMTP_ADDRESS_A, PR_SENDER_SMTP_ADDRESS_W
+    /// Identifier: 0x5D01
+    /// Data type: PT_UNICODE, PT_STRING8
+    /// Area: Address
+    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagsendersmtpaddress-canonical-property
     case tagSenderSmtpAddress = 0x5D01
 
     /// [MS-OXPROPS]
@@ -7062,6 +7148,10 @@ public enum PropertyId: UInt16 {
     /// Alternate names: ptagRecipientSentRepresentingSMTPAddress, SentRepresentingSMTPAddressXSO,
     /// PR_SENT_REPRESENTING_SMTP_ADDRESS
     case tagSentRepresentingSmtpAddress = 0x5D02
+    
+    // case unknown5D03 = 0x5D03
+    
+    // case unknown5D04 = 0x5D04
 
     /// [MS-OXPROPS] 2.885 PidTagReadReceiptSmtpAddress
     /// Canonical name: PidTagReadReceiptSmtpAddress
@@ -7073,6 +7163,8 @@ public enum PropertyId: UInt16 {
     /// Consuming reference: [MS-OXCMAIL]
     /// Alternate names: ptagRecipientReadReceiptSmtpAddress
     case tagReadReceiptSmtpAddress = 0x5D05
+    
+    case unknown0x5D06 = 0x5D06
 
     /// [MS-OXPROPS] 2.892 PidTagReceivedBySmtpAddress
     /// Canonical name: PidTagReceivedBySmtpAddress

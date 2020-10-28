@@ -24,10 +24,11 @@ public struct StoreObjectEntryID {
     public var serverShortName: String
     public var mailboxDN: String
     
-    public init(dataStream: inout DataStream) throws {
-        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what
-        /// circumstances a short-term EntryID is valid. However, in any EntryID stored in a property value,
-        /// these 4 bytes MUST be zero, indicating a long-term EntryID.
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let position = dataStream.position
+        
+        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid. However, in any
+        /// EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
         if self.flags != 0x00000000 {
             throw MAPIError.corrupted
@@ -67,8 +68,7 @@ public struct StoreObjectEntryID {
             throw MAPIError.corrupted
         }
         
-        /// WrappedProvider UID (16 bytes): This field MUST be set to one of the values in the following
-        /// table.
+        /// WrappedProvider UID (16 bytes): This field MUST be set to one of the values in the following table.
         self.wrappedProviderUid = try dataStream.readGUID(endianess: .littleEndian)
 
         let mailboxStoreObject = UUID(uuid: uuid_t(0x1B, 0x55, 0xFA, 0x20, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
@@ -89,17 +89,15 @@ public struct StoreObjectEntryID {
         
         self.wrappedType = wrappedType
         
-        /// ServerShortname (variable): A string of single-byte characters terminated by a single zero byte,
-        /// indicating the short name or NetBIOS name of the server.
+        /// ServerShortname (variable): A string of single-byte characters terminated by a single zero byte, indicating the short name or NetBIOS name of the server.
         self.serverShortName = try dataStream.readAsciiString()!
         
-        /// MailboxDN (variable): A string of single-byte characters terminated by a single zero byte and
-        /// representing the X500 DN of the mailbox, as specified in [MS-OXOAB]. This field is present only
-        /// for mailbox databases.
+        /// MailboxDN (variable): A string of single-byte characters terminated by a single zero byte and representing the X500 DN of the mailbox, as specified in
+        /// [MS-OXOAB]. This field is present only for mailbox databases.
         self.mailboxDN = try dataStream.readAsciiString()!
         
-        /// There is no padding in one-off entry identifier structures; the bytes are packed exactly as indicated above and
-        /// the entry identifier length should not include any bytes beyond the terminating null character of the email address.
-        assert(dataStream.remainingCount == 0)
+        if dataStream.position - position != size {
+            throw MAPIError.corrupted
+        }
     }
 }

@@ -17,6 +17,8 @@ public struct AddressBookEntryID: EntryID {
     public var version: UInt32
     public var type: AddressBookEntryType
     public var x500DN: String
+    
+    public static let providerUid = UUID(uuid: uuid_t(0xDC, 0xA7, 0x40, 0xC8, 0xC0, 0x42, 0x10, 0x1A, 0xB4, 0xB9, 0x08, 0x00, 0x2B, 0x2F, 0xE1, 0x82))
 
     public init(dataStream: inout DataStream, size: Int) throws {
         let position = dataStream.position
@@ -28,12 +30,10 @@ public struct AddressBookEntryID: EntryID {
             throw MAPIError.corrupted
         }
         
-        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct provider and MUST be set to
-        /// %xDC.A7.40.C8.C0.42.10.1A.B4.B9.08.00.2B.2F.E1.82.
+        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct
+        /// provider and MUST be set to %xDC.A7.40.C8.C0.42.10.1A.B4.B9.08.00.2B.2F.E1.82.
         self.providerUid = try dataStream.read(type: UUID.self)
-        
-        let addressBookUid = UUID(uuid: uuid_t(0xDC, 0xA7, 0x40, 0xC8, 0xC0, 0x42, 0x10, 0x1A, 0xB4, 0xB9, 0x08, 0x00, 0x2B, 0x2F, 0xE1, 0x82))
-        if self.providerUid != addressBookUid {
+        if self.providerUid != AddressBookEntryID.providerUid {
             throw MAPIError.corrupted
         }
         

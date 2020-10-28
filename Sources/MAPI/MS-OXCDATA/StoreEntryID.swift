@@ -15,20 +15,22 @@ public struct StoreEntryID {
     public var version: UInt8
     public var flag: UInt8
     public var dllFileName: String
-    public var unknown: [UInt8]
+    public var wrappedFlags: UInt32
+    public var wrappedProviderUid: UUID
+    public var wrappedType: UInt32
     public var path: String
     
-    public init(dataStream: inout DataStream) throws {
-        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what
-        /// circumstances a short-term EntryID is valid. However, in any EntryID stored in a property value,
-        /// these 4 bytes MUST be zero, indicating a long-term EntryID.
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let position = dataStream.position
+        
+        /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid. However, in
+        /// any EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
         if self.flags != 0x00000000 {
             throw MAPIError.corrupted
         }
         
-        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used
-        /// to route EntryIDs to the correct provider and MUST be set to
+        /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct provider and MUST be set to
         /// %x38.A1.BB.10.05.E5.10.1A.A1.BB.08.00.2B.2A.56.C2.
         self.providerUid = try dataStream.read(type: UUID.self)
         
@@ -49,17 +51,27 @@ public struct StoreEntryID {
             throw MAPIError.corrupted
         }
         
-        /// DLLFileName (14 bytes): This field MUST be set to the following value, which represents
-        /// "mstpst.dll"
+        /// DLLFileName (14 bytes)
         self.dllFileName = try dataStream.readString(count: 14, encoding: .ascii)!
-        if self.dllFileName != "mspst.dll\0\0\0\0\0" {
+    
+        /// WrappedFlags (4 bytes): This value MUST be set to 0x00000000.
+        self.wrappedFlags = try dataStream.read(endianess: .littleEndian)
+        if self.wrappedFlags != 0x00000000 {
             throw MAPIError.corrupted
         }
         
-        self.unknown = try dataStream.readBytes(count: 16)
+        /// WrappedProvider UID (16 bytes)
+        self.wrappedProviderUid = try dataStream.readGUID(endianess: .littleEndian)
         
-        self.path = try dataStream.readString(count: dataStream.remainingCount, encoding: .utf16LittleEndian)!
+        /// WrappedType (4 bytes).
+        self.wrappedType = try dataStream.read(endianess: .littleEndian)
+
+        //let remainingCount = size - (dataStream.position - position)
+        self.path = try dataStream.readUnicodeString(endianess: .littleEndian)!
+        //dataStream.position += 2
         
-        assert(dataStream.remainingCount == 0)
+        if dataStream.position - position != size {
+            throw MAPIError.corrupted
+        }
     }
 }

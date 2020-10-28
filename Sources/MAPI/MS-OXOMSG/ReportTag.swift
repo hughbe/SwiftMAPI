@@ -45,12 +45,11 @@ public struct ReportTag {
         /// StoreEntryIdSize (4 bytes): Size of the StoreEntryId field.
         self.storeEntryIdSize = try dataStream.read(endianess: .littleEndian)
         
-        /// StoreEntryId (variable length of bytes): This field specifies the entry ID of the mailbox that
-        /// contains the original message. If the value of the StoreEntryIdSize field is 0x00000000, this
-        /// field is omitted. If the value is not zero, this field is filled with the number of bytes specified by the
+        /// StoreEntryId (variable length of bytes): This field specifies the entry ID of the mailbox that contains the original message. If the value of the
+        /// StoreEntryIdSize field is 0x00000000, this field is omitted. If the value is not zero, this field is filled with the number of bytes specified by the
         /// StoreEntryIdSize field.
         if self.storeEntryIdSize != 0x00000000 {
-            self.storeEntryId = try StoreEntryID(dataStream: &dataStream)
+            self.storeEntryId = try StoreEntryID(dataStream: &dataStream, size: Int(self.storeEntryIdSize))
         } else {
             self.storeEntryId = nil
         }
@@ -58,11 +57,10 @@ public struct ReportTag {
         /// FolderEntryIdSize (4 bytes): Size of the FolderEntryId field.
         self.folderEntryIdSize = try dataStream.read(endianess: .littleEndian)
         
-        /// FolderEntryId (variable): This field specifies the entry ID of the folder that contains the original message.
-        /// If the value of the FolderEntryIdSize field is 0x00000000, this field is omitted. If the value is not zero,
-        /// the field is filled with the number of bytes specified by the FolderEntryIdSize field.
+        /// FolderEntryId (variable): This field specifies the entry ID of the folder that contains the original message. If the value of the FolderEntryIdSize field is
+        /// 0x00000000, this field is omitted. If the value is not zero, the field is filled with the number of bytes specified by the FolderEntryIdSize field.
         if self.folderEntryIdSize != 0x00000000 {
-            self.folderEntryId = try FolderEntryID(dataStream: &dataStream)
+            self.folderEntryId = try FolderEntryID(dataStream: &dataStream, size: Int(folderEntryIdSize))
         } else {
             self.folderEntryId = nil
         }
@@ -70,11 +68,10 @@ public struct ReportTag {
         /// MessageEntryIdSize (4 bytes): Size of the MessageEntryId field.
         self.messageEntryIdSize = try dataStream.read(endianess: .littleEndian)
         
-        /// MessageEntryId (variable): This field specifies the entry ID of the original message. If the value of
-        /// the MessageEntryIdSize field is 0x00000000, this field is omitted. If the value is not zero, the
-        /// field is filled with the number of bytes specified by the MessageEntryIdSize field.
+        /// MessageEntryId (variable): This field specifies the entry ID of the original message. If the value of the MessageEntryIdSize field is 0x00000000, this field
+        /// is omitted. If the value is not zero, the field is filled with the number of bytes specified by the MessageEntryIdSize field.
         if self.messageEntryIdSize != 0x00000000 {
-            self.messageEntryId = try MessageEntryID(dataStream: &dataStream)
+            self.messageEntryId = try MessageEntryID(dataStream: &dataStream, size: Int(messageEntryIdSize))
         } else {
             self.messageEntryId = nil
         }
@@ -82,12 +79,11 @@ public struct ReportTag {
         /// SearchFolderEntryIdSize (4 bytes): Size of the SearchFolderEntryId field.
         self.searchFolderEntryIdSize = try dataStream.read(endianess: .littleEndian)
 
-        /// SearchFolderEntryId (variable): This field specifies the entry ID of an alternate folder that contains
-        /// the original message. If the value of the SearchFolderEntryIdSize field is 0x00000000, this field
-        /// is omitted. If the value is not zero, the field is filled with the number of bytes specified by the
+        /// SearchFolderEntryId (variable): This field specifies the entry ID of an alternate folder that contains the original message. If the value of the
+        /// SearchFolderEntryIdSize field is 0x00000000, this field is omitted. If the value is not zero, the field is filled with the number of bytes specified by the
         /// SearchFolderEntryIdSize field.
         if self.searchFolderEntryIdSize != 0x00000000 {
-            self.searchFolderEntryId = try FolderEntryID(dataStream: &dataStream)
+            self.searchFolderEntryId = try FolderEntryID(dataStream: &dataStream, size: Int(self.searchFolderEntryIdSize))
         } else {
             self.searchFolderEntryId = nil
         }
@@ -95,10 +91,8 @@ public struct ReportTag {
         /// MessageSearchKeySize (4 bytes): Size of the MessageSearchKey field.
         self.messageSearchKeySize = try dataStream.read(endianess: .littleEndian)
         
-        /// MessageSearchKey (variable): This field specifies the search key of the original message. If the
-        /// value of the MessageSearchKeySize field is 0x00000000, this field is omitted. If the value is not
-        /// zero, the MessageSearchKey field is filled with the number of bytes specified by the
-        /// MessageSearchKeySize field.
+        /// MessageSearchKey (variable): This field specifies the search key of the original message. If the value of the MessageSearchKeySize field is 0x00000000,
+        /// this field is omitted. If the value is not zero, the MessageSearchKey field is filled with the number of bytes specified by the MessageSearchKeySize field.
         if self.messageSearchKeySize != 0x00000000 {
             self.messageSearchKey = try dataStream.readBytes(count: Int(self.messageSearchKeySize))
         } else {
@@ -108,9 +102,8 @@ public struct ReportTag {
         /// ANSITextSize (4 bytes): Number of characters in the ANSI Text field.
         self.ansiTextSize = try dataStream.read(endianess: .littleEndian)
         
-        /// ANSIText (variable): The subject of the original message. If the value of the ANSITextSize field is
-        /// 0x00000000, this field is omitted. If the value is not zero, the field is filled with the number of
-        /// bytes specified by the ANSITextSize field.
+        /// ANSIText (variable): The subject of the original message. If the value of the ANSITextSize field is 0x00000000, this field is omitted. If the value is not zero,
+        /// the field is filled with the number of bytes specified by the ANSITextSize field.
         if self.ansiTextSize != 0x00000000 {
             self.ansiText = try dataStream.readString(count: Int(self.ansiTextSize), encoding: .ascii)
         } else {
