@@ -81,7 +81,23 @@ private func guidAssert(value: Any?, accessor: String, name: String) -> String {
     } else {
         actual = value! as! UUID
     }
-    return "XCTAssertEqual(UUID(uuidString: \"\(actual)\"), \(accessor).\(name)!)\n"
+
+    switch actual {
+    case CLSID_MailFolder:
+        return "XCTAssertEqual(CLSID_MailFolder, \(accessor).\(name)!)\n"
+    case CLSID_ContactFolder:
+        return "XCTAssertEqual(CLSID_ContactFolder, \(accessor).\(name)!)\n"
+    case CLSID_CalendarFolder:
+        return "XCTAssertEqual(CLSID_CalendarFolder, \(accessor).\(name)!)\n"
+    case CLSID_TaskFolder:
+        return "XCTAssertEqual(CLSID_TaskFolder, \(accessor).\(name)!)\n"
+    case CLSID_NoteFolder:
+        return "XCTAssertEqual(CLSID_NoteFolder, \(accessor).\(name)!)\n"
+    case CLSID_JournalFolder:
+        return "XCTAssertEqual(CLSID_JournalFolder, \(accessor).\(name)!)\n"
+    default:
+        return "XCTAssertEqual(UUID(uuidString: \"\(actual)\"), \(accessor).\(name)!)\n"
+    }
 }
 
 private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
@@ -343,6 +359,75 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         s += "XCTAssertEqual(\(messageEntryID.pad2.hexString), (\(accessor).\(name) as? MessageEntryID)!.pad2)\n"
 
         return s
+    } else if let storeEntryID = actual as? StoreEntryID {
+        var s = ""
+
+        s += "XCTAssertEqual(\(storeEntryID.flags.hexString), (\(accessor).\(name) as? StoreEntryID)!.flags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(storeEntryID.providerUid)\"), (\(accessor).\(name) as? StoreEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(storeEntryID.version.hexString), (\(accessor).\(name) as? StoreEntryID)!.version)\n"
+        s += "XCTAssertEqual(\(storeEntryID.flag.hexString), (\(accessor).\(name) as? StoreEntryID)!.flag)\n"
+        s += "XCTAssertEqual(\(escapeString(string: storeEntryID.dllFileName)), (\(accessor).\(name) as? StoreEntryID)!.dllFileName)\n"
+        s += "XCTAssertEqual(\(storeEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreEntryID)!.wrappedFlags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(storeEntryID.wrappedProviderUid)\"), (\(accessor).\(name) as? StoreEntryID)!.wrappedProviderUid)\n"
+        s += "XCTAssertEqual(\(storeEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreEntryID)!.wrappedType)\n"
+        s += "XCTAssertEqual(\(escapeString(string: storeEntryID.path)), (\(accessor).\(name) as? StoreEntryID)!.path)\n"
+
+        return s
+    } else if let storeObjectEntryID = actual as? StoreObjectEntryID {
+        var s = ""
+
+        s += "XCTAssertEqual(\(storeObjectEntryID.flags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(storeObjectEntryID.providerUid)\"), (\(accessor).\(name) as? StoreObjectEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(storeObjectEntryID.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.version)\n"
+        s += "XCTAssertEqual(\(storeObjectEntryID.flag.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flag)\n"
+        s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.dllFileName)), (\(accessor).\(name) as? StoreObjectEntryID)!.dllFileName)\n"
+        s += "XCTAssertEqual(\(storeObjectEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedFlags)\n"
+        s += "XCTAssertEqual(UUID(uuidString: \"\(storeObjectEntryID.wrappedProviderUid)\"), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedProviderUid)\n"
+        s += "XCTAssertEqual(\(storeObjectEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedType)\n"
+        s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.serverShortName)), (\(accessor).\(name) as? StoreObjectEntryID)!.serverShortName)\n"
+        if let mailboxDN = storeObjectEntryID.mailboxDN {
+            s += "XCTAssertEqual(\(escapeString(string: mailboxDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.mailboxDN)\n"
+        } else {
+            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.mailboxDN)\n"
+        }
+
+        if let entryIdV2 = storeObjectEntryID.entryIdV2 {
+            s += "XCTAssertEqual(\(entryIdV2.magic.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.magic)\n"
+            s += "XCTAssertEqual(\(entryIdV2.size.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.size)\n"
+            s += "XCTAssertEqual(\(entryIdV2.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.version)\n"
+            s += "XCTAssertEqual(\(entryIdV2.offsetDN.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.offsetDN)\n"
+            s += "XCTAssertEqual(\(entryIdV2.offsetFQDN.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.offsetFQDN)\n"
+            if let serverDN = entryIdV2.serverDN {
+                s += "XCTAssertEqual(\(escapeString(string: serverDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverDN)\n"
+            } else {
+                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverDN)\n"
+            }
+            if let serverFQDN = entryIdV2.serverFQDN {
+                s += "XCTAssertEqual(\(escapeString(string: serverFQDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverFQDN)\n"
+            } else {
+                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverFQDN)\n"
+            }
+            s += "XCTAssertEqual(\(entryIdV2.reserved.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.reserved)\n"
+        } else {
+            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2)\n"
+        }
+
+        if let entryIdV3 = storeObjectEntryID.entryIdV3 {
+            s += "XCTAssertEqual(\(entryIdV3.magic.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.magic)\n"
+            s += "XCTAssertEqual(\(entryIdV3.size.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.size)\n"
+            s += "XCTAssertEqual(\(entryIdV3.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.version)\n"
+            s += "XCTAssertEqual(\(entryIdV3.offsetSmtpAddress.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.offsetSmtpAddress)\n"
+            if let smtpAddress = entryIdV3.smtpAddress {
+                s += "XCTAssertEqual(\(escapeString(string: smtpAddress)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.smtpAddress)\n"
+            } else {
+                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.smtpAddress)\n"
+            }
+            s += "XCTAssertEqual(\(entryIdV3.reserved.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.reserved)\n"
+        } else {
+            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3)\n"
+        }
+        
+        return s
     }
     
     fatalError("NYI: \(type(of: actual))")
@@ -365,27 +450,33 @@ private func multipleEntryIdAssert(value: Any?, accessor: String, name: String) 
 }
 
 private func conversationIndexAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
-    guard dataStream.count > 16, let actual = try? ConversationIndex(dataStream: &dataStream) else {
-        return "XCTAssertNil(\(accessor).\(name))\n"
+    var actual: ConversationIndex
+    if let value = value as? Data {
+        if value.count <= 16 {
+            return "XCTAssertNil(\(accessor).\(name))\n"
+        }
+
+        var dataStream = DataStream(data: value)
+        actual = try! ConversationIndex(dataStream: &dataStream, size: dataStream.count)
+    } else {
+        actual = value as! ConversationIndex
     }
 
     var s = ""
 
     s += "XCTAssertEqual(\(actual.header.reserved.hexString), \(accessor).\(name)!.header.reserved)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.0.hexString), \(accessor).\(name)!.header.currentFileTime.0)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.1.hexString), \(accessor).\(name)!.header.currentFileTime.1)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.2.hexString), \(accessor).\(name)!.header.currentFileTime.2)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.3.hexString), \(accessor).\(name)!.header.currentFileTime.3)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.4.hexString), \(accessor).\(name)!.header.currentFileTime.4)\n"
+    s += "XCTAssertEqual(\(actual.header.currentFileTime.timeIntervalSince1970), \(accessor).\(name)!.header.timeIntervalSince1970)\n"
     s += "XCTAssertEqual(UUID(uuidString: \"\(actual.header.guid)\"), \(accessor).\(name)!.header.guid)\n"
     s += "XCTAssertEqual(\(actual.responseLevels.count), \(accessor).\(name)!.responseLevels.count)\n"
-
-    if actual.responseLevels.count > 0 {
-        for (offset, responseLevel) in actual.responseLevels.enumerated() {
-            s += "XCTAssertEqual(\(responseLevel.dcAndDeltaTime.hexString), \(accessor).\(name)!.responseLevels[\(offset)].dcAndDeltaTime)\n"
-            s += "XCTAssertEqual(\(responseLevel.random.hexString), \(accessor).\(name)!.responseLevels[\(offset)].random)\n"
+    for (offset, element) in actual.responseLevels.enumerated() {
+        s += "XCTAssertEqual(\(element.deltaTime), \(accessor).\(name)!.responseLevels[\(offset)].deltaTime)\n"
+        if element.deltaCode {
+            s += "XCTAssertTrue(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode!)\n"
+        } else {
+            s += "XCTAssertFalse(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode!)\n"
         }
+        s += "XCTAssertEqual(\(element.random.hexString), \(accessor).\(name)!.responseLevels[\(offset)].random)\n"
+        s += "XCTAssertEqual(\(element.level.hexString), \(accessor).\(name)!.responseLevels[\(offset)].level)\n"
     }
 
     return s
@@ -2374,7 +2465,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagSenderEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "senderEntryId")
         case PropertyId.tagCreatorSimpleDisplayName.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagCreatorSimpleDisplayName")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "creatorSimpleDisplayName")
         case PropertyId.tagBodyHtml.rawValue:
             s += optionalAssert(value: prop.value, accessor: accessor, name: "bodyHtml")
         case PropertyId.tagLastModifierName.rawValue:
@@ -2392,13 +2483,13 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x0E4C.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0E4C")
         case PropertyId.tagSenderAddressType.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSenderAddressType")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "senderAddressType")
         case PropertyId.tagSenderName.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSenderName")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "senderName")
         case PropertyId.tagSenderSmtpAddress.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSenderSmtpAddress")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "senderSmtpAddress")
         case PropertyId.tagInternetMessageId.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagInternetMessageId")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "internetMessageId")
         case PropertyId.unknown0x3014.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3014")
         case PropertyId.tagContentFilterPhishingConfidenceLevel.rawValue:
@@ -2408,11 +2499,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagLastModifierEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "lastModifierEntryId")
         case PropertyId.tagCreatorAddressType.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagCreatorAddressType")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "creatorAddressType")
         case PropertyId.tagNonReceiptNotificationRequested.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "nonReceiptNotificationRequested")
         case PropertyId.tagLastModifierSimpleDisplayName.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagLastModifierSimpleDisplayName")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "lastModifierSimpleDisplayName")
         case PropertyId.unknown0x4024.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4024")
         case PropertyId.tagReceivedBySearchKey.rawValue:
@@ -2436,7 +2527,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x365A.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x365A")
         case PropertyId.tagCreatorEmailAddress.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagCreatorEmailAddress")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "creatorEmailAddress")
         case PropertyId.tagReceivedRepresentingName.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "receivedRepresentingName")
         case PropertyId.unknown0x4034.rawValue:

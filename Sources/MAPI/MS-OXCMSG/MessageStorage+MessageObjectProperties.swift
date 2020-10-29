@@ -1708,7 +1708,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXCMSG] 2.2.1.58 Retention and Archive Properties

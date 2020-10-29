@@ -222,7 +222,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXOCFG] 2.2.9.4 PidTagWlinkSaveStamp Property
@@ -320,7 +320,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXOCFG] 2.2.9.12 PidTagWlinkGroupClsid Property
@@ -333,7 +333,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXOCFG] 2.2.9.13 PidTagWlinkGroupName Property
@@ -416,7 +416,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXOCFG] 2.2.9.19 PidTagWlinkROGroupType Property

@@ -171,6 +171,10 @@ public extension MessageStorage {
     /// The PidLidSharingProviderGuid property ([MS-OXPROPS] section 2.266) MUST be set to
     /// %xAE.F0.06.00.00.00.00.00.C0.00.00.00.00.00.00.46.
     var sharingProviderGuid: UUID? {
+        if let uuid: UUID = getProperty(name: .lidSharingProviderGuid) {
+            return uuid
+        }
+        
         guard let data: Data = getProperty(name: .lidSharingProviderGuid) else {
             return nil
         }

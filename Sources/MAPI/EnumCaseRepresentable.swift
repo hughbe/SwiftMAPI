@@ -1035,3 +1035,30 @@ extension SearchFolderDefinition.Restriction.RestrictionType: EnumCaseRepresenta
         (.count, ".count")
     ]
 }
+
+extension OpenStoreFlags: EnumCaseRepresentable {
+    public static let caseNames: [(element: OpenStoreFlags, name: String)] = [
+        (.useAdminPrivlege, ".useAdminPrivlege"),
+        (.`public`, ".public"),
+        (.homeLogon, ".homeLogon"),
+        (.takeOwnership, ".takeOwnership"),
+        (.overrideHomeMdb, ".overrideHomeMdb"),
+        (.transport, ".transport"),
+        (.remoteTransport, ".remoteTransport"),
+        (.internetAnonymous, ".internetAnonymous"),
+        (.alternateServer, ".alternateServer"),
+        (.ignoreHomeMdb, ".ignoreHomeMdb"),
+        (.noMail, ".noMail"),
+        (.overrideLastModifier, ".overrideLastModifier"),
+        (.callbackLogon, ".callbackLogon"),
+        (.local, ".local"),
+        (.failIfNoMailbox, ".failIfNoMailbox"),
+        (.cacheExchange, ".cacheExchange"),
+        (.cliWithNamedpropFix, ".cliWithNamedpropFix"),
+        (.enableLazyLoading, ".enableLazyLoading"),
+        (.cliWithReplidGuidMappingFix, ".cliWithReplidGuidMappingFix"),
+        (.noLocalization, ".noLocalization"),
+        (.restoreDatabase, ".restoreDatabase"),
+        (.xforestMove, ".xforestMove")
+    ]
+}

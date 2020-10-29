@@ -70,7 +70,11 @@ public struct WrappedEntryId: EntryID {
         case 0:
             self.embeddedEntryID = try OneOffEntryID(dataStream: &dataStream)
         case 3:
-            self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)
+            if remainingCount == 46 {
+                self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)
+            } else {
+                self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)
+            }
         case 4:
             self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)
         case 5:

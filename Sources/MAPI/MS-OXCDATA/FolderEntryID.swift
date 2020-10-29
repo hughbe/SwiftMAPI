@@ -21,6 +21,8 @@ public struct FolderEntryID: EntryID {
     public let globalCounter: UInt64
     public let pad: UInt16
     
+    public static let providerUid = UUID(uuid: uuid_t(0x1A, 0x44, 0x73, 0x90, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
+    
     public init(dataStream: inout DataStream, size: Int) throws {
         let position = dataStream.position
         

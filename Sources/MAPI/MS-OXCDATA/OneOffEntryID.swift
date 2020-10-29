@@ -54,20 +54,18 @@ public struct OneOffEntryID: EntryID {
         /// UUENCODE  | 0x0020              | b'01'                              | UUENCODED. Not valid if the message is in Multipurpose Internet Mail Extensions (MIME) format, in which case the flag will be ignored and BinHex used instead.
         /// AppleSingle   | 0x0040              | b'10'                              | Apple Single encoded. Allowed only when the message format is MIME.
         /// AppleDouble | 0x0060 b'11'     | Apple Double encoded.| Allowed only when the message format is MIME.
-        /// Format (4 bits): (enumeration, mask 0x1E00) The message format desired for this recipient (1), as
-        /// specified in the following table.
+        /// Format (4 bits): (enumeration, mask 0x1E00) The message format desired for this recipient (1), as specified in the following table.
         /// Name     | Word value | Field value     | Description
         /// -----------------------------------------------------
         /// TextOnly        | 0x0006              | b'0011'                          | Send a plain text message body.
         /// HtmlOnly       | 0x000E              | b'0111'                          | Send an HTML message body.
         /// TextAndHtml | 0x0016              | b'1011'                          | Send a multipart/alternative body with both plain text and HTML.
-        /// M (1 bit): (mask 0x0100) A flag that indicates how messages are to be sent. If b'0', indicates
-        /// messages are to be sent to the recipient (1) in Transport Neutral Encapsulation Format
-        /// (TNEF) format; if b'1', messages are sent to the recipient (1) in pure MIME format.
-        /// U (1 bit): (mask 0x0080) A flag that indicates the format of the string fields that follow. If b'1', the
-        /// string fields following are in Unicode (UTF-16 form) with 2-byte terminating null characters; if
-        /// b'0', the string fields following are multibyte character set (MBCS) characters terminated by a
-        /// single 0 byte.
+        /// M (1 bit): (mask 0x0100) A flag that indicates how messages are to be sent. If b'0', indicates messages are to be sent to the
+        /// recipient (1) in Transport Neutral Encapsulation Format (TNEF) format; if b'1', messages are sent to the recipient (1) in pure
+        /// MIME format.
+        /// U (1 bit): (mask 0x0080) A flag that indicates the format of the string fields that follow. If b'1', the string fields following are in
+        /// Unicode (UTF-16 form) with 2-byte terminating null characters; if b'0', the string fields following are multibyte character set
+        /// (MBCS) characters terminated by a single 0 byte.
         /// R (2 bits): (mask 0x0060) Reserved. This value is set to b'00'.
         /// L (1 bit): (mask 0x0010) A flag that indicates whether the server can look up an address in the address book. If b'1', server cannot
         /// look up this user's email address in the address book. If b'0', server can look up this user's email address in the address book.

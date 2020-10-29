@@ -442,7 +442,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXORULE] 2.2.9.3 PidTagRwRulesStream Property

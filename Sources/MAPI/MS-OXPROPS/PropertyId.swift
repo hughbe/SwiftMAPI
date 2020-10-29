@@ -7126,18 +7126,19 @@ public enum PropertyId: UInt16 {
     
     // case unknown0x5D00 = 0x5D00
 
-    /// PidTagSenderSmtpAddress Canonical Property
-    /// Not documented in specification - known on internet
-    /// Contains the format of the Simple Mail Transport Protocol (SMTP) email address of the sending mailbox owner.
-    /// Associated properties: PR_SENDER_SMTP_ADDRESS, PR_SENDER_SMTP_ADDRESS_A, PR_SENDER_SMTP_ADDRESS_W
-    /// Identifier: 0x5D01
-    /// Data type: PT_UNICODE, PT_STRING8
-    /// Area: Address
-    /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagsendersmtpaddress-canonical-property
+    /// [MS-OXPROPS] 2.1006 PidTagSenderSmtpAddress
+    /// Canonical name: PidTagSenderSmtpAddress
+    /// Description: Contains the SMTP email address format of the e–mail address of the sending mailbox
+    /// owner.
+    /// Property ID: 0x5D01
+    /// Data type: PtypString, 0x001F
+    /// Area: Mail
+    /// Defining reference: [MS-OXOMSG] section 2.2.1.55
+    /// Consuming reference: [MS-OXCMAIL]
+    /// Alternate names: SenderSmtpAddress, ptagSenderSmtpAddress
     case tagSenderSmtpAddress = 0x5D01
 
-    /// [MS-OXPROPS]
-    /// 2.1018 PidTagSentRepresentingSmtpAddress
+    /// [MS-OXPROPS] 2.1018 PidTagSentRepresentingSmtpAddress
     /// Canonical name: PidTagSentRepresentingSmtpAddress
     /// Description: Contains the SMTP email address of the end user who is represented by the sending
     /// mailbox owner.

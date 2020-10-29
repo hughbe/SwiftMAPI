@@ -246,7 +246,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? ConversationIndex(dataStream: &dataStream)
+        return try? ConversationIndex(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.4 PidTagConversationIndexTracking Property

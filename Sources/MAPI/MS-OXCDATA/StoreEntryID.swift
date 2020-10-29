@@ -9,7 +9,7 @@ import DataStream
 import Foundation
 
 /// Not documented!
-public struct StoreEntryID {
+public struct StoreEntryID: EntryID {
     public var flags: UInt32
     public var providerUid: UUID
     public var version: UInt8
@@ -17,8 +17,10 @@ public struct StoreEntryID {
     public var dllFileName: String
     public var wrappedFlags: UInt32
     public var wrappedProviderUid: UUID
-    public var wrappedType: UInt32
+    public var wrappedType: OpenStoreFlags
     public var path: String
+    
+    public static let providerUid = UUID(uuid: uuid_t(0x38, 0xA1, 0xBB, 0x10, 0x05, 0xE5, 0x10, 0x1A, 0xA1, 0xBB, 0x08, 0x00, 0x2B, 0x2A, 0x56, 0xC2))
     
     public init(dataStream: inout DataStream, size: Int) throws {
         let position = dataStream.position
@@ -33,9 +35,7 @@ public struct StoreEntryID {
         /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct provider and MUST be set to
         /// %x38.A1.BB.10.05.E5.10.1A.A1.BB.08.00.2B.2A.56.C2.
         self.providerUid = try dataStream.read(type: UUID.self)
-        
-        let oneOffUid = UUID(uuid: uuid_t(0x38, 0xA1, 0xBB, 0x10, 0x05, 0xE5, 0x10, 0x1A, 0xA1, 0xBB, 0x08, 0x00, 0x2B, 0x2A, 0x56, 0xC2))
-        if self.providerUid != oneOffUid {
+        if self.providerUid != StoreEntryID.providerUid {
             throw MAPIError.corrupted
         }
         
@@ -56,19 +56,16 @@ public struct StoreEntryID {
     
         /// WrappedFlags (4 bytes): This value MUST be set to 0x00000000.
         self.wrappedFlags = try dataStream.read(endianess: .littleEndian)
-        if self.wrappedFlags != 0x00000000 {
-            throw MAPIError.corrupted
-        }
         
         /// WrappedProvider UID (16 bytes)
-        self.wrappedProviderUid = try dataStream.readGUID(endianess: .littleEndian)
+        self.wrappedProviderUid = try dataStream.read(type: UUID.self)
         
         /// WrappedType (4 bytes).
-        self.wrappedType = try dataStream.read(endianess: .littleEndian)
+        let wrappedTypeRaw: UInt32 = try dataStream.read(endianess: .littleEndian)
+        self.wrappedType = OpenStoreFlags(rawValue: wrappedTypeRaw)
 
-        //let remainingCount = size - (dataStream.position - position)
+        /// Path (Variable)
         self.path = try dataStream.readUnicodeString(endianess: .littleEndian)!
-        //dataStream.position += 2
         
         if dataStream.position - position != size {
             throw MAPIError.corrupted

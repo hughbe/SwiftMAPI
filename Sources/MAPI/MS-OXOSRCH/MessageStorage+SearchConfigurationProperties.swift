@@ -61,7 +61,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data: data)
-        return try? dataStream.read(type: UUID.self)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.2 PidTagSearchFolderTemplateId

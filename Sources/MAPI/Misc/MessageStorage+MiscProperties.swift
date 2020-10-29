@@ -1782,4 +1782,52 @@ public extension MessageStorage {
         var dataStream = DataStream(data: data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
+    
+    /// [MS-OXPROPS] 2.523 PidTagCreatorAddressType
+    /// Canonical name: PidTagCreatorAddressType
+    /// Property ID: 0x4022
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXCMAIL]
+    /// Alternate names: ptagCreatorAddrType
+    /// Not documented in specification - removed
+    var creatorAddressType: String? {
+        return getProperty(id: .tagCreatorAddressType)
+    }
+
+    /// [MS-OXPROPS] 2.524 PidTagCreatorEmailAddress
+    /// Canonical name: PidTagCreatorEmailAddress
+    /// Property ID: 0x4023
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXCMAIL]
+    /// Alternate names: ptagCreatorEmailAddr
+    /// Not documented in specification - removed
+    var creatorEmailAddress: String? {
+        return getProperty(id: .tagCreatorEmailAddress)
+    }
+    
+    /// (Removed) [MS-OXPROPS] 2.732 PidTagCreatorSimpleDisplayName
+    /// Canonical name: PidTagCreatorSimpleDisplayName
+    /// Property ID: 0x4038
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXTNEF]
+    /// Alternate names: ptagCreatorSimpleDispName
+    /// Not documented in specification - removed
+    var creatorSimpleDisplayName: String? {
+        return getProperty(id: .tagCreatorSimpleDisplayName)
+    }
+
+    /// [MS-OXPROPS] 2.869 PidTagLastModifierSimpleDisplayName
+    /// Canonical name: PidTagLastModifierSimpleDisplayName
+    /// Property ID: 0x4039
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXTNEF]
+    /// Alternate names: ptagLastModifierSimpleDispName
+    /// Not documented in specification - removed
+    var lastModifierSimpleDisplayName: String? {
+        return getProperty(id: .tagLastModifierSimpleDisplayName)
+    }
 }
