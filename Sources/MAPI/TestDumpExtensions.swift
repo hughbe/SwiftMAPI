@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 private func boolAssert(value: Any?, accessor: String, name: String) -> String {
     let actual: Bool
@@ -15,7 +16,7 @@ private func boolAssert(value: Any?, accessor: String, name: String) -> String {
     } else {
         actual = value as! Bool
     }
-
+    
     if actual {
         return "XCTAssertTrue(\(accessor).\(name)!)\n"
     } else {
@@ -24,26 +25,12 @@ private func boolAssert(value: Any?, accessor: String, name: String) -> String {
 }
 
 private func escapeString(string: String) -> String {
-    let escaped = string
     var s = ""
-    for char in escaped {
-        if char == "\u{00}" {
-            s += "\\u{00}"
-        } else if char == "\u{01}" {
-            s += "\\u{01}"
-        } else if char == "\"" {
-            s += "\\\""
-        } else if char == "\\" {
-            s += "\\\\"
-        } else if char == "\r\n" {
-            s.append("\\r\\n")
-        } else if char.isLetter || char.isNumber || char.isSymbol || char.isWhitespace || char.isPunctuation || char == "\t" {
-            s.append(char)
-        } else {
-            s.append(char)
-        }
+    for char in string.unicodeScalars {
+        let escaped = char.escaped(asASCII: true)
+        s.append(escaped)
     }
-
+    
     return "\"\(s)\""
 }
 
@@ -114,7 +101,7 @@ private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> 
         actual = value! as! [UUID]
     }
 
-    return "XCTAssertEqual([\(actual.map { "UUID(uuidString: \"\($0)\"" }.joined(separator: ", "))], \(accessor).\(name)!)\n"
+    return "XCTAssertEqual([\(actual.map { "UUID(uuidString: \"\($0)\")" }.joined(separator: ", "))], \(accessor).\(name)!)\n"
 }
 
 private func int16Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
@@ -465,15 +452,15 @@ private func conversationIndexAssert(value: Any?, accessor: String, name: String
     var s = ""
 
     s += "XCTAssertEqual(\(actual.header.reserved.hexString), \(accessor).\(name)!.header.reserved)\n"
-    s += "XCTAssertEqual(\(actual.header.currentFileTime.timeIntervalSince1970), \(accessor).\(name)!.header.timeIntervalSince1970)\n"
+    s += "XCTAssertEqual(\(actual.header.currentFileTime.timeIntervalSince1970), \(accessor).\(name)!.header.currentFileTime.timeIntervalSince1970)\n"
     s += "XCTAssertEqual(UUID(uuidString: \"\(actual.header.guid)\"), \(accessor).\(name)!.header.guid)\n"
     s += "XCTAssertEqual(\(actual.responseLevels.count), \(accessor).\(name)!.responseLevels.count)\n"
     for (offset, element) in actual.responseLevels.enumerated() {
         s += "XCTAssertEqual(\(element.deltaTime), \(accessor).\(name)!.responseLevels[\(offset)].deltaTime)\n"
         if element.deltaCode {
-            s += "XCTAssertTrue(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode!)\n"
+            s += "XCTAssertTrue(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode)\n"
         } else {
-            s += "XCTAssertFalse(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode!)\n"
+            s += "XCTAssertFalse(\(accessor).\(name)!.responseLevels[\(offset)].deltaCode)\n"
         }
         s += "XCTAssertEqual(\(element.random.hexString), \(accessor).\(name)!.responseLevels[\(offset)].random)\n"
         s += "XCTAssertEqual(\(element.level.hexString), \(accessor).\(name)!.responseLevels[\(offset)].level)\n"
@@ -1048,16 +1035,16 @@ private func extendedRuleMessageConditionAssert(value: Any?, accessor: String, n
     s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedPropertiesSize.hexString), \(accessor).\(name)!.namedPropertyInformation.namedPropertiesSize)\n"
     s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedProperties.count), \(accessor).\(name)!.namedPropertyInformation.namedProperties.count)\n"
     for (offset, element) in actual.namedPropertyInformation.namedProperties.enumerated() {
-        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].kind)\n"
+        s += "XCTAssertEqual(\(element.guid.flatUID.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid.flatUID)\n"
         if let lid = element.lid {
             s += "XCTAssertEqual(\(lid.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
         } else {
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].lid)\n"
         }
-        if let name = element.name {
+        if let elementName = element.name {
             s += "XCTAssertEqual(\(element.nameSize!.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
-            s += "XCTAssertEqual(\(escapeString(string: element.name!)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+            s += "XCTAssertEqual(\(escapeString(string: elementName)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
         } else {
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
@@ -1103,7 +1090,7 @@ private func extendedRuleMessageConditionAssert(value: Any?, accessor: String, n
             }
             s += "XCTAssertEqual(\(packet.restrictionPresent.hexString), (\(accessor).packet as? Restriction.CommentRestriction)!.restrictionPresent)\n"
             if let restriction = packet.restriction {
-                s += restrictionAssert(value: restriction, accessor: "(\(accessor).packet as? Restriction.CommentRestriction)!.restriction")
+                s += restrictionAssert(value: restriction, accessor: "(\(accessor).packet as? Restriction.CommentRestriction)!.restriction!")
             } else {
                 s += "XCTAssertNil(\(accessor).packet as? Restriction.CommentRestriction)!.restriction)\n"
             }
@@ -1134,16 +1121,16 @@ private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, nam
     s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedPropertiesSize.hexString), \(accessor).\(name)!.namedPropertyInformation.namedPropertiesSize)\n"
     s += "XCTAssertEqual(\(actual.namedPropertyInformation.namedProperties.count), \(accessor).\(name)!.namedPropertyInformation.namedProperties.count)\n"
     for (offset, element) in actual.namedPropertyInformation.namedProperties.enumerated() {
-        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid)\n"
+        s += "XCTAssertEqual(\(element.kind.stringRepresentation), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].kind)\n"
+        s += "XCTAssertEqual(\(element.guid.flatUID.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].guid.flatUID)\n"
         if let lid = element.lid {
             s += "XCTAssertEqual(\(lid.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
         } else {
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].lid)\n"
         }
-        if let name = element.name {
+        if let elementName = element.name {
             s += "XCTAssertEqual(\(element.nameSize!.hexString), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
-            s += "XCTAssertEqual(\(escapeString(string: element.name!)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
+            s += "XCTAssertEqual(\(escapeString(string: elementName)), \(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
         } else {
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].nameSize)\n"
             s += "XCTAssertNil(\(accessor).\(name)!.namedPropertyInformation.namedProperties[\(offset)].name)\n"
@@ -1161,17 +1148,17 @@ private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, nam
         
         if let actionData = element.actionData {
             if let actionData = actionData as? ActionBlock.MoveCopyActionDataExtended {
-                s += "XCTAssertEqual(\(actionData.storeEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).storeEIDSize)\n"
+                s += "XCTAssertEqual(\(actionData.storeEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!.storeEIDSize)\n"
                 if let storeEID = actionData.storeEID {
-                    s += entryIdAssert(value: storeEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)", name: "storeEID")
+                    s += entryIdAssert(value: storeEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!", name: "storeEID")
                 } else {
-                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).storeEID)\n"
+                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!.storeEID)\n"
                 }
-                s += "XCTAssertEqual(\(actionData.folderEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).folderEIDSize)\n"
+                s += "XCTAssertEqual(\(actionData.folderEIDSize.hexString), (\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!.folderEIDSize)\n"
                 if let folderEID = actionData.folderEID {
-                    s += entryIdAssert(value: folderEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)", name: "folderEID")
+                    s += entryIdAssert(value: folderEID, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!", name: "folderEID")
                 } else {
-                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended).folderEID)\n"
+                    s += "XCTAssertNil((\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? ActionBlock.MoveCopyActionDataExtended)!.folderEID)\n"
                 }
             } else if let actionData = actionData as? TaggedPropertyValue {
                 s += taggedPropertyAssert(value: actionData, accessor: "(\(accessor).\(name)!.ruleActionsBuffer.actionBlocks[\(offset)].actionData as? TaggedPropertyValue)!")
@@ -1314,6 +1301,99 @@ private func searchFolderDefinitionAssert(value: Any?, accessor: String, name: S
     return s
 }
 
+private func additionalRenEntryIdsAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual = try! AdditionalRenEntryIds(data: value as! [Data])
+    
+    var s = ""
+    
+    s += entryIdAssert(value: actual.conflictsEntryId, accessor: "\(accessor)", name: "\(name)!.conflictsEntryId")
+    s += entryIdAssert(value: actual.syncIssuesEntryId, accessor: "\(accessor)", name: "\(name)!.syncIssuesEntryId")
+    s += entryIdAssert(value: actual.localFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.localFailuresEntryId")
+    s += entryIdAssert(value: actual.serverFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.serverFailuresEntryId")
+    s += entryIdAssert(value: actual.junkEmailEntryId, accessor: "\(accessor)", name: "\(name)!.junkEmailEntryId")
+    
+    s += "XCTAssertEqual(\(actual.remainingData.count), \(accessor).\(name)!.remainingData.count)\n"
+    for (offset, element) in actual.remainingData.enumerated() {
+        s += "XCTAssertEqual(\(element.hexString), [UInt8](\(accessor).\(name)!.remainingData[\(offset)]))\n"
+    }
+    
+    return s
+}
+
+private func additionalRenEntryIdsExAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! AdditionalRenEntryIdsEx(dataStream: &dataStream, size: dataStream.count)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.persistData.count), \(accessor).\(name)!.persistData.count)\n"
+    for (offset, element) in actual.persistData.enumerated() {
+        s += "XCTAssertEqual(\(element.persistID.stringRepresentation), \(accessor).\(name)!.persistData[\(offset)].persistID)\n"
+        s += "XCTAssertEqual(\(element.dataElementsSize.hexString), \(accessor).\(name)!.persistData[\(offset)].dataElementsSize)\n"
+        s += "XCTAssertEqual(\(element.dataElements.count), \(accessor).\(name)!.persistData[\(offset)].dataElements.count)\n"
+        for (elementOffset, elementElement) in element.dataElements.enumerated() {
+            s += "XCTAssertEqual(\(elementElement.elementID.stringRepresentation), \(accessor).\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementID)\n"
+            s += "XCTAssertEqual(\(elementElement.elementDataSize.hexString), \(accessor).\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementDataSize)\n"
+            if let elementData = elementElement.elementData {
+                if let header = elementData as? UInt32 {
+                    s += "XCTAssertEqual(\(header.hexString), \(accessor).\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementData as UInt32)\n"
+                } else if let entryId = elementData as? EntryID {
+                    s += entryIdAssert(value: entryId, accessor: accessor, name: "\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementData")
+                } else if let unknown = elementData as? [UInt8] {
+                    s += "XCTAssertEqual(\(unknown.hexString), \(accessor).\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementData as [UInt8])\n"
+                } else {
+                    fatalError("NYI: \(type(of: elementData))")
+                }
+            } else {
+                s += "XCTAssertNil(\(accessor).\(name)!.persistData[\(offset)].dataElements[\(elementOffset)].elementData)\n"
+            }
+        }
+    }
+
+    return s
+}
+
+private func sidAssert(value: Any?, accessor: String, name: String) -> String {
+    var dataStream = DataStream(data: value as! Data)
+    let actual = try! SID(dataStream: &dataStream, endianess: .littleEndian)
+    assert(dataStream.remainingCount == 0)
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.revision.hexString), \(accessor).\(name)!.revision)\n"
+    s += "XCTAssertEqual(\(actual.subAuthorityCount), \(accessor).\(name)!.subAuthorityCount)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.0), \(accessor).\(name)!.identifierAuthority.value.0)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.1), \(accessor).\(name)!.identifierAuthority.value.1)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.2), \(accessor).\(name)!.identifierAuthority.value.2)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.3), \(accessor).\(name)!.identifierAuthority.value.3)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.4), \(accessor).\(name)!.identifierAuthority.value.4)\n"
+    s += "XCTAssertEqual(\(actual.identifierAuthority.value.5), \(accessor).\(name)!.identifierAuthority.value.5)\n"
+    s += "XCTAssertEqual(\(actual.subAuthority.hexString), \(accessor).\(name)!.subAuthority)\n"
+    
+    return s
+}
+
+private func freeBusyEntryIdsAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual = try! FreeBusyEntryIds(data: value as! [Data])
+    
+    var s = ""
+    
+    s += "XCTAssertEqual(\(actual.firstValue.hexString), [UInt8](\(accessor).\(name)!.firstValue))\n"
+    s += entryIdAssert(value: actual.delegateInformationEntryId, accessor: "\(accessor)", name: "\(name)!.delegateInformationEntryId")
+    if let freeBusyMessageEntryId = actual.freeBusyMessageEntryId {
+        s += entryIdAssert(value: freeBusyMessageEntryId, accessor: "\(accessor)", name: "\(name).freeBusyMessageEntryId")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.freeBusyMessageEntryId)\n"
+    }
+    s += entryIdAssert(value: actual.freeBusyDataEntryId, accessor: "\(accessor)", name: "\(name)!.freeBusyDataEntryId")
+    s += "XCTAssertEqual(\(actual.remainingData.count), \(accessor).\(name)!.remainingData.count)\n"
+    for (offset, element) in actual.remainingData.enumerated() {
+        s += "XCTAssertEqual(\(element.hexString), [UInt8](\(accessor).\(name)!.remainingData[\(offset)]))\n"
+    }
+    
+    return s
+}
+
 private func unknownAssert(value: Any?, accessor: String, fullName: String) -> String {
     guard let value = value else {
         return "XCTAssertNil(\(accessor).\(fullName)!)\n"
@@ -1336,13 +1416,13 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
     } else if type(of: value) == UUID.self {
         return guidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UUID?)")
     } else if type(of: value) == [UUID].self {
-        return multipleGuidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UUID?)")
+        return multipleGuidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UUID]?)")
     } else if type(of: value) == [String].self {
         return multipleStringAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [String]?)")
     } else if type(of: value) == [UInt32].self {
         return multipleUInt32Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt32]?)")
     } else if type(of: value) == [UInt16].self {
-        return multipleInt16Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt32]?)")
+        return multipleInt16Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UInt16]?)")
     } else if type(of: value) == UInt64.self {
         return int64Assert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UInt64?)")
     } else if type(of: value) == Double.self {
@@ -2331,7 +2411,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagHierRev.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "hierRev")
         case PropertyId.PR_SECURE_ORIGINATION.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SECURE_ORIGINATION")
+            s += boolAssert(value: prop.value, accessor: accessor, name: "secureOrigination")
         case PropertyId.unknown0x7C0E.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7C0E")
         case PropertyId.tagAttributeHidden.rawValue:
@@ -2355,7 +2435,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagAttributeSystem.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagAttributeSystem")
         case PropertyId.PR_DESIGN_IN_PROGRESS.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_DESIGN_IN_PROGRESS")
+            s += boolAssert(value: prop.value, accessor: accessor, name: "designInProgress")
         case PropertyId.unknown0x7C0F.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7C0F")
         case PropertyId.unknown0x36F6.rawValue:
@@ -2375,17 +2455,17 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x35FD.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x35FD")
         case PropertyId.tagAdditionalRenEntryIdsEx.rawValue:
-            s += dataAssert(value: prop.value, accessor: accessor, name: "additionalRenEntryIdsEx")
+            s += additionalRenEntryIdsExAssert(value: prop.value, accessor: accessor, name: "additionalRenEntryIdsEx")
         case PropertyId.unknown0x36F0.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36F0")
         case PropertyId.unknown0x35E9.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x35E9")
         case PropertyId.tagIpmDraftsEntryId.rawValue:
-            s += dataAssert(value: prop.value, accessor: accessor, name: "ipmDraftsEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmDraftsEntryId")
         case PropertyId.PR_FROM_I_HAVE.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_FROM_I_HAVE")
         case PropertyId.tagAdditionalRenEntryIds.rawValue:
-            s += multipleDataAssert(value: prop.value, accessor: accessor, name: "additionalRenEntryIds")
+            s += additionalRenEntryIdsAssert(value: prop.value, accessor: accessor, name: "additionalRenEntryIds")
         case PropertyId.unknown0x3646.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3646")
         case PropertyId.tagConversationId.rawValue:
@@ -2523,7 +2603,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagReceivedRepresentingEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "receivedRepresentingEntryId")
         case PropertyId.tagSenderSimpleDisplayName.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSenderSimpleDisplayName")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "senderSimpleDisplayName")
         case PropertyId.unknown0x365A.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x365A")
         case PropertyId.tagCreatorEmailAddress.rawValue:
@@ -2533,11 +2613,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x4034.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4034")
         case PropertyId.PR_LAST_MODIFIER_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_LAST_MODIFIER_SID")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "lastModifierSid")
         case PropertyId.tagMessageCodepage.rawValue:
             s += uint32Assert(value: prop.value, accessor: accessor, name: "messageCodepage")
         case PropertyId.PR_MODIFIER_FLAG.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_MODIFIER_FLAG")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "modifierFlag", hexString: true)
         case PropertyId.tagReceivedByEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "receivedByEntryId")
         case PstPropertyId.tagPstBodyPrefix.rawValue:
@@ -2561,7 +2641,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                 s += dataAssert(value: prop.value, accessor: accessor, name: "nameidBucketBase")
             }
         case PropertyId.tagSentRepresentingSimpleDisplayName.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSentRepresentingSimpleDisplayName")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "sentRepresentingSimpleDisplayName")
         case PropertyId.unknown0x0F03.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x0F03")
         case PropertyId.unknown0x0ECD.rawValue:
@@ -2621,7 +2701,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagOriginatorDeliveryReportRequested.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "originatorDeliveryReportRequested")
         case PropertyId.PR_CREATOR_FLAG.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_CREATOR_FLAG")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "creatorFlag", hexString: true)
         case PropertyId.tagDeleteAfterSubmit.rawValue:
             s += boolAssert(value: prop.value, accessor: accessor, name: "deleteAfterSubmit")
         case PropertyId.tagInternetMailOverrideFormat.rawValue:
@@ -2631,7 +2711,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x7D0E.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x7D0E")
         case PropertyId.PR_CREATOR_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_CREATOR_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "creatorSid")
         case PropertyId.tagAlternateRecipientAllowed.rawValue:
             if prop.value is Bool {
                 s += boolAssert(value: prop.value, accessor: accessor, name: "alternateRecipientAllowed")
@@ -2743,15 +2823,15 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagAttachRendering.rawValue:
             s += optionalAssert(value: prop.value, accessor: accessor, name: "attachRendering")
         case PropertyId.tagSentRepresentingFlags.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSentRepresentingFlags")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "sentRepresentingFlags", hexString: true)
         case PropertyId.tagSenderFlags.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSenderFlags")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "senderFlags", hexString: true)
         case PropertyId.tagReceivedByFlags.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagReceivedByFlags")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "receivedByFlags", hexString: true)
         case PropertyId.tagTargetEntryId.rawValue:
-            s += dataAssert(value: prop.value, accessor: accessor, name: "targetEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "targetEntryId")
         case PropertyId.tagReceivedRepresentingFlags.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagReceivedRepresentingFlags")
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "receivedRepresentingFlags", hexString: true)
         case PropertyId.tagTnefCorrelationKey.rawValue:
             s += optionalAssert(value: prop.value, accessor: accessor, name: "tnefCorrelationKey")
         case PropertyId.unknown0x5FE5.rawValue:
@@ -2787,7 +2867,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.PR_RECIPIENT_TRACKSTATUS_READ.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_RECIPIENT_TRACKSTATUS_READ")
         case PropertyId.PR_SENT_REPRESENTING_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SENT_REPRESENTING_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "sentRepresentingSid")
         case PropertyId.unknown0x1207.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1207")
         case PropertyId.unknown0x3645.rawValue:
@@ -2797,7 +2877,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x6827.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6827")
         case PropertyId.PR_SENDER_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SENDER_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "senderSid")
         case PropertyId.unknown0x6201.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6201")
         case PropertyId.tagReplyRecipientNames.rawValue:
@@ -2969,7 +3049,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagIpmNoteEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "ipmNoteEntryId")
         case PropertyId.tagFreeBusyEntryIds.rawValue:
-            s += multipleDataAssert(value: prop.value, accessor: accessor, name: "freeBusyEntryIds")
+            s += freeBusyEntryIdsAssert(value: prop.value, accessor: accessor, name: "freeBusyEntryIds")
         case PropertyId.tagReplChangenum.rawValue:
             s += int64Assert(value: prop.value, accessor: accessor, name: "replChangenum")
         case PropertyId.tagFreeBusyCountMonths.rawValue:
@@ -3271,7 +3351,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagReportEntryId.rawValue:
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "reportEntryId")
         case PropertyId.PR_ORIGINAL_AUTHOR_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORIGINAL_AUTHOR_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "originalAuthorSid")
         case PropertyId.unknown0x405E.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x405E")
         case PropertyId.unknown0x405F.rawValue:
@@ -3283,11 +3363,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x4063.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4063")
         case PropertyId.PR_READ_RECEIPT_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_READ_RECEIPT_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "readReceiptSid")
         case PropertyId.tagOriginalAuthorEmailAddress.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorEmailAddress")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalAuthorEmailAddress")
         case PropertyId.tagOriginalAuthorAddressType.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorAddressType")
+            s += stringAssert(value: prop.value, accessor: accessor, name: "originalAuthorAddressType")
         case PropertyId.tagReadReceiptEmailAddress.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "readReceiptEmailAddress")
         case PropertyId.tagReadReceiptAddressType.rawValue:
@@ -3295,13 +3375,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagPreview.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "tagPreview")
         case PropertyId.PR_REPORT_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_SID")
-        case PropertyId.PR_REPORT_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "reportSid")
         case PropertyId.tagOriginalAuthorEntryId.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "tagOriginalAuthorEntryId")
+            s += entryIdAssert(value: prop.value, accessor: accessor, name: "originalAuthorEntryId")
         case PropertyId.PR_REPORT_DESTINATION_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_REPORT_DESTINATION_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "reportDestinationSid")
         case PropertyId.tagReadReceiptName.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "readReceiptName")
         case PropertyId.unknown0x4026.rawValue:
@@ -3313,7 +3391,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x4036.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x4036")
         case PropertyId.PR_ORIGINATOR_SID.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_ORIGINATOR_SID")
+            s += sidAssert(value: prop.value, accessor: accessor, name: "originatorSid")
         case PropertyId.unknown0x1206.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x1206")
         case PropertyId.unknown0x4037.rawValue:
@@ -3322,7 +3400,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += optionSetAssert(value: prop.value, accessor: accessor, name: "rights", type: MessageRights.self)
         case PropertyId.tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT.rawValue:
             if prop.value is UInt32 {
-                s += unknownAssert(value: prop.value, accessor: accessor, name: "tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT")
+                s += uint32Assert(value: prop.value, accessor: accessor, name: "folderChildCount")
             } else {
                 s += serializedReplidGuidMapAssert(value: prop.value, accessor: accessor, name: "serializedReplidGuidMap")
             }
@@ -3381,7 +3459,7 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.tagPolicyTag.rawValue:
             s += guidAssert(value: prop.value, accessor: accessor, name: "policyTag")
         case PropertyId.tagRpcOverHttpFlags.rawValue:
-            s += enumAssert(value: prop.value, accessor: accessor, name: "rpcOverHttpFlags", type: RpcOverHttpFlags.self)
+            s += optionSetAssert(value: prop.value, accessor: accessor, name: "rpcOverHttpFlags", type: RpcOverHttpFlags.self)
         case PropertyId.tagOriginalSubject.rawValue:
             s += stringAssert(value: prop.value, accessor: accessor, name: "originalSubject")
         case PropertyId.tagReportText.rawValue:
@@ -3596,8 +3674,6 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += dataAssert(value: prop.value, accessor: accessor, name: "attachAdditionalInformation")
         case PropertyId.tagLastModificationTime.rawValue:
             s += dateAssert(value: prop.value, accessor: accessor, name: "lastModificationTime")
-        case PropertyId.PR_SECURE_ORIGINATION.rawValue:
-            s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_SECURE_ORIGINATION")
         case PropertyId.tagRights.rawValue:
             s += optionSetAssert(value: prop.value, accessor: accessor, name: "rights", type: MessageRights.self)
         case PropertyId.tagComment.rawValue:

@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 public extension MessageStorage {
     /// PidTagAcknowledgementMode
@@ -1782,6 +1783,55 @@ public extension MessageStorage {
         var dataStream = DataStream(data: data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
+
+    /// [MS-OXPROPS] 2.1118 PidTagSenderFlags
+    /// Canonical name: PidTagSenderFlags
+    /// Property ID: 0x4019
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: Miscellaneous Properties
+    /// References: [MS-OXCFXICS], [MS-OXTNEF]
+    /// Alternate names: ptagSenderFlags
+    /// Not documented in specification - removed
+    var senderFlags: UInt32? {
+        return getProperty(id: .tagSenderFlags)
+    }
+
+    /// [MS-OXPROPS] 2.1015 PidTagSentRepresentingFlags
+    /// Canonical name: PidTagSentRepresentingFlags
+    /// Description:
+    /// Property ID: 0x401A
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: Miscellaneous Properties
+    /// Defining reference:
+    /// Consuming references: [MS-OXCFXICS], [MS-OXTNEF]
+    /// Alternate names: ptagSentRepresentingFlags
+    var sentRepresentingFlags: UInt32? {
+        return getProperty(id: .tagSentRepresentingFlags)
+    }
+
+    /// [MS-OXPROPS] 2.998 PidTagReceivedByFlags
+    /// Canonical name: PidTagReceivedByFlags
+    /// Property ID: 0x401B
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: TransportEnvelope
+    /// References: [MS-OXCFXICS], [MS-OXTNEF]
+    /// Alternate names: ptagRcvdByFlags
+    /// Not documented in specification - removed
+    var receivedByFlags: UInt32? {
+        return getProperty(id: .tagReceivedByFlags)
+    }
+
+    /// [MS-OXPROPS] 2.1004 PidTagReceivedRepresentingFlags
+    /// Canonical name: PidTagReceivedRepresentingFlags
+    /// Property ID: 0x401C
+    /// Data type: PtypInteger32, 0x0003
+    /// Area: TransportEnvelope
+    /// References: [MS-OXCFXICS], [MS-OXTNEF]
+    /// Alternate names: ptagRcvdRepresentingFlags
+    /// Not documented in specification - removed
+    var rReceivedRepresentingFlags: UInt32? {
+        return getProperty(id: .tagReceivedRepresentingFlags)
+    }
     
     /// [MS-OXPROPS] 2.523 PidTagCreatorAddressType
     /// Canonical name: PidTagCreatorAddressType
@@ -1807,6 +1857,30 @@ public extension MessageStorage {
         return getProperty(id: .tagCreatorEmailAddress)
     }
     
+    /// [MS-OXPROPS] 2.1122 PidTagSenderSimpleDisplayName
+    /// Canonical name: PidTagSenderSimpleDisplayName
+    /// Property ID: 0x4030
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXTNEF]
+    /// Alternate names: ptagSenderSimpleDispName
+    /// Not documented in specification - removed
+    var senderSimpleDisplayName: String? {
+        return getProperty(id: .tagSenderSimpleDisplayName)
+    }
+    
+    /// [MS-OXPROPS] 2.1136 PidTagSentRepresentingSimpleDisplayName
+    /// Canonical name: PidTagSentRepresentingSimpleDisplayName
+    /// Property ID: 0x4031
+    /// Data type: PtypString, 0x001F
+    /// Area: TransportEnvelope
+    /// References: [MS-OXTNEF]
+    /// Alternate names: ptagSentRepresentingSimpleDispName
+    /// Not documented in specification - removed
+    var sentRepresentingSimpleDisplayName: String? {
+        return getProperty(id: .tagSentRepresentingSimpleDisplayName)
+    }
+    
     /// (Removed) [MS-OXPROPS] 2.732 PidTagCreatorSimpleDisplayName
     /// Canonical name: PidTagCreatorSimpleDisplayName
     /// Property ID: 0x4038
@@ -1829,5 +1903,143 @@ public extension MessageStorage {
     /// Not documented in specification - removed
     var lastModifierSimpleDisplayName: String? {
         return getProperty(id: .tagLastModifierSimpleDisplayName)
+    }
+    
+    var senderSid: SID? {
+        guard let data: Data = getProperty(id: .PR_SENDER_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var reportSid: SID? {
+        guard let data: Data = getProperty(id: .PR_REPORT_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var creatorSid: SID? {
+        guard let data: Data = getProperty(id: .PR_CREATOR_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var receivedBySid: SID? {
+        guard let data: Data = getProperty(id: .PR_RECEIVED_BY_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var originatorSid: SID? {
+        guard let data: Data = getProperty(id: .PR_ORIGINATOR_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var readReceiptSid: SID? {
+        guard let data: Data = getProperty(id: .PR_READ_RECEIPT_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var lastModifierSid: SID? {
+        guard let data: Data = getProperty(id: .PR_LAST_MODIFIER_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var originalSenderSid: SID? {
+        guard let data: Data = getProperty(id: .PR_ORIGINAL_SENDER_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var originalAuthorSid: SID? {
+        guard let data: Data = getProperty(id: .PR_ORIGINAL_AUTHOR_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var reportDestinationSid: SID? {
+        guard let data: Data = getProperty(id: .PR_REPORT_DESTINATION_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var sentRepresentingSid: SID? {
+        guard let data: Data = getProperty(id: .PR_SENT_REPRESENTING_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    var receivedRepresentingSid: SID? {
+        guard let data: Data = getProperty(id: .PR_RCVD_REPRESENTING_SID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? SID(dataStream: &dataStream, endianess: .littleEndian)
+    }
+    
+    /// Source: Mapitag.h
+    var creatorFlag: UInt32? {
+        return getProperty(id: .PR_CREATOR_FLAG)
+    }
+    
+    /// Source: Mapitag.h
+    var modifierFlag: UInt32? {
+        return getProperty(id: .PR_MODIFIER_FLAG)
+    }
+    
+    /// Source: Mapitag.h
+    var folderChildCount: UInt32? {
+        return getProperty(id: .tagSerializedReplidGuidMapOrPR_FOLDER_CHILD_COUNT)
+    }
+    
+    /// Source: Mapitag.h
+    var designInProgress: Bool? {
+        return getProperty(id: .PR_DESIGN_IN_PROGRESS)
+    }
+    
+    /// Source: Mapitag.h
+    var secureOrigination: Bool? {
+        return getProperty(id: .PR_SECURE_ORIGINATION)
+    }
+    
+    /// Source: Mapitag.h
+    var publishInAddressBook: Bool? {
+        return getProperty(id: .PR_PUBLISH_IN_ADDRESS_BOOK)
     }
 }

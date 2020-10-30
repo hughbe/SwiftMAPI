@@ -113,11 +113,15 @@ public extension MessageStorage {
     
     /// [MS-OXSHARE] 2.2.2.7 PidLidSharingInitiatorEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidSharingInitiatorEntryId property ([MS-OXPROPS] section 2.248) MUST be set to the
-    /// value of the PidTagEntryId property ([MS-OXOABK] section 2.2.3.2) for the Address Book object
-    /// of the currently logged on user.
-    var sharingInitiatorEntryId: Data? {
-        return getProperty(name: .lidSharingInitiatorEntryId)
+    /// The PidLidSharingInitiatorEntryId property ([MS-OXPROPS] section 2.248) MUST be set to the value of the PidTagEntryId property
+    /// ([MS-OXOABK] section 2.2.3.2) for the Address Book object of the currently logged on user.
+    var sharingInitiatorEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingInitiatorEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXSHARE] 2.2.2.8 PidLidSharingInitiatorName Property
@@ -327,8 +331,13 @@ public extension MessageStorage {
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingBindingEntryId ([MS-OXPROPS] section 2.235)
-    var sharingBindingEntryId: Data? {
-        return getProperty(name: .lidSharingBindingEntryId)
+    var sharingBindingEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingBindingEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
@@ -397,22 +406,37 @@ public extension MessageStorage {
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingFolderEntryId ([MS-OXPROPS] section 2.246)
-    var sharingFolderEntryId: Data? {
-        return getProperty(name: .lidSharingFolderEntryId)
+    var sharingFolderEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingFolderEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingIndexEntryId ([MS-OXPROPS] section 2.247)
-    var sharingIndexEntryId: Data? {
-        return getProperty(name: .lidSharingIndexEntryId)
+    var sharingIndexEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingIndexEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingInstanceGuid ([MS-OXPROPS] section 2.251)
-    var sharingInstanceGuid: Data? {
-        return getProperty(name: .lidSharingInstanceGuid)
+    var sharingInstanceGuid: UUID? {
+        guard let data: Data = getProperty(name: .lidSharingInitiatorEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
@@ -481,15 +505,25 @@ public extension MessageStorage {
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingOriginalMessageEntryId ([MS-OXPROPS] section 2.261)
-    var sharingOriginalMessageEntryId: Data? {
-        return getProperty(name: .lidSharingOriginalMessageEntryId)
+    var sharingOriginalMessageEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingOriginalMessageEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingParentBindingEntryId ([MS-OXPROPS] section 2.262)
-    var sharingParentBindingEntryId: Data? {
-        return getProperty(name: .lidSharingParentBindingEntryId)
+    var sharingParentBindingEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidSharingParentBindingEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties

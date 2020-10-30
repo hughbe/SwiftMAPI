@@ -115,15 +115,18 @@ public extension MessageStorage {
     
     /// [MS-OXCSTOR] 2.2.2.1.1.11 PidTagUserEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagUserEntryId property ([MS-OXPROPS] section 2.1047) contains the Address book
-    /// EntryID of the user logged on to the mailbox.
+    /// The PidTagUserEntryId property ([MS-OXPROPS] section 2.1047) contains the Address book EntryID of the user logged on to the mailbox.
     /// [MS-OXCSTOR] 2.2.2.2.1 PidTagUserEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagUserEntryId property ([MS-OXPROPS] section 2.1047) contains the Address book
-    /// EntryID of the user logged on to the public folder. This property is also available on private mailbox
-    /// logon (section 2.2.2.1.1.11).
-    var userEntryId: Data? {
-        return getProperty(id: .tagUserEntryId)
+    /// The PidTagUserEntryId property ([MS-OXPROPS] section 2.1047) contains the Address book EntryID of the user logged on to the public
+    /// folder. This property is also available on private mailbox logon (section 2.2.2.1.1.11).
+    var userEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagUserEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCSTOR] 2.2.2.1.1.12 PidTagLocaleId Property

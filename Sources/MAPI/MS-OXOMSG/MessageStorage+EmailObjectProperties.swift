@@ -800,11 +800,15 @@ public extension MessageStorage {
     
     /// [MS-OXOMSG] 2.2.1.32 PidTagOriginalAuthorEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagOriginalAuthorEntryId property ([MS-OXPROPS] section 2.817) contains an Address
-    /// Book EntryID structure ([MS-OXCDATA] section 2.2.5.2) and is defined in report messages to identify
-    /// the user who sent the original message.
-    var originalAuthorEntryId: Data? {
-        return getProperty(id: .tagOriginalAuthorEntryId)
+    /// The PidTagOriginalAuthorEntryId property ([MS-OXPROPS] section 2.817) contains an Address Book EntryID structure
+    /// ([MS-OXCDATA] section 2.2.5.2) and is defined in report messages to identify the user who sent the original message.
+    var originalAuthorEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagOriginalAuthorEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.33 PidTagOriginalAuthorName Property
@@ -1334,11 +1338,15 @@ public extension MessageStorage {
 
     /// [MS-OXOMSG] 2.2.1.76 PidTagTargetEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagTargetEntryId property ([MS-OXPROPS] section 2.1033) is used in conjunction with an
-    /// optimizing send client. The semantics of an optimizing send are specified in section 3.2.4.4 and
-    /// section 3.3.5.1.3.
-    var targetEntryId: Data? {
-        return getProperty(id: .tagTargetEntryId)
+    /// The PidTagTargetEntryId property ([MS-OXPROPS] section 2.1033) is used in conjunction with an optimizing send client. The semantics
+    /// of an optimizing send are specified in section 3.2.4.4 and section 3.3.5.1.3.
+    var targetEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagTargetEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.1.77 PidTagAutoResponseSuppress Property
@@ -1516,11 +1524,15 @@ public extension MessageStorage {
     
     /// [MS-OXOMSG] 2.2.2.8 PidTagOriginalSenderEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagOriginalSenderEntryId property ([MS-OXPROPS] section 2.828) contains an address
-    /// book EntryID that is set on delivery report messages to the value of the PidTagSenderEntryId
-    /// property (section 2.2.1.50) from the original e-mail message.
-    var originalSenderEntryId: Data? {
-        return getProperty(id: .tagOriginalSenderEntryId)
+    /// The PidTagOriginalSenderEntryId property ([MS-OXPROPS] section 2.828) contains an address book EntryID that is set on delivery
+    /// report messages to the value of the PidTagSenderEntryId property (section 2.2.1.50) from the original e-mail message.
+    var originalSenderEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagOriginalSenderEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOMSG] 2.2.2.9 PidTagOriginalSenderName Property

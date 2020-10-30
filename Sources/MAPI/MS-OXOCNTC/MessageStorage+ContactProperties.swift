@@ -403,7 +403,7 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email1OrginalEntryId: EntryID? {
+    var email1OriginalEntryId: EntryID? {
         guard let data: Data = getProperty(name: .lidEmail1OriginalEntryId) else {
             return nil
         }
@@ -418,7 +418,7 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email2OrginalEntryId: EntryID? {
+    var email2OriginalEntryId: EntryID? {
         guard let data: Data = getProperty(name: .lidEmail2OriginalEntryId) else {
             return nil
         }
@@ -433,7 +433,7 @@ public extension MessageStorage {
     /// ([MS-OXPROPS] section 2.110) and PidLidEmail3OriginalEntryId ([MS-OXPROPS] section 2.115)
     /// properties specify the EntryID of the object corresponding to this electronic address. It MUST be
     /// either a one-off EntryID for this electronic address or a valid Address Book object EntryID.
-    var email3OrginalEntryId: EntryID? {
+    var email3OriginalEntryId: EntryID? {
         guard let data: Data = getProperty(name: .lidEmail3OriginalEntryId) else {
             return nil
         }

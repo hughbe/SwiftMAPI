@@ -388,20 +388,29 @@ public extension MessageStorage {
     
     /// [MS-OXOCFG] 2.2.9.16 PidTagWlinkAddressBookEID Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagWlinkAddressBookEID property ([MS-OXPROPS] section 2.1057) specifies the value of
-    /// the PidTagEntryId property ([MS-OXCPERM] section 2.2.4) of the user that the folder belongs to, as
-    /// specified in [MS-OXOABK] section 2.2.3.2. This property SHOULD<30> be set on calendar shortcuts.
-    var wlinkAddressBookEID: Data? {
-        return getProperty(id: .tagScheduleInfoFreeBusyBusyOrTagWlinkAddressBookEID)
+    /// The PidTagWlinkAddressBookEID property ([MS-OXPROPS] section 2.1057) specifies the value of the PidTagEntryId property
+    /// ([MS-OXCPERM] section 2.2.4) of the user that the folder belongs to, as specified in [MS-OXOABK] section 2.2.3.2. This property
+    /// SHOULD<30> be set on calendar shortcuts.
+    var wlinkAddressBookEID: EntryID? {
+        guard let data: Data = getProperty(id: .tagScheduleInfoFreeBusyBusyOrTagWlinkAddressBookEID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCFG] 2.2.9.17 PidTagWlinkAddressBookStoreEID Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagWlinkAddressBookStoreEID property ([MS-OXPROPS] section 2.1058) specifies the
-    /// value of the PidTagStoreEntryId property ([MS-OXPROPS] section 2.1022) of the current user (not
-    /// the owner of the folder). This property SHOULD<31> be set on calendar shortcuts.
-    var wlinkAddressBookStoreEID: Data? {
-        return getProperty(id: .tagWlinkAddressBookStoreEID)
+    /// The PidTagWlinkAddressBookStoreEID property ([MS-OXPROPS] section 2.1058) specifies the value of the PidTagStoreEntryId property
+    /// ([MS-OXPROPS] section 2.1022) of the current user (not the owner of the folder). This property SHOULD<31> be set on calendar shortcuts.
+    var wlinkAddressBookStoreEID: EntryID? {
+        guard let data: Data = getProperty(id: .tagWlinkAddressBookStoreEID) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCFG] 2.2.9.18 PidTagWlinkClientID Property

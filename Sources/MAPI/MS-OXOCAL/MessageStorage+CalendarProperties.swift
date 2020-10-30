@@ -932,18 +932,28 @@ public extension MessageStorage {
 
     /// [MS-OXOCAL] 2.2.1.53 PidNameBirthdayContactEntryId
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidNameBirthdayContactEntryId property ([MS-OXPROPS] section 2.378) indicates the
-    /// EntryID of the contact associated with the birthday event.
-    var birthdayContactEntryId: Data? {
-        return getProperty(name: .nameBirthdayContactEntryId)
+    /// The PidNameBirthdayContactEntryId property ([MS-OXPROPS] section 2.378) indicates the EntryID of the contact associated with the
+    /// birthday event.
+    var birthdayContactEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .nameBirthdayContactEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXOCAL] 2.2.1.54 PidNameBirthdayContactPersonGuid
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidNameBirthdayContactPersonGuid property ([MS-OXPROPS] section 2.379) indicates the
-    /// person ID's GUID of the contact associated with the birthday event.
-    var birthdayContactPersonGuid: Data? {
-        return getProperty(name: .nameBirthdayContactPersonGuid)
+    /// The PidNameBirthdayContactPersonGuid property ([MS-OXPROPS] section 2.379) indicates the person ID's GUID of the contact
+    /// associated with the birthday event.
+    var birthdayContactPersonGuid: UUID? {
+        guard let data: Data = getProperty(name: .nameBirthdayContactPersonGuid) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
 
     /// [MS-OXOCAL] 2.2.1.55 PidNameIsBirthdayContactWritable
@@ -1270,13 +1280,16 @@ public extension MessageStorage {
     
     /// [MS-OXOCAL] 2.2.4.9 PidLidOriginalStoreEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidOriginalStoreEntryId property ([MS-OXPROPS] section 2.197) specifies the EntryID of
-    /// the delegator's message store. This property SHOULD be set on Meeting objects that have been
-    /// created or updated by a delegate.
-    /// The format for the PidLidOriginalStoreEntryId property is the same as that for the
-    /// PidTagStoreEntryId property ([MS-OXCMSG] section 2.2.1.44).
-    var originalStoreEntryId: Data? {
-        return getProperty(name: .lidOriginalStoreEntryId)
+    /// The PidLidOriginalStoreEntryId property ([MS-OXPROPS] section 2.197) specifies the EntryID of the delegator's message store.
+    /// This property SHOULD be set on Meeting objects that have been created or updated by a delegate.
+    /// The format for the PidLidOriginalStoreEntryId property is the same as that for the PidTagStoreEntryId property ([MS-OXCMSG] section 2.2.1.44).
+    var originalStoreEntryId: EntryID? {
+        guard let data: Data = getProperty(name: .lidOriginalStoreEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCAL] 2.2.4.10 RecipientRow Properties

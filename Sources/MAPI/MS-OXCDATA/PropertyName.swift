@@ -56,7 +56,8 @@ public struct PropertyName {
         /// Name (optional) (variable): This field is present only if Kind is equal to 0x01. The value is a Unicode (UTF-16 format)
         /// string, followed by two zero bytes as terminating null characters, that identifies the property within its property set.
         if self.kind == .identifiedByNameField {
-            self.name = try dataStream.readString(count: Int(self.nameSize!), encoding: .utf16LittleEndian)
+            self.name = try dataStream.readString(count: Int(self.nameSize!) - 2, encoding: .utf16LittleEndian)
+            dataStream.position += 2
         } else {
             self.name = nil
         }

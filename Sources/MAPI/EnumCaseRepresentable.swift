@@ -1062,3 +1062,28 @@ extension OpenStoreFlags: EnumCaseRepresentable {
         (.xforestMove, ".xforestMove")
     ]
 }
+
+extension AdditionalRenEntryIdsEx.PersistData.PersistID: EnumCaseRepresentable {
+    public static let caseNames: [(element: AdditionalRenEntryIdsEx.PersistData.PersistID, name: String)] = [
+        (.rssSubscription, ".rssSubscription"),
+        (.sendAndTrack, ".sendAndTrack"),
+        (.todoSearch, ".todoSearch"),
+        (.convActions, ".convActions"),
+        (.combinedActions, ".combinedActions"),
+        (.suggestedContacts, ".suggestedContacts"),
+        (.contactSearch, ".contactSearch"),
+        (.buddylistPdls, ".buddylistPdls"),
+        (.buddylistContacts, ".buddylistContacts"),
+        (.sentinel, ".sentinel"),
+        (.unknown, ".unknown")
+    ]
+}
+
+extension AdditionalRenEntryIdsEx.PersistElement.ElementID: EnumCaseRepresentable {
+    public static let caseNames: [(element: AdditionalRenEntryIdsEx.PersistElement.ElementID, name: String)] = [
+        (.header, ".header"),
+        (.entryId, ".entryId"),
+        (.sentinel, ".sentinel"),
+        (.unknown, ".unknown")
+    ]
+}

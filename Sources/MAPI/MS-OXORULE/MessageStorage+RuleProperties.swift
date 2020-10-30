@@ -318,27 +318,36 @@ public extension MessageStorage {
     
     /// [MS-OXORULE] 2.2.6.3 PidTagDamOriginalEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// This PidTagDamOriginalEntryId property ([MS-OXPROPS] section 2.655) MUST be set to the
-    /// EntryID of the delivered (target) message that the client has to process.
+    /// This PidTagDamOriginalEntryId property ([MS-OXPROPS] section 2.655) MUST be set to the  EntryID of the delivered (target) message
+    /// that the client has to process.
     /// [MS-OXORULE] 2.2.7.6 PidTagDamOriginalEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagDamOriginalEntryId property (section 2.2.6.3) SHOULD<10> be set to the EntryID of
-    /// the message that was being processed by the server when this error was encountered (that is, the
-    /// "delivered message").
-    var damOriginalEntryId: Data? {
-        return getProperty(id: .tagDamOriginalEntryId)
+    /// The PidTagDamOriginalEntryId property (section 2.2.6.3) SHOULD<10> be set to the EntryID of the message that was being processed
+    /// by the server when this error was encountered (that is, the "delivered message").
+    var damOriginalEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagDamOriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXORULE] 2.2.6.5 PidTagRuleFolderEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagRuleFolderEntryId property ([MS-OXPROPS] section 2.944) MUST be set to the EntryID
-    /// of the folder where the rule (2) that triggered the generation of this DAM is stored.
+    /// The PidTagRuleFolderEntryId property ([MS-OXPROPS] section 2.944) MUST be set to the EntryID of the folder where the rule (2) that
+    /// triggered the generation of this DAM is stored.
     /// [MS-OXORULE] 2.2.7.7 PidTagRuleFolderEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagRuleFolderEntryId property (section 2.2.6.5) SHOULD<11> be set to the EntryID of
-    /// the folder where the rule (2) that triggered the generation of this DEM is stored.
-    var ruleFolderEntryId: Data? {
-        return getProperty(id: .tagRuleFolderEntryId)
+    /// The PidTagRuleFolderEntryId property (section 2.2.6.5) SHOULD<11> be set to the EntryID of the folder where the rule (2) that triggered
+    /// the generation of this DEM is stored.
+    var ruleFolderEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagRuleFolderEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXORULE] 2.2.6.6 PidTagClientActions Property
@@ -371,11 +380,15 @@ public extension MessageStorage {
     
     /// [MS-OXORULE] 2.2.6.8 PidTagDeferredActionMessageOriginalEntryId Property
     /// Type: PtypServerId ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagDeferredActionMessageOriginalEntryId property ([MS-OXPROPS] section 2.657)
-    /// contains the server EntryID for the DAM message on the server. This property is set by the server
-    /// when the DAM is created.
-    var deferredActionMessageOriginalEntryId: Data? {
-        return getProperty(id: .tagDeferredActionMessageOriginalEntryId)
+    /// The PidTagDeferredActionMessageOriginalEntryId property ([MS-OXPROPS] section 2.657) contains the server EntryID for the DAM
+    /// message on the server. This property is set by the server when the DAM is created.
+    var deferredActionMessageOriginalEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagDeferredActionMessageOriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
     /// [MS-OXORULE] 2.2.7.2 PidTagRuleError Property

@@ -5,6 +5,7 @@
 //  Created by Hugh Bellamy on 06/09/2020.
 //
 
+import DataStream
 import Foundation
 
 /// [MS-OXOABK] 2.2 Message Syntax
@@ -174,15 +175,18 @@ public extension MessageStorage {
     
     /// [MS-OXOABK] 2.2.2.5 PidTagAddressBookParentEntryId
     /// Data type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAddressBookParentEntryId property ([MS-OXPROPS] section 2.553) is the entry ID of
-    /// the parent container in a hierarchy of address book containers. This property is not present if no
-    /// parent container exists. Messaging clients use this property to expand and collapse a hierarchy of
-    /// address book containers in an address book hierarchy table.
-    /// Because this property applies to a container in the hierarchy table, it is not present on objects in an
-    /// offline address book (OAB). An OAB has its own structure for maintaining the hierarchy, using the
-    /// OAB Public Folder Retrieval Protocol, as specified in [MS-OXPFOAB].
-    var addressBookParentEntryId: Data? {
-        return getProperty(id: .tagAddressBookParentEntryId)
+    /// The PidTagAddressBookParentEntryId property ([MS-OXPROPS] section 2.553) is the entry ID of the parent container in a hierarchy of
+    /// address book containers. This property is not present if no parent container exists. Messaging clients use this property to expand and
+    /// collapse a hierarchy of address book containers in an address book hierarchy table.
+    /// Because this property applies to a container in the hierarchy table, it is not present on objects in an offline address book (OAB). An OAB
+    /// has its own structure for maintaining the hierarchy, using the OAB Public Folder Retrieval Protocol, as specified in [MS-OXPFOAB].
+    var addressBookParentEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagAddressBookParentEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOABK] 2.2.3.3 PidTagTemplateid
@@ -456,10 +460,15 @@ public extension MessageStorage {
     
     /// [MS-OXOABK] 2.2.3.25 PidTagAddressBookObjectGuid
     /// Data type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAddressBookObjectGuid property<16> ([MS-OXPROPS] section 2.549) contains a
-    /// GUID that uniquely identifies an Address Book object.
-    var addressBookObjectGuid: Data? {
-        return getProperty(id: .tagAddressBookObjectGuid)
+    /// The PidTagAddressBookObjectGuid property<16> ([MS-OXPROPS] section 2.549) contains a GUID that uniquely identifies an
+    /// Address Book object.
+    var addressBookObjectGuid: UUID? {
+        guard let data: Data = getProperty(id: .tagAddressBookObjectGuid) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
     /// [MS-OXOABK] 2.2.3.26 PidTagAddressBookSenderHintTranslations

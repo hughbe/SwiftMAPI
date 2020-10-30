@@ -207,11 +207,15 @@ public extension MessageStorage {
     
     /// [MS-OXCFXICS] 2.2.1.2.9 PidTagOriginalEntryId Property
     /// Data type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagOriginalEntryId property ([MS-OXPROPS] section 2.829) contains the original EntryID of
-    /// the message, which is used to associate the full message item being downloaded from the server with
-    /// the message header previously stored on the client.
-    var originalEntryId: Data? {
-        return getProperty(id: .tagOriginalEntryId)
+    /// The PidTagOriginalEntryId property ([MS-OXPROPS] section 2.829) contains the original EntryID of the message, which is used to
+    /// associate the full message item being downloaded from the server with the message header previously stored on the client.
+    var originalEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagOriginalEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCFXICS] 2.2.1.3.1 MetaTagIdsetDeleted Meta-Property
@@ -291,24 +295,27 @@ public extension MessageStorage {
     
     /// [MS-OXCFXICS] 2.2.1.4.2 PidTagConflictEntryId Property
     /// Data type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagConflictEntryId property ([MS-OXPROPS] section 2.641) contains the EntryID of the
-    /// conflict resolve message, as specified in section 3.1.5.6.2.1.
-    var conflictEntryId: Data? {
-        return getProperty(id: .tagConflictEntryId)
+    /// The PidTagConflictEntryId property ([MS-OXPROPS] section 2.641) contains the EntryID of the conflict resolve message, as specified in
+    /// section 3.1.5.6.2.1.
+    var conflictEntryId: EntryID? {
+        guard let data: Data = getProperty(id: .tagConflictEntryId) else {
+            return nil
+        }
+        
+        var dataStream = DataStream(data: data)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXCFXICS] 2.2.1.4.3 PidTagInConflict Property
     /// Data type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagInConflict property ([MS-OXPROPS] section 2.739) specifies whether the attachment
-    /// represents an alternate replica.
+    /// The PidTagInConflict property ([MS-OXPROPS] section 2.739) specifies whether the attachment represents an alternate replica.
     var inConflict: Bool? {
         return getProperty(id: .tagInConflict)
     }
     
     /// [MS-OXCFXICS] 2.2.1.5 PidTagAssociated Property
     /// Data type: PtypBoolean ([MS-OXCDATA] section 2.11.1)
-    /// The PidTagAssociated property ([MS-OXPROPS] section 2.584) specifies whether the message being
-    /// synchronized is an FAI message.
+    /// The PidTagAssociated property ([MS-OXPROPS] section 2.584) specifies whether the message being synchronized is an FAI message.
     var associated: Bool? {
         return getProperty(id: .tagAssociated)
     }
