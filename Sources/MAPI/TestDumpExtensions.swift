@@ -421,9 +421,9 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
 }
 
 private func multipleEntryIdAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual = (value as! [Data]).map { data -> EntryID in
+    let actual = (value as! [Data]).compactMap { data -> EntryID? in
         var dataStream = DataStream(data: data)
-        return try! getEntryID(dataStream: &dataStream, size: dataStream.count)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     var s = ""
