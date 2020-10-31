@@ -25,16 +25,20 @@ import Foundation
 /// at zero-based index five of this property is used to validate the PidNameExchangeJunkEmailMoveStamp property (section 2.2.1.2), as
 /// specified in section 3.1.4.1.
 public struct AdditionalRenEntryIds {
-    public let conflictsEntryId: EntryID
-    public let syncIssuesEntryId: EntryID
-    public let localFailuresEntryId: EntryID
-    public let serverFailuresEntryId: EntryID
-    public let junkEmailEntryId: EntryID
+    public let conflictsEntryId: EntryID?
+    public let syncIssuesEntryId: EntryID?
+    public let localFailuresEntryId: EntryID?
+    public let serverFailuresEntryId: EntryID?
+    public let junkEmailEntryId: EntryID?
     public let remainingData: [Data]
     
     public init(data: [Data]) throws {
-        func getEntryId(index: Int) throws -> EntryID {
+        func getEntryId(index: Int) throws -> EntryID? {
             var dataStream = DataStream(data: data[index])
+            if dataStream.count == 0 {
+                return nil
+            }
+
             return try getEntryID(dataStream: &dataStream, size: dataStream.count)
         }
 

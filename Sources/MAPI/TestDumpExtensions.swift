@@ -1306,11 +1306,31 @@ private func additionalRenEntryIdsAssert(value: Any?, accessor: String, name: St
     
     var s = ""
     
-    s += entryIdAssert(value: actual.conflictsEntryId, accessor: "\(accessor)", name: "\(name)!.conflictsEntryId")
-    s += entryIdAssert(value: actual.syncIssuesEntryId, accessor: "\(accessor)", name: "\(name)!.syncIssuesEntryId")
-    s += entryIdAssert(value: actual.localFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.localFailuresEntryId")
-    s += entryIdAssert(value: actual.serverFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.serverFailuresEntryId")
-    s += entryIdAssert(value: actual.junkEmailEntryId, accessor: "\(accessor)", name: "\(name)!.junkEmailEntryId")
+    if let conflictsEntryId = actual.conflictsEntryId {
+        s += entryIdAssert(value: conflictsEntryId, accessor: "\(accessor)", name: "\(name)!.conflictsEntryId!")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.conflictsEntryId)\n"
+    }
+    if let syncIssuesEntryId = actual.syncIssuesEntryId {
+        s += entryIdAssert(value: syncIssuesEntryId, accessor: "\(accessor)", name: "\(name)!.syncIssuesEntryId!")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.syncIssuesEntryId)\n"
+    }
+    if let localFailuresEntryId = actual.localFailuresEntryId {
+        s += entryIdAssert(value: localFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.localFailuresEntryId!")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.localFailuresEntryId)\n"
+    }
+    if let serverFailuresEntryId = actual.serverFailuresEntryId {
+        s += entryIdAssert(value: serverFailuresEntryId, accessor: "\(accessor)", name: "\(name)!.serverFailuresEntryId!")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.serverFailuresEntryId)\n"
+    }
+    if let junkEmailEntryId = actual.junkEmailEntryId {
+        s += entryIdAssert(value: junkEmailEntryId, accessor: "\(accessor)", name: "\(name)!.junkEmailEntryId!")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.junkEmailEntryId)\n"
+    }
     
     s += "XCTAssertEqual(\(actual.remainingData.count), \(accessor).\(name)!.remainingData.count)\n"
     for (offset, element) in actual.remainingData.enumerated() {
