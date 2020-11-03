@@ -1399,13 +1399,21 @@ private func freeBusyEntryIdsAssert(value: Any?, accessor: String, name: String)
     var s = ""
     
     s += "XCTAssertEqual(\(actual.firstValue.hexString), [UInt8](\(accessor).\(name)!.firstValue))\n"
-    s += entryIdAssert(value: actual.delegateInformationEntryId, accessor: "\(accessor)", name: "\(name)!.delegateInformationEntryId")
+    if let delegateInformationEntryId = actual.delegateInformationEntryId {
+        s += entryIdAssert(value: delegateInformationEntryId, accessor: "\(accessor)", name: "\(name)!.delegateInformationEntryId")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.delegateInformationEntryId)\n"
+    }
     if let freeBusyMessageEntryId = actual.freeBusyMessageEntryId {
         s += entryIdAssert(value: freeBusyMessageEntryId, accessor: "\(accessor)", name: "\(name).freeBusyMessageEntryId")
     } else {
         s += "XCTAssertNil(\(accessor).\(name)!.freeBusyMessageEntryId)\n"
     }
-    s += entryIdAssert(value: actual.freeBusyDataEntryId, accessor: "\(accessor)", name: "\(name)!.freeBusyDataEntryId")
+    if let freeBusyDataEntryId = actual.freeBusyDataEntryId {
+        s += entryIdAssert(value: freeBusyDataEntryId, accessor: "\(accessor)", name: "\(name)!.freeBusyDataEntryId")
+    } else {
+        s += "XCTAssertNil(\(accessor).\(name)!.freeBusyDataEntryId)\n"
+    }
     s += "XCTAssertEqual(\(actual.remainingData.count), \(accessor).\(name)!.remainingData.count)\n"
     for (offset, element) in actual.remainingData.enumerated() {
         s += "XCTAssertEqual(\(element.hexString), [UInt8](\(accessor).\(name)!.remainingData[\(offset)]))\n"
@@ -3525,7 +3533,11 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
         case PropertyId.unknown0x6000.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6000")
         case PropertyId.PR_NEW_NICK_NAME.rawValue:
-            s += boolAssert(value: prop.value, accessor: accessor, name: "newNickName")
+            if prop.value is String {
+                s += unknownAssert(value: prop.value, accessor: accessor, name: "PR_NEW_NICK_NAME")
+            } else {
+                s += boolAssert(value: prop.value, accessor: accessor, name: "newNickName")
+            }
         case PropertyId.unknown0x681B.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x681B")
         case PropertyId.tagItemTemporaryflags.rawValue:
