@@ -16,7 +16,7 @@ public struct XID: CustomStringConvertible {
     
     public init(dataStream: inout DataStream, size: Int) throws {
         /// NamespaceGuid (16 bytes): A 128-bit GUID. This field identifies the namespace of the LocalId field.
-        namespaceGuid = try dataStream.readGUID(endianess: .littleEndian)
+        self.namespaceGuid = try dataStream.readGUID(endianess: .littleEndian)
         
         /// LocalId (variable): A variable binary value. This field contains the ID of the entity in the namespace
         /// specified by the NamespaceGuid field. This field has a minimum length of 1 byte and a maximum
@@ -30,7 +30,7 @@ public struct XID: CustomStringConvertible {
         /// most cases, XIDs are present within other structures that specify information about the size of the
         /// XID, such as the SizedXid structure, as specified in section 2.2.2.3.1, or the propValue element, as
         /// specified in section 2.2.4.3.21.
-        localId = try dataStream.readBytes(count: size - 16)
+        self.localId = try dataStream.readBytes(count: size - 16)
     }
     
     public var description: String {
