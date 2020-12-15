@@ -245,7 +245,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ConversationIndex(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -729,7 +729,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -807,7 +807,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -875,7 +875,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -937,7 +937,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? FlatEntryList(dataStream: &dataStream)
     }
     
@@ -1080,7 +1080,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1172,7 +1172,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1322,7 +1322,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? VerbStream(dataStream: &dataStream)
     }
     
@@ -1345,7 +1345,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1531,7 +1531,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1588,7 +1588,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1659,7 +1659,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1694,7 +1694,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ReportTag(dataStream: &dataStream)
     }
     
@@ -1737,7 +1737,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     

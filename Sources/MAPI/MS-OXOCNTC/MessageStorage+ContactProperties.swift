@@ -408,7 +408,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -423,7 +423,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -438,7 +438,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -574,7 +574,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? OneOffEntryID(dataStream: &dataStream)
     }
     
@@ -589,7 +589,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? OneOffEntryID(dataStream: &dataStream)
     }
     
@@ -604,7 +604,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? OneOffEntryID(dataStream: &dataStream)
     }
     
@@ -1017,7 +1017,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? GeneralEntryID(dataStream: &dataStream)
     }
     
@@ -1051,7 +1051,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? GeneralEntryID(dataStream: &dataStream)
     }
     
@@ -1099,7 +1099,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? BusinessCardDisplayDefinition(dataStream: &dataStream)
     }
     
@@ -1196,7 +1196,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1265,7 +1265,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? GeneralEntryID(dataStream: &dataStream)
     }
     
@@ -1535,7 +1535,7 @@ public extension MessageStorage {
         }
         
         return data.compactMap { data -> EntryID? in
-            var dataStream = DataStream(data: data)
+            var dataStream = DataStream(data)
             return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
         }
     }
@@ -1555,7 +1555,7 @@ public extension MessageStorage {
         }
         
         return data.compactMap { data -> EntryID? in
-            var dataStream = DataStream(data: data)
+            var dataStream = DataStream(data)
             return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
         }
     }
@@ -1595,7 +1595,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? DistributionListStream(dataStream: &dataStream)
     }
 }

@@ -1148,7 +1148,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1162,7 +1162,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1282,7 +1282,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1463,7 +1463,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1633,7 +1633,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ContactLinkEntry(dataStream: &dataStream)
     }
     
@@ -1707,7 +1707,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.readGUID(endianess: .littleEndian)
     }
     
@@ -1747,7 +1747,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? StartDateEtc(dataStream: &dataStream)
     }
     

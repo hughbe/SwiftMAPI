@@ -548,7 +548,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? GlobalObjectId(dataStream: &dataStream)
     }
     
@@ -564,7 +564,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? GlobalObjectId(dataStream: &dataStream)
     }
     
@@ -677,7 +677,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? TimeZoneStruct(dataStream: &dataStream)
     }
     
@@ -718,7 +718,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
@@ -737,7 +737,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
@@ -752,7 +752,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? AppointmentTimeZoneDefinition(dataStream: &dataStream)
     }
     
@@ -836,7 +836,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? AppointmentRecurrencePattern(dataStream: &dataStream)
     }
     
@@ -939,7 +939,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -952,7 +952,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.readGUID(endianess: .littleEndian)
     }
 
@@ -1288,7 +1288,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1903,7 +1903,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ScheduleInfoAppointmentTombstone(dataStream: &dataStream)
     }
 }

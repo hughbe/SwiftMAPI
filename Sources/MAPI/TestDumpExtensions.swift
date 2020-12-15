@@ -63,7 +63,7 @@ private func multipleStringAssert(value: Any?, accessor: String, name: String) -
 private func guidAssert(value: Any?, accessor: String, name: String) -> String {
     let actual: UUID
     if let value = value as? Data {
-        var dataStream = DataStream(data: value)
+        var dataStream = DataStream(value)
         actual = try! dataStream.readGUID(endianess: .littleEndian)
     } else {
         actual = value! as! UUID
@@ -90,7 +90,7 @@ private func guidAssert(value: Any?, accessor: String, name: String) -> String {
 private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
     let actual: [UUID]
     if let value = value as? Data {
-        var dataStream = DataStream(data: value)
+        var dataStream = DataStream(value)
         var results: [UUID] = []
         for _ in 0..<dataStream.count / 16 {
             results.append(try! dataStream.read(type: UUID.self))
@@ -191,7 +191,7 @@ private func dateAssert(value: Any?, accessor: String, name: String) -> String {
 }
 
 private func xidAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! XID(dataStream: &dataStream, size: dataStream.count)
 
     var s = ""
@@ -229,7 +229,7 @@ private func optionSetAssert<T>(value: Any?, accessor: String, name: String, typ
 }
 
 private func predecessorChangeListAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! PredecessorChangeList(dataStream: &dataStream)
     var s = ""
 
@@ -250,7 +250,7 @@ private func folderEntryIdAssert(value: Any?, accessor: String) -> String {
     if let value = value as? FolderEntryID {
         actual = value
     } else {
-        var dataStream = DataStream(data: value as! Data)
+        var dataStream = DataStream(value as! Data)
         actual = try! FolderEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -271,7 +271,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
     if let value = value as? EntryID {
         actual = value
     } else {
-        var dataStream = DataStream(data: value as! Data)
+        var dataStream = DataStream(value as! Data)
         if dataStream.count == 0 {
             return "XCTAssertNil(\(accessor).\(name))\n"
         }
@@ -422,7 +422,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
 
 private func multipleEntryIdAssert(value: Any?, accessor: String, name: String) -> String {
     let actual = (value as! [Data]).compactMap { data -> EntryID? in
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -443,7 +443,7 @@ private func conversationIndexAssert(value: Any?, accessor: String, name: String
             return "XCTAssertNil(\(accessor).\(name))\n"
         }
 
-        var dataStream = DataStream(data: value)
+        var dataStream = DataStream(value)
         actual = try! ConversationIndex(dataStream: &dataStream, size: dataStream.count)
     } else {
         actual = value as! ConversationIndex
@@ -478,7 +478,7 @@ private func optionalAssert(value: Any?, accessor: String, name: String) -> Stri
 }
 
 private func flatEntryListAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! FlatEntryList(dataStream: &dataStream)
 
     var s = ""
@@ -495,7 +495,7 @@ private func flatEntryListAssert(value: Any?, accessor: String, name: String) ->
 }
 
 private func reportTagAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ReportTag(dataStream: &dataStream)
     
     var s = ""
@@ -549,7 +549,7 @@ private func reportTagAssert(value: Any?, accessor: String, name: String) -> Str
 }
 
 private func appointmentTimeZoneDefinitionAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! AppointmentTimeZoneDefinition(dataStream: &dataStream)
     
     var s = ""
@@ -595,7 +595,7 @@ private func appointmentTimeZoneDefinitionAssert(value: Any?, accessor: String, 
 
 
 private func contactLinkEntryAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ContactLinkEntry(dataStream: &dataStream)
     
     var s = ""
@@ -612,7 +612,7 @@ private func contactLinkEntryAssert(value: Any?, accessor: String, name: String)
 }
 
 private func verbStreamAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! VerbStream(dataStream: &dataStream)
     
     var s = ""
@@ -658,7 +658,7 @@ private func verbStreamAssert(value: Any?, accessor: String, name: String) -> St
 }
 
 private func businessCardDisplayDefinitionAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! BusinessCardDisplayDefinition(dataStream: &dataStream)
     
     var s = ""
@@ -696,7 +696,7 @@ private func businessCardDisplayDefinitionAssert(value: Any?, accessor: String, 
 }
 
 private func scheduleInfoAppointmentTombstoneAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ScheduleInfoAppointmentTombstone(dataStream: &dataStream)
     
     var s = ""
@@ -729,7 +729,7 @@ private func scheduleInfoAppointmentTombstoneAssert(value: Any?, accessor: Strin
 }
 
 private func extendedFolderFlagsAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ExtendedFolderFlags(dataStream: &dataStream)
     
     var s = ""
@@ -745,7 +745,7 @@ private func extendedFolderFlagsAssert(value: Any?, accessor: String, name: Stri
 }
 
 private func globalObjectIdAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! GlobalObjectId(dataStream: &dataStream)
     
     var s = ""
@@ -764,7 +764,7 @@ private func globalObjectIdAssert(value: Any?, accessor: String, name: String) -
 }
 
 private func timeZoneStructAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! TimeZoneStruct(dataStream: &dataStream)
     
     var s = ""
@@ -796,7 +796,7 @@ private func timeZoneStructAssert(value: Any?, accessor: String, name: String) -
 
 
 private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! AppointmentRecurrencePattern(dataStream: &dataStream)
     
     var s = ""
@@ -964,7 +964,7 @@ private func appointmentRecurrencePatternAssert(value: Any?, accessor: String, n
 }
 
 private func serializedReplidGuidMapAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! SerializedReplidGuidMap(dataStream: &dataStream)
     
     var s = ""
@@ -979,7 +979,7 @@ private func serializedReplidGuidMapAssert(value: Any?, accessor: String, name: 
 }
 
 private func startDateEtcAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! StartDateEtc(dataStream: &dataStream)
     
     var s = ""
@@ -1021,7 +1021,7 @@ private func taggedPropertyAssert(value: TaggedPropertyValue, accessor: String) 
 }
 
 private func extendedRuleMessageConditionAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ExtendedRuleMessageCondition(dataStream: &dataStream)
     
     var s = ""
@@ -1107,7 +1107,7 @@ private func extendedRuleMessageConditionAssert(value: Any?, accessor: String, n
 }
 
 private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! ExtendedRuleMessageActions(dataStream: &dataStream)
     
     var s = ""
@@ -1174,7 +1174,7 @@ private func extendedRuleMessageActionsAssert(value: Any?, accessor: String, nam
 }
 
 private func searchFolderDefinitionAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! SearchFolderDefinition(dataStream: &dataStream)
     
     var s = ""
@@ -1341,7 +1341,7 @@ private func additionalRenEntryIdsAssert(value: Any?, accessor: String, name: St
 }
 
 private func additionalRenEntryIdsExAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! AdditionalRenEntryIdsEx(dataStream: &dataStream, size: dataStream.count)
     
     var s = ""
@@ -1374,7 +1374,7 @@ private func additionalRenEntryIdsExAssert(value: Any?, accessor: String, name: 
 }
 
 private func sidAssert(value: Any?, accessor: String, name: String) -> String {
-    var dataStream = DataStream(data: value as! Data)
+    var dataStream = DataStream(value as! Data)
     let actual = try! SID(dataStream: &dataStream, endianess: .littleEndian)
     assert(dataStream.remainingCount == 0)
     

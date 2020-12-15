@@ -153,7 +153,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? XID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -166,7 +166,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? XID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -185,7 +185,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? XID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -201,7 +201,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? PredecessorChangeList(dataStream: &dataStream)
     }
     
@@ -214,7 +214,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -302,7 +302,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     

@@ -33,7 +33,7 @@ public func propertiesString(properties: [UInt16: Any?], namedProperties: [UInt1
         }
         
         if let binary = value as? Data {
-            var dataStream = DataStream(data: binary)
+            var dataStream = DataStream(binary)
             if key == PropertyId.tagPredecessorChangeList.rawValue {
                 let changeList = try! PredecessorChangeList(dataStream: &dataStream)
                 return changeList.description

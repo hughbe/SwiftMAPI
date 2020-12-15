@@ -405,7 +405,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -456,7 +456,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -735,7 +735,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.read(type: UUID.self)
     }
 
@@ -871,7 +871,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.read(type: UUID.self)
     }
 
@@ -922,7 +922,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
     
@@ -935,7 +935,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
     
@@ -959,7 +959,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
 
@@ -973,7 +973,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
     
@@ -989,7 +989,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
     
@@ -1006,7 +1006,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
     
@@ -1029,7 +1029,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? ENTRYID(dataStream: &dataStream)
     }
 
@@ -1095,7 +1095,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1112,7 +1112,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1130,7 +1130,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.read(type: UUID.self)
     }
 
@@ -1147,7 +1147,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1190,7 +1190,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? FlatEntryList(dataStream: &dataStream)
     }
 
@@ -1257,7 +1257,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         let count = dataStream.count / 16
         var results: [UUID] = []
         results.reserveCapacity(count)
@@ -1278,7 +1278,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         let count = dataStream.count / 16
         var results: [UUID] = []
         results.reserveCapacity(count)
@@ -1310,7 +1310,7 @@ public extension MessageStorage {
         }
         
         return data.compactMap { data -> EntryID? in
-            var dataStream = DataStream(data: data)
+            var dataStream = DataStream(data)
             return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
         }
     }
@@ -1324,7 +1324,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1337,7 +1337,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
@@ -1389,7 +1389,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? dataStream.read(type: UUID.self)
     }
     
@@ -1405,7 +1405,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         let count = dataStream.count / 16
         var results: [UUID] = []
         results.reserveCapacity(count)
@@ -1499,7 +1499,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1574,7 +1574,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1780,7 +1780,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
 
@@ -1910,7 +1910,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1919,7 +1919,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1928,7 +1928,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1937,7 +1937,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1946,7 +1946,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1955,7 +1955,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1964,7 +1964,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1973,7 +1973,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1982,7 +1982,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -1991,7 +1991,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -2000,7 +2000,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     
@@ -2009,7 +2009,7 @@ public extension MessageStorage {
             return nil
         }
         
-        var dataStream = DataStream(data: data)
+        var dataStream = DataStream(data)
         return try? SID(dataStream: &dataStream, endianess: .littleEndian)
     }
     

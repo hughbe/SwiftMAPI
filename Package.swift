@@ -12,7 +12,7 @@ let package = Package(
             targets: ["MAPI"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/hughbe/DataStream", from: "1.1.1"),
+        .package(url: "https://github.com/hughbe/DataStream", from: "2.0.0"),
         .package(url: "https://github.com/hughbe/WindowsDataTypes", from: "1.0.0"),
     ],
     targets: [
@@ -23,6 +23,7 @@ let package = Package(
             dependencies: ["DataStream", "WindowsDataTypes"]),
         .testTarget(
             name: "MAPITests",
-            dependencies: ["MAPI"]),
+            dependencies: ["MAPI"],
+            resources: [.process("Resources")]),
     ]
 )

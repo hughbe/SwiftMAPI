@@ -34,7 +34,7 @@ public struct AdditionalRenEntryIds {
     
     public init(data: [Data]) throws {
         func getEntryId(index: Int) throws -> EntryID? {
-            var dataStream = DataStream(data: data[index])
+            var dataStream = DataStream(data[index])
             if dataStream.count == 0 {
                 return nil
             }
