@@ -576,7 +576,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? OneOffEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNCT] 2.2.1.2.10 PidLidFax2OriginalEntryId
@@ -591,7 +591,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? OneOffEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNCT] 2.2.1.2.10 PidLidFax3OriginalEntryId
@@ -606,7 +606,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? OneOffEntryID(dataStream: &dataStream)
+        return try? OneOffEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNCTC] 2.2.1.2.11 PidLidAddressBookProviderEmailList Property

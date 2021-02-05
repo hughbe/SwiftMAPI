@@ -84,4 +84,19 @@ public struct ContactAddressEntryID: EntryID {
             throw MAPIError.corrupted
         }
     }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Index (4 bytes) + EntryIdCount (4 bytes) + EntryIdBytes (variable)
+        var baseSize = 4 + 16 + 4 + 4
+        baseSize += entryIdBytes.dataSize
+        return baseSize
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(index, endianess: .littleEndian)
+        dataStream.write(entryIdCount, endianess: .littleEndian)
+        entryIdBytes.write(to: &dataStream)
+    }
 }

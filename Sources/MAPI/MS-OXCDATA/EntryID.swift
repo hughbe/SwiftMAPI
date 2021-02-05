@@ -9,12 +9,19 @@ import DataStream
 import WindowsDataTypes
 
 public protocol EntryID {
+    init(dataStream: inout DataStream, size: Int) throws
     var flags: UInt32 { get }
     var providerUid: GUID { get }
+    
+    var dataSize: Int { get }
+    func write(to dataStream: inout OutputDataStream)
 }
 
 public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryID {
     let position = dataStream.position
+    guard size <= dataStream.remainingCount else {
+        throw MAPIError.corrupted
+    }
 
     /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID
     /// is valid. However, in any EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
@@ -35,7 +42,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
     case AddressBookEntryID.providerUid:
         return try AddressBookEntryID(dataStream: &dataStream, size: size)
     case OneOffEntryID.providerUid:
-        return try OneOffEntryID(dataStream: &dataStream)
+        return try OneOffEntryID(dataStream: &dataStream, size: size)
     case ContactAddressEntryID.providerUid:
         return try ContactAddressEntryID(dataStream: &dataStream, size: size)
     case WrappedEntryId.providerUid:
@@ -47,20 +54,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
             return try MessageEntryID(dataStream: &dataStream, size: size)
         }
     case StoreEntryID.providerUid:
-        let _: UInt32 = try dataStream.read(endianess: .littleEndian)
-        let _ = try GUID(dataStream: &dataStream)
-        let _: UInt8 = try dataStream.read()
-        let _: UInt8 = try dataStream.read()
-        let providerName = try dataStream.readString(count: 14, encoding: .ascii)!
-        
-        dataStream.position = position
-        if providerName.caseInsensitiveCompare("emsmdb.dll\0\0\0\0") == .orderedSame {
-            return try StoreObjectEntryID(dataStream: &dataStream, size: size)
-        } else if providerName.caseInsensitiveCompare("mspst.dll\0\0\0\0\0") == .orderedSame || providerName.caseInsensitiveCompare("pstprx.dll\0\0\0\0") == .orderedSame{
-            return try StoreEntryID(dataStream: &dataStream, size: size)
-        } else {
-            fatalError("NYI: \(providerName)")
-        }
+        return try StoreEntryID(dataStream: &dataStream, size: size)
     default:
         if flags == 0x00000000 {
             if size == 46 {

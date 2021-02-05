@@ -68,7 +68,7 @@ public struct WrappedEntryId: EntryID {
         let remainingCount = size - (dataStream.position - position)
         switch self.type & 0x0F {
         case 0:
-            self.embeddedEntryID = try OneOffEntryID(dataStream: &dataStream)
+            self.embeddedEntryID = try OneOffEntryID(dataStream: &dataStream, size: remainingCount)
         case 3:
             if remainingCount == 46 {
                 self.embeddedEntryID = try FolderEntryID(dataStream: &dataStream, size: remainingCount)
@@ -86,5 +86,19 @@ public struct WrappedEntryId: EntryID {
         default:
             throw MAPIError.corrupted
         }
+    }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Type (1 bytes) + EmbeddedEntryID (variable)
+        var baseSize = 4 + 16 + 1
+        baseSize += embeddedEntryID.dataSize
+        return baseSize
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(type)
+        embeddedEntryID.write(to: &dataStream)
     }
 }

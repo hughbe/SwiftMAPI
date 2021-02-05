@@ -23,7 +23,7 @@ public struct OneOffEntryID: EntryID {
     
     public static let providerUid = GUID(0xA41F2B81, 0xA3BE, 0x1910, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02)
 
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, size: Int) throws {
         /// Flags (4 bytes): This value is set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
         /// However, in any EntryID stored in a property value, these 4 bytes are zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
@@ -94,6 +94,40 @@ public struct OneOffEntryID: EntryID {
             self.emailAddress = try dataStream.readUnicodeString(endianess: .littleEndian)!
         } else {
             self.emailAddress = try dataStream.readAsciiString()!
+        }
+    }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (2 bytes) + Entry Flags (2 bytes) + Display Name (variable) + Address Type (variable) + Email Address (variable)
+        var baseSize = 4 + 16 + 2 + 2
+        baseSize += (displayName.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
+        baseSize += (addressType.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
+        baseSize += (emailAddress.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
+        return baseSize
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(version, endianess: .littleEndian)
+        dataStream.write(entryFlags.rawValue, endianess: .littleEndian)
+        
+        if entryFlags.contains(.unicode) {
+            dataStream.write(displayName + "\0", encoding: .utf16LittleEndian)
+        } else {
+            dataStream.write(displayName + "\0", encoding: .ascii)
+        }
+        
+        if entryFlags.contains(.unicode) {
+            dataStream.write(addressType + "\0", encoding: .utf16LittleEndian)
+        } else {
+            dataStream.write(addressType + "\0", encoding: .ascii)
+        }
+        
+        if entryFlags.contains(.unicode) {
+            dataStream.write(emailAddress + "\0", encoding: .utf16LittleEndian)
+        } else {
+            dataStream.write(emailAddress + "\0", encoding: .ascii)
         }
     }
 }

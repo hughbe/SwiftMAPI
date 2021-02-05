@@ -62,4 +62,17 @@ public struct FolderEntryID: EntryID {
             throw MAPIError.corrupted
         }
     }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Folder Type (2 bytes) + DatabaseGuid (16 bytes) + Global Counter (8 bytes)
+        return 4 + 16 + 2 + 16 + 8
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(folderType.rawValue, endianess: .littleEndian)
+        databaseGuid.write(to: &dataStream)
+        dataStream.write(globalCounter, endianess: .littleEndian)
+    }
 }

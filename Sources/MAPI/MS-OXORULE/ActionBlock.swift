@@ -199,7 +199,7 @@ public struct ActionBlock {
     public struct MoveCopyActionDataStandard {
         public let folderInThisStore: UInt8
         public let storeEIDSize: UInt16
-        public let storeEID: StoreObjectEntryID?
+        public let storeEID: StoreEntryID?
         public let folderEIDSize: UInt16
         public let folderEID: Any
         
@@ -212,6 +212,9 @@ public struct ActionBlock {
             
             /// StoreEIDSize (2 bytes): An integer that specifies the size, in bytes, of the StoreEID field.
             self.storeEIDSize = try dataStream.read(endianess: .littleEndian)
+            guard self.storeEIDSize <= dataStream.remainingCount else {
+                throw MAPIError.corrupted
+            }
 
             /// StoreEID (variable): A Store Object EntryID structure, as specified in [MS-OXCDATA] section 2.2.4.3, that identifies the message store.
             /// This field is relevant only if the FolderInThisStore field is set to 0x00.
@@ -219,7 +222,7 @@ public struct ActionBlock {
             ///  The StoreEID field can be set to any non-null value in request.
             ///  The contents of the StoreEID field MUST be ignored when received.
             if self.folderInThisStore == 0x00 {
-                self.storeEID = try StoreObjectEntryID(dataStream: &dataStream, size: Int(self.storeEIDSize))
+                self.storeEID = try StoreEntryID(dataStream: &dataStream, size: Int(self.storeEIDSize))
             } else {
                 dataStream.position += Int(self.storeEIDSize)
                 self.storeEID = nil
@@ -227,6 +230,9 @@ public struct ActionBlock {
             
             /// FolderEIDSize (2 bytes): An integer that specifies the size, in bytes, of the FolderEID field.
             self.folderEIDSize = try dataStream.read(endianess: .littleEndian)
+            guard self.folderEIDSize <= dataStream.remainingCount else {
+                throw MAPIError.corrupted
+            }
             
             /// FolderEID (variable): A structure that identifies the destination folder. If the value of the
             /// FolderInThisStore field is 0x01, this field contains a ServerEid structure, as specified in section

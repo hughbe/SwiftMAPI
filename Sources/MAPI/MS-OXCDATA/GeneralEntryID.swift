@@ -46,4 +46,15 @@ public struct GeneralEntryID: EntryID {
             throw MAPIError.corrupted
         }
     }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + ProviderData (variable)
+        return 4 + 16 + providerData.count
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(providerData)
+    }
 }

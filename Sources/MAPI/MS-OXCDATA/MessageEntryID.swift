@@ -78,4 +78,19 @@ public struct MessageEntryID: EntryID {
             throw MAPIError.corrupted
         }
     }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + MessageType (2 bytes) + FolderDatabaseGuid (16 bytes) + FolderGlobalCounter (8 bytes) + MessageDatabaseGuid (16 bytes) + MessageGlobalCounter (8 bytes)
+        return 4 + 16 + 2 + 16 + 8 + 16 + 8
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(messageType.rawValue, endianess: .littleEndian)
+        folderDatabaseGuid.write(to: &dataStream)
+        dataStream.write(folderGlobalCounter, endianess: .littleEndian)
+        messageDatabaseGuid.write(to: &dataStream)
+        dataStream.write(messageGlobalCounter, endianess: .littleEndian)
+    }
 }

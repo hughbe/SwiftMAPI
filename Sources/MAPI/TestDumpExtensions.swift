@@ -358,66 +358,70 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         s += "XCTAssertEqual(\(storeEntryID.version.hexString), (\(accessor).\(name) as? StoreEntryID)!.version)\n"
         s += "XCTAssertEqual(\(storeEntryID.flag.hexString), (\(accessor).\(name) as? StoreEntryID)!.flag)\n"
         s += "XCTAssertEqual(\(escapeString(string: storeEntryID.dllFileName)), (\(accessor).\(name) as? StoreEntryID)!.dllFileName)\n"
-        s += "XCTAssertEqual(\(storeEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreEntryID)!.wrappedFlags)\n"
-        s += "XCTAssertEqual(\(guidString(value: storeEntryID.wrappedProviderUid)), (\(accessor).\(name) as? StoreEntryID)!.wrappedProviderUid)\n"
-        s += "XCTAssertEqual(\(storeEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreEntryID)!.wrappedType)\n"
-        s += "XCTAssertEqual(\(escapeString(string: storeEntryID.path)), (\(accessor).\(name) as? StoreEntryID)!.path)\n"
-
-        return s
-    } else if let storeObjectEntryID = actual as? StoreObjectEntryID {
-        var s = ""
-
-        s += "XCTAssertEqual(\(storeObjectEntryID.flags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flags)\n"
-        s += "XCTAssertEqual(\(guidString(value: storeObjectEntryID.providerUid)),(\(accessor).\(name) as? StoreObjectEntryID)!.providerUid)\n"
-        s += "XCTAssertEqual(\(storeObjectEntryID.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.version)\n"
-        s += "XCTAssertEqual(\(storeObjectEntryID.flag.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flag)\n"
-        s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.dllFileName)), (\(accessor).\(name) as? StoreObjectEntryID)!.dllFileName)\n"
-        s += "XCTAssertEqual(\(storeObjectEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedFlags)\n"
-        s += "XCTAssertEqual(\(guidString(value: storeObjectEntryID.wrappedProviderUid)), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedProviderUid)\n"
-        s += "XCTAssertEqual(\(storeObjectEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedType)\n"
-        s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.serverShortName)), (\(accessor).\(name) as? StoreObjectEntryID)!.serverShortName)\n"
-        if let mailboxDN = storeObjectEntryID.mailboxDN {
-            s += "XCTAssertEqual(\(escapeString(string: mailboxDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.mailboxDN)\n"
-        } else {
-            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.mailboxDN)\n"
-        }
-
-        if let entryIdV2 = storeObjectEntryID.entryIdV2 {
-            s += "XCTAssertEqual(\(entryIdV2.magic.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.magic)\n"
-            s += "XCTAssertEqual(\(entryIdV2.size.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.size)\n"
-            s += "XCTAssertEqual(\(entryIdV2.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.version)\n"
-            s += "XCTAssertEqual(\(entryIdV2.offsetDN.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.offsetDN)\n"
-            s += "XCTAssertEqual(\(entryIdV2.offsetFQDN.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.offsetFQDN)\n"
-            if let serverDN = entryIdV2.serverDN {
-                s += "XCTAssertEqual(\(escapeString(string: serverDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverDN)\n"
+        if let emsdbEntryIdData = storeEntryID.wrappedProviderData as? EMSMDBEntryIdData {
+            s += "XCTAssertEqual(\(emsdbEntryIdData.flags.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).flags)\n"
+            s += "XCTAssertEqual(\(guidString(value: emsdbEntryIdData.providerUid)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).providerUid)\n"
+            s += "XCTAssertEqual(\(emsdbEntryIdData.wrappedType.stringRepresentation), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).wrappedType)\n"
+            s += "XCTAssertEqual(\(escapeString(string: emsdbEntryIdData.serverShortName)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).serverShortName)\n"
+            if let mailboxDN = emsdbEntryIdData.mailboxDN {
+                s += "XCTAssertEqual(\(escapeString(string: mailboxDN)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).mailboxDN)\n"
             } else {
-                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverDN)\n"
+                s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).mailboxDN)\n"
             }
-            if let serverFQDN = entryIdV2.serverFQDN {
-                s += "XCTAssertEqual(\(escapeString(string: serverFQDN)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverFQDN)\n"
-            } else {
-                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.serverFQDN)\n"
-            }
-            s += "XCTAssertEqual(\(entryIdV2.reserved.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2!.reserved)\n"
-        } else {
-            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV2)\n"
-        }
 
-        if let entryIdV3 = storeObjectEntryID.entryIdV3 {
-            s += "XCTAssertEqual(\(entryIdV3.magic.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.magic)\n"
-            s += "XCTAssertEqual(\(entryIdV3.size.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.size)\n"
-            s += "XCTAssertEqual(\(entryIdV3.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.version)\n"
-            s += "XCTAssertEqual(\(entryIdV3.offsetSmtpAddress.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.offsetSmtpAddress)\n"
-            if let smtpAddress = entryIdV3.smtpAddress {
-                s += "XCTAssertEqual(\(escapeString(string: smtpAddress)), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.smtpAddress)\n"
+            if let entryIdV2 = emsdbEntryIdData.entryIdV2 {
+                s += "XCTAssertEqual(\(entryIdV2.magic.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.magic)\n"
+                s += "XCTAssertEqual(\(entryIdV2.size.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.size)\n"
+                s += "XCTAssertEqual(\(entryIdV2.version.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.version)\n"
+                s += "XCTAssertEqual(\(entryIdV2.offsetDN.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.offsetDN)\n"
+                s += "XCTAssertEqual(\(entryIdV2.offsetFQDN.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.offsetFQDN)\n"
+                if let serverDN = entryIdV2.serverDN {
+                    s += "XCTAssertEqual(\(escapeString(string: serverDN)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.serverDN)\n"
+                } else {
+                    s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.serverDN)\n"
+                }
+                if let serverFQDN = entryIdV2.serverFQDN {
+                    s += "XCTAssertEqual(\(escapeString(string: serverFQDN)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.serverFQDN)\n"
+                } else {
+                    s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.serverFQDN)\n"
+                }
+                s += "XCTAssertEqual(\(entryIdV2.reserved.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2!.reserved)\n"
             } else {
-                s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.smtpAddress)\n"
+                s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV2)\n"
             }
-            s += "XCTAssertEqual(\(entryIdV3.reserved.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3!.reserved)\n"
-        } else {
-            s += "XCTAssertNil((\(accessor).\(name) as? StoreObjectEntryID)!.entryIdV3)\n"
+
+            if let entryIdV3 = emsdbEntryIdData.entryIdV3 {
+                s += "XCTAssertEqual(\(entryIdV3.magic.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.magic)\n"
+                s += "XCTAssertEqual(\(entryIdV3.size.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.size)\n"
+                s += "XCTAssertEqual(\(entryIdV3.version.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.version)\n"
+                s += "XCTAssertEqual(\(entryIdV3.offsetSmtpAddress.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.offsetSmtpAddress)\n"
+                if let smtpAddress = entryIdV3.smtpAddress {
+                    s += "XCTAssertEqual(\(escapeString(string: smtpAddress)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.smtpAddress)\n"
+                } else {
+                    s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.smtpAddress)\n"
+                }
+                s += "XCTAssertEqual(\(entryIdV3.reserved.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3!.reserved)\n"
+            } else {
+                s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! EMSMDBEntryIdData).entryIdV3)\n"
+            }
+        } else if let mspstEntryIdData = storeEntryID.wrappedProviderData as? MSPSTEntryIdData {
+            s += "XCTAssertEqual(\(guidString(value: mspstEntryIdData.providerUid)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! MSPSTEntryIdData).providerUid)\n"
+            s += "XCTAssertEqual(\(escapeString(string: mspstEntryIdData.pathAscii)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! MSPSTEntryIdData).pathAscii)\n"
+            if let pathUnicode = mspstEntryIdData.pathUnicode {
+                s += "XCTAssertEqual(\(escapeString(string: pathUnicode)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! MSPSTEntryIdData).pathUnicode)\n"
+            } else {
+                s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! MSPSTEntryIdData).pathUnicode)\n"
+            }
+        } else if let pstprxEntryIdData = storeEntryID.wrappedProviderData as? PSTPRXEntryIdData {
+            s += "XCTAssertEqual(\(pstprxEntryIdData.flags.hexString), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! PSTPRXEntryIdData).flags)\n"
+            s += "XCTAssertEqual(\(guidString(value: pstprxEntryIdData.providerUid)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! PSTPRXEntryIdData).providerUid)\n"
+            s += "XCTAssertEqual(\(escapeString(string: pstprxEntryIdData.pathAscii)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! PSTPRXEntryIdData).pathAscii)\n"
+            if let pathUnicode = pstprxEntryIdData.pathUnicode {
+                s += "XCTAssertEqual(\(escapeString(string: pathUnicode)), ((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! PSTPRXEntryIdData).pathUnicode)\n"
+            } else {
+                s += "XCTAssertNil(((\(accessor).\(name) as? StoreEntryID)!.wrappedProviderData as! PSTPRXEntryIdData).pathUnicode)\n"
+            }
         }
-        
         return s
     }
     

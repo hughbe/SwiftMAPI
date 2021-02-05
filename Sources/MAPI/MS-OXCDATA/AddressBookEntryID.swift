@@ -61,4 +61,19 @@ public struct AddressBookEntryID: EntryID {
         
         assert(dataStream.position - position == size)
     }
+    
+    public var dataSize: Int {
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (4 bytes) + Type (4 bytes) + x500DN (variable)
+        var baseSize = 4 + 16 + 4
+        baseSize += x500DN.count + 1
+        return baseSize
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(type.rawValue, endianess: .littleEndian)
+        dataStream.write(version, endianess: .littleEndian)
+        dataStream.write(x500DN + "\0", encoding: .ascii)
+    }
 }
