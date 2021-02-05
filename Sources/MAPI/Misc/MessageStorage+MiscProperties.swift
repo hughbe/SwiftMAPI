@@ -730,13 +730,13 @@ public extension MessageStorage {
     /// provider.
     /// This property appears only as a column entry in the provider table.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagprovideruid-canonical-property
-    var providerUid: UUID? {
+    var providerUid: GUID? {
         guard let data: Data = getProperty(id: .tagProviderUid) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.read(type: UUID.self)
+        return try? GUID(dataStream: &dataStream)
     }
 
     /// PidTagProviderOrdinal Canonical Property
@@ -761,7 +761,7 @@ public extension MessageStorage {
     /// Contains the 128-bit Object Linking and Embedding (OLE) globally unique identifier (GUID) of a form.
     /// The MAPIUID structure contains the definition of the unique identifier.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagformclassid-canonical-property
-    var formClassId: UUID? {
+    var formClassId: GUID? {
         return getProperty(id: .tagFormClassId)
     }
     
@@ -821,7 +821,7 @@ public extension MessageStorage {
     /// This property can be empty.
     /// The MAPIUID structure contains the definition of the unique identifier.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagformdesignerguid-canonical-property
-    var formDesignerGuid: UUID? {
+    var formDesignerGuid: GUID? {
         return getProperty(id: .tagFormDesignerGuid)
     }
     
@@ -866,13 +866,13 @@ public extension MessageStorage {
     /// desired type, such as public folders.
     /// This property is analogous to the PR_AB_PROVIDER_ID (PidTagAbProviderId) property for address books.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagstoreprovider-canonical-property
-    var storeProvider: UUID? {
+    var storeProvider: GUID? {
         guard let data: Data = getProperty(id: .tagStoreProvider) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.read(type: UUID.self)
+        return try? GUID(dataStream: &dataStream)
     }
 
     /// PidTagReceiveFolderSettings Canonical Property
@@ -1125,13 +1125,13 @@ public extension MessageStorage {
     /// PR_AB_PROVIDER_ID is analogous to the PR_MDB_PROVIDER (PidTagStoreProvider) property for message stores. Client
     /// applications can use PR_AB_PROVIDER_ID to find related rows in an address book hierarchy table.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagabproviderid-canonical-property
-    var abProviderId: UUID? {
+    var abProviderId: GUID? {
         guard let data: Data = getProperty(id: .tagAbProviderId) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.read(type: UUID.self)
+        return try? GUID(dataStream: &dataStream)
     }
 
     /// PidTagDefaultViewEntryId Canonical Property
@@ -1229,7 +1229,7 @@ public extension MessageStorage {
     /// This property is one of the properties that provides identification and access information about a recipient. These properties are
     /// defined by the recipient and the recipient's organization.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagcontactversion-canonical-property
-    var contactVersion: UUID? {
+    var contactVersion: GUID? {
         return getProperty(id: .tagContactVersion)
     }
     
@@ -1252,17 +1252,17 @@ public extension MessageStorage {
     /// Contains a list of identifiers for address book providers in the current profile.
     /// Do not use this property. It is reserved for use by MAPI.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagabproviders-canonical-property
-    var abProviders: [UUID]? {
+    var abProviders: [GUID]? {
         guard let data: Data = getProperty(id: .tagAbProviders) else {
             return nil
         }
         
         var dataStream = DataStream(data)
         let count = dataStream.count / 16
-        var results: [UUID] = []
+        var results: [GUID] = []
         results.reserveCapacity(count)
         for _ in 0..<count {
-            let result = try! dataStream.read(type: UUID.self)
+            let result = try! GUID(dataStream: &dataStream)
             results.append(result)
         }
         
@@ -1273,17 +1273,17 @@ public extension MessageStorage {
     /// Contains a list of identifiers of transport providers in the current profile.
     /// Do not use this property. It is reserved for use by MAPI.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagtransportproviders-canonical-property
-    var transportProviders: [UUID]? {
+    var transportProviders: [GUID]? {
         guard let data: Data = getProperty(id: .tagTransportProviders) else {
             return nil
         }
         
         var dataStream = DataStream(data)
         let count = dataStream.count / 16
-        var results: [UUID] = []
+        var results: [GUID] = []
         results.reserveCapacity(count)
         for _ in 0..<count {
-            let result = try! dataStream.read(type: UUID.self)
+            let result = try! GUID(dataStream: &dataStream)
             results.append(result)
         }
         
@@ -1384,13 +1384,13 @@ public extension MessageStorage {
     /// message service. This property is supplied as a parameter to most of the IMsgServiceAdmin methods. It must not appear in
     /// Mapisvc.inf.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagserviceuid-canonical-property
-    var serviceUid: UUID? {
+    var serviceUid: GUID? {
         guard let data: Data = getProperty(id: .tagServiceUid) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.read(type: UUID.self)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// PidTagServiceExtraUids Canonical Property
@@ -1400,17 +1400,17 @@ public extension MessageStorage {
     /// profile sections can store the MAPIUID structures of those profile sections in PR_SERVICE_EXTRA_UIDS, which allows MAPI
     /// to copy the additional message service information.
     /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/pidtagserviceextrauids-canonical-property
-    var serviceExtraUids: [UUID]? {
+    var serviceExtraUids: [GUID]? {
         guard let data: Data = getProperty(id: .tagServiceExtraUids) else {
             return nil
         }
         
         var dataStream = DataStream(data)
         let count = dataStream.count / 16
-        var results: [UUID] = []
+        var results: [GUID] = []
         results.reserveCapacity(count)
         for _ in 0..<count {
-            let result = try! dataStream.read(type: UUID.self)
+            let result = try! GUID(dataStream: &dataStream)
             results.append(result)
         }
         

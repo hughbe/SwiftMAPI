@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXCMSG] 2.2 Message Syntax
 /// [MS-OXCMSG] 2.2.1 Message Object Properties
@@ -1702,13 +1703,13 @@ public extension MessageStorage {
     /// The PidTagPolicyTag property ([MS-OXPROPS] section 2.863) specifies the GUID of a retention
     /// tag. The PidTagPolicyTag property can be present on both Message objects and folders and can
     /// be set by both client and server.
-    var policyTag: UUID? {
+    var policyTag: GUID? {
         guard let data: Data = getProperty(id: .tagPolicyTag) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXCMSG] 2.2.1.58 Retention and Archive Properties

@@ -67,7 +67,7 @@ public struct PropertyValue {
         case .time:
             self.propertyValue = try FILETIME(dataStream: &dataStream).date
         case .guid:
-            self.propertyValue = try dataStream.readGUID(endianess: .littleEndian)
+            self.propertyValue = try GUID(dataStream: &dataStream)
         case .serverId:
             let _ = try dataStream.readCOUNT(standard: standard)
             self.propertyValue = try ServerId(dataStream: &dataStream)
@@ -99,7 +99,7 @@ public struct PropertyValue {
         case .multipleTime:
             self.propertyValue = try readMultipleValues { try FILETIME(dataStream: &$0).date }
         case .multipleGuid:
-            self.propertyValue = try readMultipleValues { try $0.readGUID(endianess: .littleEndian) }
+            self.propertyValue = try readMultipleValues { try GUID(dataStream: &$0) }
         case .multipleBinary:
             self.propertyValue = try readMultipleValues { (dataStream) -> Data in
                 let count = try dataStream.readCOUNT(standard: standard)

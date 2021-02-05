@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOSRCH] 2.2 Message Syntax
 /// [MS-OXOSRCH] 2.2.1 Search Folder Definition Message
@@ -50,18 +51,17 @@ import Foundation
 public extension MessageStorage {
     /// [MS-OXOSRCH] 2.2.1.2.1 PidTagSearchFolderId
     /// Type: PtypBinary
-    /// PidTagSearchFolderId property ([MS-OXPROPS] section 2.985) contains a GUID that identifies
-    /// the search folder. The value of this property MUST NOT change.
-    /// The GUID of the search folder definition message MUST match the GUID of the corresponding
-    /// search folder container. For details about the relationship between the search folder definition
-    /// message and the search folder container, see section 2.2.4.
-    var searchFolderId: UUID? {
+    /// PidTagSearchFolderId property ([MS-OXPROPS] section 2.985) contains a GUID that identifies the search folder.
+    /// The value of this property MUST NOT change.
+    /// The GUID of the search folder definition message MUST match the GUID of the corresponding search folder container.
+    /// For details about the relationship between the search folder definition message and the search folder container, see section 2.2.4.
+    var searchFolderId: GUID? {
         guard let data: Data = getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
 
     /// [MS-OXOSRCH] 2.2.1.2.2 PidTagSearchFolderTemplateId

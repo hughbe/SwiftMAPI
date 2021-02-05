@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOCNTC] 2.2 Message Syntax
 /// Contact objects and Personal Distribution List objects can be created and modified by clients and
@@ -1018,7 +1019,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? GeneralEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNTC] 2.2.1.5.4 PidTagWeddingAnniversary Property
@@ -1052,7 +1053,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? GeneralEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNTC] 2.2.1.6.4 PidTagDepartment Property
@@ -1204,7 +1205,7 @@ public extension MessageStorage {
     /// Type: PtypGuid ([MS-OXCDATA] section 2.11.1)
     /// The PidLidContactLinkGlobalAddressListLinkId property ([MS-OXPROPS] section 2.72) specifies
     /// the GUID of the GAL contact to which the duplicate contact is linked.<7>
-    var contactLinkGlobalAddressListLinkId: UUID? {
+    var contactLinkGlobalAddressListLinkId: GUID? {
         return getProperty(name: .lidContactLinkGlobalAddressListLinkId)
     }
     
@@ -1257,16 +1258,15 @@ public extension MessageStorage {
     
     /// [MS-OXOCNTC] 2.2.1.10.1 PidLidReferenceEntryId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
-    /// The PidLidReferenceEntryId property ([MS-OXPROPS] section 2.218) contains a value that is equal
-    /// to the value of the EntryID of the Contact object unless the Contact object is a copy of an earlier
-    /// original.
+    /// The PidLidReferenceEntryId property ([MS-OXPROPS] section 2.218) contains a value that is equal  to the value of the EntryID
+    /// of the Contact object unless the Contact object is a copy of an earlier original.
     var referenceEntryId: EntryID? {
         guard let data: Data = getProperty(name: .lidReferenceEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? GeneralEntryID(dataStream: &dataStream)
+        return try? getEntryID(dataStream: &dataStream, size: dataStream.count)
     }
     
     /// [MS-OXOCNTC] 2.2.1.10.2 PidTagHobbies Property

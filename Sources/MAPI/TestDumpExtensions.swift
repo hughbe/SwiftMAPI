@@ -60,48 +60,52 @@ private func multipleStringAssert(value: Any?, accessor: String, name: String) -
     return "XCTAssertEqual([\(actual.map(escapeString).joined(separator: ", "))], \(accessor).\(name)!)\n"
 }
 
-private func guidAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual: UUID
-    if let value = value as? Data {
-        var dataStream = DataStream(value)
-        actual = try! dataStream.readGUID(endianess: .littleEndian)
-    } else {
-        actual = value! as! UUID
-    }
-
-    switch actual {
+private func guidString(value: GUID) -> String {
+    switch value {
     case CLSID_MailFolder:
-        return "XCTAssertEqual(CLSID_MailFolder, \(accessor).\(name)!)\n"
+        return "CLSID_MailFolder"
     case CLSID_ContactFolder:
-        return "XCTAssertEqual(CLSID_ContactFolder, \(accessor).\(name)!)\n"
+        return "CLSID_ContactFolder"
     case CLSID_CalendarFolder:
-        return "XCTAssertEqual(CLSID_CalendarFolder, \(accessor).\(name)!)\n"
+        return "CLSID_CalendarFolder"
     case CLSID_TaskFolder:
-        return "XCTAssertEqual(CLSID_TaskFolder, \(accessor).\(name)!)\n"
+        return "CLSID_TaskFolder"
     case CLSID_NoteFolder:
-        return "XCTAssertEqual(CLSID_NoteFolder, \(accessor).\(name)!)\n"
+        return "CLSID_NoteFolder"
     case CLSID_JournalFolder:
-        return "XCTAssertEqual(CLSID_JournalFolder, \(accessor).\(name)!)\n"
+        return "CLSID_JournalFolder"
     default:
-        return "XCTAssertEqual(UUID(uuidString: \"\(actual)\"), \(accessor).\(name)!)\n"
+        return "GUID(\(value.data1.hexString), \(value.data2.hexString), \(value.data3.hexString), \(value.data4.hexString))"
     }
 }
 
-private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
-    let actual: [UUID]
+private func guidAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual: GUID
     if let value = value as? Data {
         var dataStream = DataStream(value)
-        var results: [UUID] = []
+        actual = try! GUID(dataStream: &dataStream)
+    } else {
+        actual = value! as! GUID
+    }
+    
+    return "XCTAssertEqual(\(guidString(value: actual)), \(accessor).\(name)!)\n"
+}
+
+private func multipleGuidAssert(value: Any?, accessor: String, name: String) -> String {
+    let actual: [GUID]
+    if let value = value as? Data {
+        var dataStream = DataStream(value)
+        var results: [GUID] = []
         for _ in 0..<dataStream.count / 16 {
-            results.append(try! dataStream.read(type: UUID.self))
+            results.append(try! GUID(dataStream: &dataStream))
         }
         
         actual = results
     } else {
-        actual = value! as! [UUID]
+        actual = value! as! [GUID]
     }
 
-    return "XCTAssertEqual([\(actual.map { "UUID(uuidString: \"\($0)\")" }.joined(separator: ", "))], \(accessor).\(name)!)\n"
+    return "XCTAssertEqual([\(actual.map(guidString).joined(separator: ", "))], \(accessor).\(name)!)\n"
 }
 
 private func int16Assert(value: Any?, accessor: String, name: String, hexString: Bool = false) -> String {
@@ -196,7 +200,7 @@ private func xidAssert(value: Any?, accessor: String, name: String) -> String {
 
     var s = ""
 
-    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.namespaceGuid)\"), \(accessor).\(name)!.namespaceGuid)\n"
+    s += "XCTAssertEqual(\(guidString(value: actual.namespaceGuid)), \(accessor).\(name)!.namespaceGuid)\n"
     s += "XCTAssertEqual(\(actual.localId.hexString), \(accessor).\(name)!.localId)\n"
 
     return s
@@ -237,7 +241,7 @@ private func predecessorChangeListAssert(value: Any?, accessor: String, name: St
 
     if actual.values.count > 0 {
         for (offset, value) in actual.values.enumerated() {
-            s += "XCTAssertEqual(UUID(uuidString: \"\(value.namespaceGuid)\"), \(accessor).\(name)!.values[\(offset)].namespaceGuid)\n"
+            s += "XCTAssertEqual(\(guidString(value: value.namespaceGuid)), \(accessor).\(name)!.values[\(offset)].namespaceGuid)\n"
             s += "XCTAssertEqual(\(value.localId.hexString), \(accessor).\(name)!.values[\(offset)].localId)\n"
         }
     }
@@ -257,9 +261,9 @@ private func folderEntryIdAssert(value: Any?, accessor: String) -> String {
     var s = ""
 
     s += "XCTAssertEqual(\(actual.flags.hexString), \(accessor).flags)\n"
-    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.providerUid)\"), \(accessor).providerUid)\n"
+    s += "XCTAssertEqual(\(guidString(value: actual.providerUid)), \(accessor).providerUid)\n"
     s += "XCTAssertEqual(\(actual.folderType.stringRepresentation), \(accessor).folderType)\n"
-    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.databaseGuid)\"), \(accessor).databaseGuid)\n"
+    s += "XCTAssertEqual(\(guidString(value: actual.databaseGuid)), \(accessor).databaseGuid)\n"
     s += "XCTAssertEqual(\(actual.globalCounter), \(accessor).globalCounter)\n"
     s += "XCTAssertEqual(\(actual.pad.hexString), \(accessor).pad)\n"
 
@@ -283,7 +287,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(oneOffEntryId.flags.hexString), (\(accessor).\(name) as? OneOffEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(oneOffEntryId.providerUid)\"), (\(accessor).\(name) as? OneOffEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: oneOffEntryId.providerUid)),(\(accessor).\(name) as? OneOffEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(oneOffEntryId.version.hexString), (\(accessor).\(name) as? OneOffEntryID)!.version)\n"
         s += "XCTAssertEqual(\(oneOffEntryId.entryFlags.stringRepresentation), (\(accessor).\(name) as? OneOffEntryID)!.entryFlags)\n"
         s += "XCTAssertEqual(\(escapeString(string: oneOffEntryId.displayName)), (\(accessor).\(name) as? OneOffEntryID)!.displayName)\n"
@@ -295,7 +299,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(addressBookEntryID.flags.hexString), (\(accessor).\(name) as? AddressBookEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(addressBookEntryID.providerUid)\"), (\(accessor).\(name) as? AddressBookEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: addressBookEntryID.providerUid)),(\(accessor).\(name) as? AddressBookEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(addressBookEntryID.version.hexString), (\(accessor).\(name) as? AddressBookEntryID)!.version)\n"
         s += "XCTAssertEqual(\(addressBookEntryID.type.stringRepresentation), (\(accessor).\(name) as? AddressBookEntryID)!.type)\n"
         s += "XCTAssertEqual(\(escapeString(string: addressBookEntryID.x500DN)), (\(accessor).\(name) as? AddressBookEntryID)!.x500DN)\n"
@@ -307,7 +311,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(generalEntryID.flags.hexString), (\(accessor).\(name) as? GeneralEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(generalEntryID.providerUid)\"), (\(accessor).\(name) as? GeneralEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: generalEntryID.providerUid)),(\(accessor).\(name) as? GeneralEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(generalEntryID.providerData.hexString), (\(accessor).\(name) as? GeneralEntryID)!.providerData)\n"
 
         return s
@@ -315,7 +319,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(contactAddressEntryID.flags.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(contactAddressEntryID.providerUid)\"), (\(accessor).\(name) as? ContactAddressEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: contactAddressEntryID.providerUid)),(\(accessor).\(name) as? ContactAddressEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(contactAddressEntryID.version.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.version)\n"
         s += "XCTAssertEqual(\(contactAddressEntryID.type.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.type)\n"
         s += "XCTAssertEqual(\(contactAddressEntryID.index.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.index)\n"
@@ -327,7 +331,7 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(wrappedEntryID.flags.hexString), (\(accessor).\(name) as? WrappedEntryId)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(wrappedEntryID.providerUid)\"), (\(accessor).\(name) as? WrappedEntryId)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: wrappedEntryID.providerUid)),(\(accessor).\(name) as? WrappedEntryId)!.providerUid)\n"
         s += "XCTAssertEqual(\(wrappedEntryID.type.hexString), (\(accessor).\(name) as? WrappedEntryId)!.type)\n"
         s += entryIdAssert(value: wrappedEntryID.embeddedEntryID, accessor: "(\(accessor).\(name) as? WrappedEntryId)!", name: "embeddedEntryID")
 
@@ -336,12 +340,12 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(messageEntryID.flags.hexString), (\(accessor).\(name) as? MessageEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.providerUid)\"), (\(accessor).\(name) as? MessageEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: messageEntryID.providerUid)),(\(accessor).\(name) as? MessageEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(messageEntryID.messageType.stringRepresentation), (\(accessor).\(name) as? MessageEntryID)!.messageType)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.folderDatabaseGuid)\"), (\(accessor).\(name) as? MessageEntryID)!.folderDatabaseGuid)\n"
+        s += "XCTAssertEqual(\(guidString(value: messageEntryID.folderDatabaseGuid)), (\(accessor).\(name) as? MessageEntryID)!.folderDatabaseGuid)\n"
         s += "XCTAssertEqual(\(messageEntryID.folderGlobalCounter), (\(accessor).\(name) as? MessageEntryID)!.folderGlobalCounter)\n"
         s += "XCTAssertEqual(\(messageEntryID.pad1.hexString), (\(accessor).\(name) as? MessageEntryID)!.pad1)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(messageEntryID.messageDatabaseGuid)\"), (\(accessor).\(name) as? MessageEntryID)!.messageDatabaseGuid)\n"
+        s += "XCTAssertEqual(\(guidString(value: messageEntryID.messageDatabaseGuid)), (\(accessor).\(name) as? MessageEntryID)!.messageDatabaseGuid)\n"
         s += "XCTAssertEqual(\(messageEntryID.messageGlobalCounter), (\(accessor).\(name) as? MessageEntryID)!.messageGlobalCounter)\n"
         s += "XCTAssertEqual(\(messageEntryID.pad2.hexString), (\(accessor).\(name) as? MessageEntryID)!.pad2)\n"
 
@@ -350,12 +354,12 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(storeEntryID.flags.hexString), (\(accessor).\(name) as? StoreEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(storeEntryID.providerUid)\"), (\(accessor).\(name) as? StoreEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: storeEntryID.providerUid)),(\(accessor).\(name) as? StoreEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(storeEntryID.version.hexString), (\(accessor).\(name) as? StoreEntryID)!.version)\n"
         s += "XCTAssertEqual(\(storeEntryID.flag.hexString), (\(accessor).\(name) as? StoreEntryID)!.flag)\n"
         s += "XCTAssertEqual(\(escapeString(string: storeEntryID.dllFileName)), (\(accessor).\(name) as? StoreEntryID)!.dllFileName)\n"
         s += "XCTAssertEqual(\(storeEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreEntryID)!.wrappedFlags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(storeEntryID.wrappedProviderUid)\"), (\(accessor).\(name) as? StoreEntryID)!.wrappedProviderUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: storeEntryID.wrappedProviderUid)), (\(accessor).\(name) as? StoreEntryID)!.wrappedProviderUid)\n"
         s += "XCTAssertEqual(\(storeEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreEntryID)!.wrappedType)\n"
         s += "XCTAssertEqual(\(escapeString(string: storeEntryID.path)), (\(accessor).\(name) as? StoreEntryID)!.path)\n"
 
@@ -364,12 +368,12 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         var s = ""
 
         s += "XCTAssertEqual(\(storeObjectEntryID.flags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(storeObjectEntryID.providerUid)\"), (\(accessor).\(name) as? StoreObjectEntryID)!.providerUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: storeObjectEntryID.providerUid)),(\(accessor).\(name) as? StoreObjectEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(storeObjectEntryID.version.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.version)\n"
         s += "XCTAssertEqual(\(storeObjectEntryID.flag.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.flag)\n"
         s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.dllFileName)), (\(accessor).\(name) as? StoreObjectEntryID)!.dllFileName)\n"
         s += "XCTAssertEqual(\(storeObjectEntryID.wrappedFlags.hexString), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedFlags)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(storeObjectEntryID.wrappedProviderUid)\"), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedProviderUid)\n"
+        s += "XCTAssertEqual(\(guidString(value: storeObjectEntryID.wrappedProviderUid)), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedProviderUid)\n"
         s += "XCTAssertEqual(\(storeObjectEntryID.wrappedType.stringRepresentation), (\(accessor).\(name) as? StoreObjectEntryID)!.wrappedType)\n"
         s += "XCTAssertEqual(\(escapeString(string: storeObjectEntryID.serverShortName)), (\(accessor).\(name) as? StoreObjectEntryID)!.serverShortName)\n"
         if let mailboxDN = storeObjectEntryID.mailboxDN {
@@ -453,7 +457,7 @@ private func conversationIndexAssert(value: Any?, accessor: String, name: String
 
     s += "XCTAssertEqual(\(actual.header.reserved.hexString), \(accessor).\(name)!.header.reserved)\n"
     s += "XCTAssertEqual(\(actual.header.currentFileTime.timeIntervalSince1970), \(accessor).\(name)!.header.currentFileTime.timeIntervalSince1970)\n"
-    s += "XCTAssertEqual(UUID(uuidString: \"\(actual.header.guid)\"), \(accessor).\(name)!.header.guid)\n"
+    s += "XCTAssertEqual(\(guidString(value: actual.header.guid)), \(accessor).\(name)!.header.guid)\n"
     s += "XCTAssertEqual(\(actual.responseLevels.count), \(accessor).\(name)!.responseLevels.count)\n"
     for (offset, element) in actual.responseLevels.enumerated() {
         s += "XCTAssertEqual(\(element.deltaTime), \(accessor).\(name)!.responseLevels[\(offset)].deltaTime)\n"
@@ -972,7 +976,7 @@ private func serializedReplidGuidMapAssert(value: Any?, accessor: String, name: 
     s += "XCTAssertEqual(\(actual.values.count), \(accessor).\(name)!.recurrencePattern.values.count)\n"
     for (offset, element) in actual.values.enumerated() {
         s += "XCTAssertEqual(\(element.id.hexString), \(accessor).\(name)!.values[\(offset)].id)\n"
-        s += "XCTAssertEqual(UUID(uuidString: \"\(element.guid)\"), \(accessor).\(name)!.values[\(offset)].guid)\n"
+        s += "XCTAssertEqual(\(guidString(value: element.guid)), \(accessor).\(name)!.values[\(offset)].guid)\n"
     }
     
     return s
@@ -1272,6 +1276,14 @@ private func searchFolderDefinitionAssert(value: Any?, accessor: String, name: S
                 s += "XCTAssertEqual(\(restrictionData.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.tag.type)\n"
                 s += "XCTAssertEqual(\(restrictionData.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.tag.id)\n"
                 s += "XCTAssertEqual(\(restrictionData.comparand.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.BitMaskRestriction)!.value.comparand)\n"
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.ExistRestriction {
+                s += "XCTAssertEqual(\(restrictionData.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ExistRestriction)!.tag.type)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ExistRestriction)!.tag.id)\n"
+            } else if let restrictionData = value.restrictionData as? SearchFolderDefinition.Restriction.ContentRestriction {
+                s += "XCTAssertEqual(\(restrictionData.ulFuzzyLevel.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ContentRestriction)!.ulFuzzyLevel)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.type.stringRepresentation), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ContentRestriction)!.tag.type)\n"
+                s += "XCTAssertEqual(\(restrictionData.tag.id.hexString), (\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ContentRestriction)!.tag.id)\n"
+                s += propertyValueAssert(value: restrictionData.value.value, accessor: "(\(accessor).restrictionData as? SearchFolderDefinition.Restriction.ContentRestriction)!.value.value")
             } else {
                 fatalError("NYI: \(type(of: value.restrictionData))")
             }
@@ -1441,10 +1453,10 @@ private func unknownAssert(value: Any?, accessor: String, fullName: String) -> S
         return dataAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as Data?)")
     } else if type(of: value) == Date.self {
         return dateAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as Date?)")
-    } else if type(of: value) == UUID.self {
-        return guidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as UUID?)")
-    } else if type(of: value) == [UUID].self {
-        return multipleGuidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [UUID]?)")
+    } else if type(of: value) == GUID.self {
+        return guidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as GUID?)")
+    } else if type(of: value) == [GUID].self {
+        return multipleGuidAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [GUID]?)")
     } else if type(of: value) == [String].self {
         return multipleStringAssert(value: value, accessor: "(\(accessor)", name: "\(fullName) as [String]?)")
     } else if type(of: value) == [UInt32].self {
@@ -1472,7 +1484,7 @@ private func unknownAssert(value: Any?, accessor: String, namedPropertyName: Str
 
 private func unknownAssert(value: Any?, accessor: String, name: NamedProperty) -> String {
     let fullName: String
-    if let propSet = CommonlyUsedPropertySet(uuid: name.guid) {
+    if let propSet = CommonlyUsedPropertySet(guid: name.guid) {
         let setString: String
         switch propSet {
         case .publicStrings:
@@ -1522,12 +1534,11 @@ private func unknownAssert(value: Any?, accessor: String, name: NamedProperty) -
             fullName = "getProperty(set: \(setString), lid: \(name.lid!.hexString))"
         }
     } else {
-        let guidString = "UUID(uuidString: \"\(name.guid)\")!"
         switch name.kind {
         case .stringNamed:
-            fullName = "getProperty(guid: \(guidString), name: \"\(name.name!)\")"
+            fullName = "getProperty(guid: \(guidString(value: name.guid)), name: \"\(name.name!)\")"
         case .numericalNamed:
-            fullName = "getProperty(guid: \(guidString), lid: \(name.lid!.hexString))"
+            fullName = "getProperty(guid: \(guidString(value: name.guid)), lid: \(name.lid!.hexString))"
         }
     }
     
@@ -1745,34 +1756,34 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedTentativeCount"),
                      (CommonlyUsedPropertySet.PSETID_CalendarAssistant, "EstimatedDeclineCount"),
                      (CommonlyUsedPropertySet.PSETID_Messaging, "PublishedCalendarItemName"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "IsPartiallyIndexed"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "BigFunnelCorrelationId"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "DetectedLanguage"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "LastIndexingAttemptTime"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "ErrorProperties"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "IndexingAttemptCount"),
-                     (UUID(uuidString: "0B63E350-9CCC-11D0-BCDB-00805FCCCE04")!, "ErrorTags"),
-                     (UUID(uuidString: "4E3A7680-B77A-11D0-9DA5-00C04FD65685")!, "Internet Charset Body"),
-                     (UUID(uuidString: "31805AB8-3E92-11DC-879C-00061B031004")!, "GpgOL Sig Status"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "XrmContactId"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "XrmId"),
-                     (UUID(uuidString: "1A417774-4779-47C1-9851-E42057495FCA")!, "AggregatedItemLinkIds"),
-                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE")!, "KeyPhrases"),
-                     (UUID(uuidString: "F68DE012-ECEF-4E8E-BEB5-D1DE5B08E2AE")!, "KPRelevanceScoresInt32"),
-                     (UUID(uuidString: "C2FC5982-E37F-4663-92F7-F17E804779DD")!, "ITEM_ID"),
-                     (UUID(uuidString: "F3E7D4B4-C742-4E32-B8A2-B93FE9758C16")!, "ITEM_ID"),
-                     (UUID(uuidString: "9B5093E0-5734-4A7F-B88F-B4D0220B5ADA")!, "THIS_WAS_A_COMPLETELY_DIFFERENT_ONE"),
-                     (UUID(uuidString: "66666666-6666-6666-C000-000000000046")!, "Name4"),
-                     (UUID(uuidString: "55555555-5555-5555-C000-000000000046")!, "Name4"),
-                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceEntryID"),
-                     (UUID(uuidString: "9137A2FD-2FA5-4409-91AA-2C3EE697350A")!, "SourceLastModifiedTimestamp"),
-                     (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "IOpenTypedFacet.EventLocations"),
-                     (UUID(uuidString: "A719E259-2A9A-4FB8-BAB3-3A9F02970E4B")!, "Locations"),
-                     (UUID(uuidString: "E550B918-9859-47B9-8095-97E4E72F1926")!, "ExtensionsList"),
-                     (UUID(uuidString: "403FC56B-CD30-47C5-86F8-EDE9E35A022B")!, "ComplianceTag"),
-                     (UUID(uuidString: "33EBA41F-7AA8-422E-BE7B-79E1A98E54B3")!, "ConversationIndexTrackingEx"),
-                     (UUID(uuidString: "C7A4569B-F7AE-4DC2-9279-A8FE2F3CAF89")!, "RetentionTagEntryId"),
-                     (UUID(uuidString: "58B6F260-0251-4293-9737-2EF23187F89D")!, "NavigationNodeCalendarArgbColor"):
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "IsPartiallyIndexed"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "BigFunnelCorrelationId"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "DetectedLanguage"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "LastIndexingAttemptTime"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "ErrorProperties"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "IndexingAttemptCount"),
+                     (GUID(0x0B63E350, 0x9CCC, 0x11D0, 0xBCDB, 0x00805FCCCE04), "ErrorTags"),
+                     (GUID(0x4E3A7680, 0xB77A, 0x11D0, 0x9DA5, 0x00C04FD65685), "Internet Charset Body"),
+                     (GUID(0x31805AB8, 0x3E92, 0x11DC, 0x879C, 0x00061B031004), "GpgOL Sig Status"),
+                     (GUID(0x1A417774, 0x4779, 0x47C1, 0x9851, 0xE42057495FCA), "XrmContactId"),
+                     (GUID(0x1A417774, 0x4779, 0x47C1, 0x9851, 0xE42057495FCA), "XrmId"),
+                     (GUID(0x1A417774, 0x4779, 0x47C1, 0x9851, 0xE42057495FCA), "AggregatedItemLinkIds"),
+                     (GUID(0xF68DE012, 0xECEF, 0x4E8E, 0xBEB5, 0xD1DE5B08E2AE), "KeyPhrases"),
+                     (GUID(0xF68DE012, 0xECEF, 0x4E8E, 0xBEB5, 0xD1DE5B08E2AE), "KPRelevanceScoresInt32"),
+                     (GUID(0xC2FC5982, 0xE37F, 0x4663, 0x92F7, 0xF17E804779DD), "ITEM_ID"),
+                     (GUID(0xF3E7D4B4, 0xC742, 0x4E32, 0xB8A2, 0xB93FE9758C16), "ITEM_ID"),
+                     (GUID(0x9B5093E0, 0x5734, 0x4A7F, 0xB88F, 0xB4D0220B5ADA), "THIS_WAS_A_COMPLETELY_DIFFERENT_ONE"),
+                     (GUID(0x66666666, 0x6666, 0x6666, 0xC000, 0x000000000046), "Name4"),
+                     (GUID(0x55555555, 0x5555, 0x5555, 0xC000, 0x000000000046), "Name4"),
+                     (GUID(0x9137A2FD, 0x2FA5, 0x4409, 0x91AA, 0x2C3EE697350A), "SourceEntryID"),
+                     (GUID(0x9137A2FD, 0x2FA5, 0x4409, 0x91AA, 0x2C3EE697350A), "SourceLastModifiedTimestamp"),
+                     (GUID(0xE550B918, 0x9859, 0x47B9, 0x8095, 0x97E4E72F1926), "IOpenTypedFacet.EventLocations"),
+                     (GUID(0xA719E259, 0x2A9A, 0x4FB8, 0xBAB3, 0x3A9F02970E4B), "Locations"),
+                     (GUID(0xE550B918, 0x9859, 0x47B9, 0x8095, 0x97E4E72F1926), "ExtensionsList"),
+                     (GUID(0x403FC56B, 0xCD30, 0x47C5, 0x86F8, 0xEDE9E35A022B), "ComplianceTag"),
+                     (GUID(0x33EBA41F, 0x7AA8, 0x422E, 0xBE7B, 0x79E1A98E54B3), "ConversationIndexTrackingEx"),
+                     (GUID(0xC7A4569B, 0xF7AE, 0x4DC2, 0x9279, 0xA8FE2F3CAF89), "RetentionTagEntryId"),
+                     (GUID(0x58B6F260, 0x0251, 0x4293, 0x9737, 0x2EF23187F89D), "NavigationNodeCalendarArgbColor"):
                     s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 case (CommonlyUsedPropertySet.PSETID_XmlExtractedEntities, "GriffinTriageHeuristicsFeatureSet"):
                     s += "XCTAssertNotNil(\(accessor).getProperty(set: .xmlExtractedEntities, name: \"GriffinTriageHeuristicsFeatureSet\"))\n"
@@ -2384,18 +2395,18 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080E1),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EC),
                      (CommonlyUsedPropertySet.PS_PUBLIC_STRINGS, 0x000080EA),
-                     (UUID(uuidString: "29F3AB56-554D-11D0-A97C-00A0C911F50A")!, 0x0000A000),
-                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A025),
-                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A024),
-                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A022),
-                     (UUID(uuidString: "29F3AB52-554D-11D0-A97C-00A0C911F50A")!, 0x0000A021),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A041),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A040),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A043),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A044),
-                     (UUID(uuidString: "29F3AB53-554D-11D0-A97C-00A0C911F50A")!, 0x0000A045),
-                     (UUID(uuidString: "86030200-0000-0000-c000-000000000046")!, 0x00008004),
-                     (UUID(uuidString: "29f3ab55-554d-11d0-a97c-00a0c911f50a")!, 0x0000A074):
+                     (GUID(0x29F3AB56, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A000),
+                     (GUID(0x29F3AB52, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A025),
+                     (GUID(0x29F3AB52, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A024),
+                     (GUID(0x29F3AB52, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A022),
+                     (GUID(0x29F3AB52, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A021),
+                     (GUID(0x29F3AB53, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A041),
+                     (GUID(0x29F3AB53, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A040),
+                     (GUID(0x29F3AB53, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A043),
+                     (GUID(0x29F3AB53, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A044),
+                     (GUID(0x29F3AB53, 0x554D, 0x11D0, 0xA97C, 0x00A0C911F50A), 0x0000A045),
+                     (GUID(0x86030200, 0x0000, 0x0000, 0xc000, 0x000000000046), 0x00008004),
+                     (GUID(0x29f3ab55, 0x554d, 0x11d0, 0xa97c, 0x00a0c911f50a), 0x0000A074):
                    s += unknownAssert(value: prop.value, accessor: accessor, name: kvp)
                 default:
                     failures.append("UNKNOWN!!: \(kvp), value: \(String(describing: prop.value))")
@@ -3742,11 +3753,23 @@ public func propertiesTestString(accessor: String, properties: [UInt16: Any?], n
             s += entryIdAssert(value: prop.value, accessor: accessor, name: "originalMessageEntryId")
         case PropertyId.unknown0x3655.rawValue:
             s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x3655")
+        case PropertyId.tagViewDescriptorVersion.rawValue:
+            s += uint32Assert(value: prop.value, accessor: accessor, name: "viewDescriptorVersion")
+        case PropertyId.tagViewDescriptorName.rawValue:
+            s += stringAssert(value: prop.value, accessor: accessor, name: "viewDescriptorName")
+        case PropertyId.unknown0x6836.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x6836")
+        case PropertyId.unknown0x683E.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x683E")
+        case PropertyId.unknown0x36E7.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36E7")
+        case PropertyId.unknown0x36E8.rawValue:
+            s += unknownAssert(value: prop.value, accessor: accessor, name: "unknown0x36E8")
         default:
             if let propId = PstPropertyId(rawValue: prop.key) {
-                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
+                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value)), type: \(type(of: prop.value!))")
             } else if let propId = PropertyId(rawValue: prop.key) {
-                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value))")
+                failures.append("UNKNOWN!!: \(propId), value: \(String(describing: prop.value)), type: \(type(of: prop.value!))")
             } else {
                 failures.append("UNKNOWN!!: \(prop.key.hexString), value: \(String(describing: prop.value))")
             }

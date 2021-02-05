@@ -6,31 +6,31 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOCNTC] 2.2.2.2.4.1.1 WrappedEntryId Structure
 /// The WrappedEntryId structure specifies the EntryID of a member of a personal distribution list. The following diagram specifies the format
 /// of the WrappedEntryId structure.
 public struct WrappedEntryId: EntryID {
     public let flags: UInt32
-    public let providerUid: UUID
+    public let providerUid: GUID
     public let type: UInt8
     public let embeddedEntryID: EntryID
     
-    public static let providerUid = UUID(uuid: uuid_t(0xC0, 0x91, 0xAD, 0xD3, 0x51, 0x9D, 0xCF, 0x11, 0xA4, 0xA9, 0x00, 0xAA, 0x00, 0x47, 0xFA, 0xA4))
+    public static let providerUid = GUID(0xD3AD91C0, 0x9D51, 0x11CF, 0xA4, 0xA9, 0x00, 0xAA, 0x00, 0x47, 0xFA, 0xA4)
     
     public init(dataStream: inout DataStream, size: Int) throws {
         let position = dataStream.position
 
         /// Flags (4 bytes): Not used. This field MUST be set to 0x00000000.
         self.flags = try dataStream.read(endianess: .littleEndian)
-        if self.flags != 0x00000000 {
+        guard self.flags == 0x00000000 else {
             throw MAPIError.corrupted
         }
         
         /// ProviderUID (16 bytes): This field MUST contain the value "%xC0.91.AD.D3.51.9D.CF.11.A4.A9.00.AA.00.47.FA.A4".
-        self.providerUid = try dataStream.read(type: UUID.self)
-        if self.providerUid != WrappedEntryId.providerUid {
+        self.providerUid = try GUID(dataStream: &dataStream)
+        guard self.providerUid == WrappedEntryId.providerUid else {
             throw MAPIError.corrupted
         }
         
@@ -75,7 +75,7 @@ public struct WrappedEntryId: EntryID {
             } else if remainingCount == 70 {
                 self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)
             } else {
-                self.embeddedEntryID = try getEntryID(dataStream: &dataStream, size: size)
+                self.embeddedEntryID = try getEntryID(dataStream: &dataStream, size: remainingCount)
             }
         case 4:
             self.embeddedEntryID = try MessageEntryID(dataStream: &dataStream, size: remainingCount)

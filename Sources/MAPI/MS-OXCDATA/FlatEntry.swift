@@ -23,7 +23,7 @@ public struct FlatEntry {
         /// EntryID (variable): The EntryID structure itself. It MUST be exactly the length, in bytes, indicated by the Size field.
         self.entryID = try getEntryID(dataStream: &dataStream, size: Int(self.size))
         
-        if dataStream.position - position != size {
+        guard dataStream.position - position == size else {
             throw MAPIError.corrupted
         }
     }

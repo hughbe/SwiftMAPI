@@ -34,7 +34,7 @@ public struct ConversationIndex {
     
         self.responseLevels = responseLevels
         
-        if dataStream.position - position != size {
+        guard dataStream.position - position == size else {
             throw MAPIError.corrupted
         }
     }
@@ -43,13 +43,12 @@ public struct ConversationIndex {
     public struct Header {
         public var reserved: UInt8
         public var currentFileTime: Date
-        public var guid: UUID
+        public var guid: GUID
         
         public init(dataStream: inout DataStream) throws {
             /// Reserved (8 bits): Set to 0x01.
             self.reserved = try dataStream.read()
-            
-            if self.reserved != 0x01 {
+            guard self.reserved == 0x01 else {
                 throw MAPIError.corrupted
             }
             
@@ -76,7 +75,7 @@ public struct ConversationIndex {
             
             /// GUID (16 bytes): A PtypGuid type ([MS-OXCDATA] section 2.11.1) that is generated for each new conversation thread.
             /// The Data1, Data2, and Data3 fields are stored in big-endian format in the packet.
-            self.guid = try dataStream.readGUID(endianess: .bigEndian)
+            self.guid = try GUID(dataStream: &dataStream, endianess: .bigEndian)
         }
     }
     

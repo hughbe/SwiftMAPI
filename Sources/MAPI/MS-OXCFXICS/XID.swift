@@ -6,17 +6,17 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXCFXICS] 2.2.2.2 XID Structure
 /// An XID structure contains an external identifier for an entity within a message store.
 public struct XID: CustomStringConvertible {
-    public var namespaceGuid: UUID
+    public var namespaceGuid: GUID
     public var localId: [UInt8]
     
     public init(dataStream: inout DataStream, size: Int) throws {
         /// NamespaceGuid (16 bytes): A 128-bit GUID. This field identifies the namespace of the LocalId field.
-        self.namespaceGuid = try dataStream.readGUID(endianess: .littleEndian)
+        self.namespaceGuid = try GUID(dataStream: &dataStream)
         
         /// LocalId (variable): A variable binary value. This field contains the ID of the entity in the namespace
         /// specified by the NamespaceGuid field. This field has a minimum length of 1 byte and a maximum

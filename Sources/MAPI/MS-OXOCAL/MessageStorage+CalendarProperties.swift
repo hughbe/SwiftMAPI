@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOCAL] 2.2 Message Syntax
 /// Calendar objects and meeting-related objects can be created and modified by clients and servers.
@@ -947,13 +948,13 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidNameBirthdayContactPersonGuid property ([MS-OXPROPS] section 2.379) indicates the person ID's GUID of the contact
     /// associated with the birthday event.
-    var birthdayContactPersonGuid: UUID? {
+    var birthdayContactPersonGuid: GUID? {
         guard let data: Data = getProperty(name: .nameBirthdayContactPersonGuid) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
 
     /// [MS-OXOCAL] 2.2.1.55 PidNameIsBirthdayContactWritable

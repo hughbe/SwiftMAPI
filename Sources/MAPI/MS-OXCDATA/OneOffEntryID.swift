@@ -6,7 +6,7 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXCDATA] 2.2.5 Recipient EntryID Structures
 /// [MS-OXCDATA] 2.2.5.1 One-Off EntryID Structure
@@ -14,33 +14,33 @@ import Foundation
 /// https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/one-off-entry-identifiers
 public struct OneOffEntryID: EntryID {
     public var flags: UInt32
-    public var providerUid: UUID
+    public var providerUid: GUID
     public var version: UInt16
     public var entryFlags: OneOffEntryFlags
     public var displayName: String
     public var addressType: String
     public var emailAddress: String
     
-    public static let providerUid = UUID(uuid: uuid_t(0x81, 0x2b, 0x1f, 0xa4, 0xbe, 0xa3, 0x10, 0x19, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02))
+    public static let providerUid = GUID(0xA41F2B81, 0xA3BE, 0x1910, 0x9d, 0x6e, 0x00, 0xdd, 0x01, 0x0f, 0x54, 0x02)
 
     public init(dataStream: inout DataStream) throws {
         /// Flags (4 bytes): This value is set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is valid.
         /// However, in any EntryID stored in a property value, these 4 bytes are zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
-        if self.flags != 0x00000000 {
+        guard self.flags == 0x00000000 else {
             throw MAPIError.corrupted
         }
         
         /// ProviderUID (16 bytes): The identifier of the provider that created the EntryID. This value is used to route EntryIDs to
         /// the correct provider and MUST be set to %x81.2B.1F.A4.BE.A3.10.19.9D.6E.00.DD.01.0F.54.02.
-        self.providerUid = try dataStream.read(type: UUID.self)
-        if self.providerUid != OneOffEntryID.providerUid {
+        self.providerUid = try GUID(dataStream: &dataStream)
+        guard self.providerUid == OneOffEntryID.providerUid else {
             throw MAPIError.corrupted
         }
         
         /// Version (2 bytes): This value is set to 0x0000.
         self.version = try dataStream.read(endianess: .littleEndian)
-        if self.version != 0x0000 {
+        guard self.version == 0x0000 else {
             throw MAPIError.corrupted
         }
         

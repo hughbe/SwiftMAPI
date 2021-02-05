@@ -6,11 +6,11 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 public protocol EntryID {
     var flags: UInt32 { get }
-    var providerUid: UUID { get }
+    var providerUid: GUID { get }
 }
 
 public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryID {
@@ -29,7 +29,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
     /// Address book recipient (1)                                            | %xDC.A7.40.C8.C0.42.10.1A.B4.B9.08.00.2B.2F.E1.82
     /// One-off recipient (1)                                                      | %x81.2B.1F.A4.BE.A3.10.19.9D.6E.00.DD.01.0F.54.02
     /// Contact address or personal distribution list recipient | %xFE.42.AA.0A.18.C7.1A.10.E8.85.0B.65.1C.24.00.00
-    let providerUid: UUID = try dataStream.read(type: UUID.self)
+    let providerUid = try GUID(dataStream: &dataStream)
     dataStream.position = position
     switch providerUid {
     case AddressBookEntryID.providerUid:
@@ -37,7 +37,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
     case OneOffEntryID.providerUid:
         return try OneOffEntryID(dataStream: &dataStream)
     case ContactAddressEntryID.providerUid:
-        return try ContactAddressEntryID(dataStream: &dataStream)
+        return try ContactAddressEntryID(dataStream: &dataStream, size: size)
     case WrappedEntryId.providerUid:
         return try WrappedEntryId(dataStream: &dataStream, size: size)
     case MessageEntryID.providerUid:
@@ -48,7 +48,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
         }
     case StoreEntryID.providerUid:
         let _: UInt32 = try dataStream.read(endianess: .littleEndian)
-        let _: UUID = try dataStream.read(type: UUID.self)
+        let _ = try GUID(dataStream: &dataStream)
         let _: UInt8 = try dataStream.read()
         let _: UInt8 = try dataStream.read()
         let providerName = try dataStream.readString(count: 14, encoding: .ascii)!

@@ -60,12 +60,7 @@ public struct SearchFolderDefinition {
         ///  0x0002: Months
         ///  The lower two bytes specify the amount.
         /// For example, the value 0x0001002A specifies an age of 42 weeks.
-        let numericalSearch: UInt32 = try dataStream.read(endianess: .bigEndian)
-        if !self.flags.contains(.H) && numericalSearch != 0x00000000 {
-            throw MAPIError.corrupted
-        }
-        
-        self.numericalSearch = numericalSearch
+        self.numericalSearch = try dataStream.read(endianess: .littleEndian)
         
         /// TextSearchLength (1 byte): An integer that specifies the size, in characters, of the TextSearch field. If the TextSearch field is longer
         /// than 254 characters, this field MUST be set to 255. If the G field is set to zero (0), this field MUST be set to zero (0).
@@ -89,9 +84,9 @@ public struct SearchFolderDefinition {
         /// be longer than 65,535 characters. If the G field is set to zero (0), this field MUST NOT be present.
         if self.flags.contains(.G) {
             if let textSearchExtendedLength = self.textSearchExtendedLength {
-                self.textSearch = try dataStream.readString(count: Int(textSearchExtendedLength), encoding: .utf16LittleEndian)
+                self.textSearch = try dataStream.readString(count: Int(textSearchExtendedLength) * 2, encoding: .utf16LittleEndian)
             } else {
-                self.textSearch = try dataStream.readString(count: Int(self.textSearchLength), encoding: .utf16LittleEndian)
+                self.textSearch = try dataStream.readString(count: Int(self.textSearchLength) * 2, encoding: .utf16LittleEndian)
             }
         } else {
             self.textSearch = nil
@@ -118,12 +113,7 @@ public struct SearchFolderDefinition {
         
         /// FolderList1Length (1 byte): An integer that specifies the size, in characters, of the FolderList1 field. If the FolderList1 field is longer
         /// than 254 characters, this field MUST be set to 255. If the C field is set to zero (0), this field MUST be set to zero (0).
-        let folderList1Length: UInt8 = try dataStream.read()
-        if !self.flags.contains(.C) && folderList1Length != 0 {
-            throw MAPIError.corrupted
-        }
-        
-        self.folderList1Length = folderList1Length
+        self.folderList1Length = try dataStream.read()
         
         /// FolderList1ExtendedLength (2 bytes): An integer that specifies the size of the FolderList1 field when its size is greater than 254
         /// characters. This field MUST NOT be present if the value of the FolderList1Length field is less than 255.
@@ -136,11 +126,11 @@ public struct SearchFolderDefinition {
         /// FolderList1 (variable): A string that contains the names of the folders to be searched. The size of the string, in characters, is specified
         /// by the FolderList1Length field or the FolderList1ExtendedLength field. The string MUST NOT be longer than 65,535 characters. If
         /// the C field is set to zero (0), this field MUST NOT be present.
-        if self.flags.contains(.C) {
+        if self.folderList1Length != 0 {
             if let folderList1ExtendedLength = self.folderList1ExtendedLength {
-                self.folderList1 = try dataStream.readString(count: Int(folderList1ExtendedLength), encoding: .utf16LittleEndian)
+                self.folderList1 = try dataStream.readString(count: Int(folderList1ExtendedLength) * 2, encoding: .utf16LittleEndian)
             } else {
-                self.folderList1 = try dataStream.readString(count: Int(self.folderList1Length), encoding: .utf16LittleEndian)
+                self.folderList1 = try dataStream.readString(count: Int(self.folderList1Length) * 2, encoding: .utf16LittleEndian)
             }
         } else {
             self.folderList1 = nil
@@ -155,12 +145,18 @@ public struct SearchFolderDefinition {
         
         self.folderList2Length = folderList2Length
         
+        let folderList2StartPosition = dataStream.position
+        
         /// FolderList2 (variable): An EntryList structure, as specified in [MS-OXCDATA] section 2.3.1, that contains a list of the folders to be
         /// searched. If the B field is set to zero (0), this field MUST NOT be present.
         if self.flags.contains(.B) {
             self.folderList2 = try EntryList(dataStream: &dataStream)
         } else {
             self.folderList2 = nil
+        }
+        
+        guard dataStream.position - folderList2StartPosition == self.folderList2Length else {
+            throw MAPIError.corrupted
         }
         
         /// Addresses (variable): An AddressList structure, as specified in section 2.2.1.2.8.1, that contains a list of addresses to be included in
@@ -313,7 +309,7 @@ public struct SearchFolderDefinition {
             case .errorCode:
                 self.value = try dataStream.read(endianess: .littleEndian) as UInt32
             case .boolean:
-                self.value = (try dataStream.read() as UInt8) != 0
+                self.value = (try dataStream.read(endianess: .littleEndian) as UInt16) != 0
             case .string:
                 let count: UInt16 = try dataStream.read(endianess: .littleEndian)
                 self.value = try dataStream.readString(count: Int(count) - 2, encoding: .utf16LittleEndian)!

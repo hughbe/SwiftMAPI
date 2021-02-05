@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOCFG] 2.2 Message Syntax
 /// Sections 2.2.1 through 2.2.9.19 specify the location and format of the property and stream buffers
@@ -114,6 +115,15 @@ public extension MessageStorage {
         return String(bytes: data, encoding: .utf8)
     }
     
+    /// [MS-OXOCFG] 2.2.6 View Definitions
+    var viewDescriptorVersion: UInt32? {
+        return getProperty(id: .tagViewDescriptorVersion)
+    }
+
+    var viewDescriptorName: String? {
+        return getProperty(id: .tagViewDescriptorVersion)
+    }
+    
     /// [MS-OXOCFG] 2.2.6.1 PidTagViewDescriptorBinary Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// View definitions, as specified in section 2.2.6, MUST be stored in the PidTagViewDescriptorBinary
@@ -216,13 +226,13 @@ public extension MessageStorage {
     /// The PidTagWlinkGroupHeaderID property ([MS-OXPROPS] section 2.1065) specifies the ID of the navigation shortcut,
     /// as specified in section 2.2.9, that groups other navigation shortcuts. This property SHOULD be set only when the value
     /// of the PidTagWlinkType property (section 2.2.9.5) is wblHeader.
-    var wlinkGroupHeaderID: UUID? {
+    var wlinkGroupHeaderID: GUID? {
         guard let data: Data = getProperty(id: .tagSearchFolderIdOrTagScheduleInfoDelegatorWantsCopyOrTagWlinkGroupHeaderID) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCFG] 2.2.9.4 PidTagWlinkSaveStamp Property
@@ -314,26 +324,26 @@ public extension MessageStorage {
     /// {0x03780600, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}} CLSID_TaskFolder The folder is a Task folder.
     /// {0x04780600, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}} CLSID_NoteFolder The folder is a Note folder.
     /// {0x08780600, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x 00, 0x00, 0x46}} CLSID_JournalFolder The folder is a Journal folder.
-    var wlinkFolderType: UUID? {
+    var wlinkFolderType: GUID? {
         guard let data: Data = getProperty(id: .tagScheduleInfoMonthsMergedOrTagWlinkFolderType) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCFG] 2.2.9.12 PidTagWlinkGroupClsid Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagWlinkGroupClsid property ([MS-OXPROPS] section 2.1064) specifies the value of the PidTagWlinkGroupHeaderID
     /// property (section 2.2.9.3) of the group header associated with the shortcut.
-    var wlinkGroupClsid: UUID? {
+    var wlinkGroupClsid: GUID? {
         guard let data: Data = getProperty(id: .tagScheduleInfoFreeBusyMergedOrTagWlinkGroupClsid) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCFG] 2.2.9.13 PidTagWlinkGroupName Property
@@ -419,13 +429,13 @@ public extension MessageStorage {
     /// determine whether the shortcut was created on the current machine or by the currently logged-in user via an equality test.
     /// The ID is specified in section 3.1.3.1. If this property is set, the client SHOULD<32> compare the value of this property
     /// to the Client ID and display the shortcut only if the GUIDs match.
-    var wlinkClientID: UUID? {
+    var wlinkClientID: GUID? {
         guard let data: Data = getProperty(id: .tagWlinkClientID) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXOCFG] 2.2.9.19 PidTagWlinkROGroupType Property

@@ -6,14 +6,14 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXCDATA] 2.2.3 General EntryID Structure
 /// A General EntryID structure is used to identify and access an object. Note that the length of an
 /// EntryID is specified externally, not in the structure itself.
 public struct GeneralEntryID: EntryID {
     public var flags: UInt32
-    public var providerUid: UUID
+    public var providerUid: GUID
     public var providerData: [UInt8]
 
     public init(dataStream: inout DataStream, size: Int) throws {
@@ -37,7 +37,7 @@ public struct GeneralEntryID: EntryID {
         /// Address book recipient (1)                                            | %xDC.A7.40.C8.C0.42.10.1A.B4.B9.08.00.2B.2F.E1.82
         /// One-off recipient (1)                                                      | %x81.2B.1F.A4.BE.A3.10.19.9D.6E.00.DD.01.0F.54.02
         /// Contact address or personal distribution list recipient | %xFE.42.AA.0A.18.C7.1A.10.E8.85.0B.65.1C.24.00.00
-        self.providerUid = try dataStream.read(type: UUID.self)
+        self.providerUid = try GUID(dataStream: &dataStream)
         
         /// ProviderData (variable): Provider-specific data further specified in section 2.2.4.1, section 2.2.4.2, and section 2.2.4.3.
         self.providerData = try dataStream.readBytes(count: Int(size - 20))

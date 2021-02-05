@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXSHARE] 2.2 Message Syntax
 /// A Sharing Message object can be created and modified by clients and servers. Except where noted,
@@ -174,9 +175,9 @@ public extension MessageStorage {
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidLidSharingProviderGuid property ([MS-OXPROPS] section 2.266) MUST be set to
     /// %xAE.F0.06.00.00.00.00.00.C0.00.00.00.00.00.00.46.
-    var sharingProviderGuid: UUID? {
-        if let uuid: UUID = getProperty(name: .lidSharingProviderGuid) {
-            return uuid
+    var sharingProviderGuid: GUID? {
+        if let guid: GUID = getProperty(name: .lidSharingProviderGuid) {
+            return guid
         }
         
         guard let data: Data = getProperty(name: .lidSharingProviderGuid) else {
@@ -184,7 +185,7 @@ public extension MessageStorage {
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.read(type: UUID.self)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXSHARE] 2.2.2.13 PidNameXSharingProviderGuid Property
@@ -430,13 +431,13 @@ public extension MessageStorage {
     /// [MS-OXSHARE] 2.2.6 Ignored Properties
     /// The following properties SHOULD NOT<10> be set and MUST be ignored upon receipt:
     ///  PidLidSharingInstanceGuid ([MS-OXPROPS] section 2.251)
-    var sharingInstanceGuid: UUID? {
+    var sharingInstanceGuid: GUID? {
         guard let data: Data = getProperty(name: .lidSharingInitiatorEntryId) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXSHARE] 2.2.6 Ignored Properties

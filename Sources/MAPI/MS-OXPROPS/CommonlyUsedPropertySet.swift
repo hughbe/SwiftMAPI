@@ -1,11 +1,11 @@
 //
 //  OutlookMessageCommonlyUsedPropertySets.swift
-//  
+//
 //
 //  Created by Hugh Bellamy on 07/09/2020.
 //
 
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXPROPS] 1.3.2 Commonly Used Property Sets
 /// Each named property specified in the list in section 2 is listed with the GUID that describes its property set.
@@ -66,46 +66,46 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
     
     case remote
     
-    public static let PS_PUBLIC_STRINGS = UUID(uuidString: "00020329-0000-0000-C000-000000000046")!
+    public static let PS_PUBLIC_STRINGS = GUID(0x00020329, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_Common = UUID(uuidString: "00062008-0000-0000-C000-000000000046")!
+    public static let PSETID_Common = GUID(0x00062008, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_Address = UUID(uuidString: "00062004-0000-0000-C000-000000000046")!
+    public static let PSETID_Address = GUID(0x00062004, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PS_INTERNET_HEADERS = UUID(uuidString: "00020386-0000-0000-C000-000000000046")!
+    public static let PS_INTERNET_HEADERS = GUID(0x00020386, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_Appointment = UUID(uuidString: "00062002-0000-0000-C000-000000000046")!
+    public static let PSETID_Appointment = GUID(0x00062002, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_Meeting = UUID(uuidString: "6ED8DA90-450B-101B-98DA-00AA003F1305")!
+    public static let PSETID_Meeting = GUID(0x6ED8DA90, 0x450B, 0x101B, 0x98DA, 0x00AA003F1305)
     
-    public static let PSETID_Log = UUID(uuidString: "0006200A-0000-0000-C000-000000000046")!
+    public static let PSETID_Log = GUID(0x0006200A, 0x0000, 0x0000, 0xC000, 0x000000000046)
 
-    public static let PSETID_Messaging = UUID(uuidString: "41F28F13-83F4-4114-A584-EEDB5A6B0BFF")!
+    public static let PSETID_Messaging = GUID(0x41F28F13, 0x83F4, 0x4114, 0xA584, 0xEEDB5A6B0BFF)
 
-    public static let PSETID_Note = UUID(uuidString: "0006200E-0000-0000-C000-000000000046")!
+    public static let PSETID_Note = GUID(0x0006200E, 0x0000, 0x0000, 0xC000, 0x000000000046)
 
-    public static let PSETID_PostRss = UUID(uuidString: "00062041-0000-0000-C000-000000000046")!
+    public static let PSETID_PostRss = GUID(0x00062041, 0x0000, 0x0000, 0xC000, 0x000000000046)
 
-    public static let PSETID_Task = UUID(uuidString: "00062003-0000-0000-C000-000000000046")!
+    public static let PSETID_Task = GUID(0x00062003, 0x0000, 0x0000, 0xC000, 0x000000000046)
 
-    public static let PSETID_UnifiedMessaging = UUID(uuidString: "4442858E-A9E3-4E80-B900-317A210CC15B")!
+    public static let PSETID_UnifiedMessaging = GUID(0x4442858E, 0xA9E3, 0x4E80, 0xB900, 0x317A210CC15B)
 
-    public static let PS_MAPI = UUID(uuidString: "00020328-0000-0000-C000-000000000046")!
+    public static let PS_MAPI = GUID(0x00020328, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_AirSync = UUID(uuidString: "71035549-0739-4DCB-9163-00F0580DBBDF")!
+    public static let PSETID_AirSync = GUID(0x71035549, 0x0739, 0x4DCB, 0x9163, 0x00F0580DBBDF)
     
-    public static let PSETID_Sharing = UUID(uuidString: "00062040-0000-0000-C000-000000000046")!
+    public static let PSETID_Sharing = GUID(0x00062040, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public static let PSETID_XmlExtractedEntities = UUID(uuidString: "23239608-685D-4732-9C55-4C95CB4E8E33")!
+    public static let PSETID_XmlExtractedEntities = GUID(0x23239608, 0x685D, 0x4732, 0x9C55, 0x4C95CB4E8E33)
     
-    public static let PSETID_Attachment = UUID(uuidString: "96357F7F-59E1-47D0-99A7-46515C183B54")!
+    public static let PSETID_Attachment = GUID(0x96357F7F, 0x59E1, 0x47D0, 0x99A7, 0x46515C183B54)
     
-    public static let PSETID_CalendarAssistant = UUID(uuidString: "11000E07-B51B-40D6-AF21-CAA85EDAB1D0")!
+    public static let PSETID_CalendarAssistant = GUID(0x11000E07, 0xB51B, 0x40D6, 0xAF21, 0xCAA85EDAB1D0)
     
-    public static let PSETID_Remote = UUID(uuidString: "00062014-0000-0000-C000-000000000046")!
+    public static let PSETID_Remote = GUID(0x00062014, 0x0000, 0x0000, 0xC000, 0x000000000046)
     
-    public init?(uuid: UUID) {
-        switch uuid {
+    public init?(guid: GUID) {
+        switch guid {
         case CommonlyUsedPropertySet.PS_PUBLIC_STRINGS:
             self = .publicStrings
         case CommonlyUsedPropertySet.PSETID_Common:
@@ -149,7 +149,7 @@ public enum CommonlyUsedPropertySet: CustomStringConvertible {
         }
     }
     
-    public var uuid: UUID {
+    public var guid: GUID {
         switch self {
         case .publicStrings:
             return CommonlyUsedPropertySet.PS_PUBLIC_STRINGS

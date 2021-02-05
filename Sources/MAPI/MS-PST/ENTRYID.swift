@@ -6,7 +6,7 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-PST] 2.4.3 Message Store
 /// At the PST level, the message store is the root of the PST, which is the rough equivalent of the top
@@ -21,7 +21,7 @@ import Foundation
 /// layout of the ENTRYID structure, which is used to map between an NID and its EntryID:
 public struct ENTRYID {
     public var rgbFlags: UInt32
-    public var uid: UUID
+    public var uid: GUID
     public var nid: NID
 
     public init(dataStream: inout DataStream) throws {
@@ -30,7 +30,7 @@ public struct ENTRYID {
         
         /// uid (16 bytes): The provider UID of this PST, which is the value of the PidTagRecordKey property in the message store.
         /// If this property does not exist, the PST client MAY generate a new unique ID, or reject the PST as invalid.
-        self.uid = try dataStream.read(type: UUID.self)
+        self.uid = try GUID(dataStream: &dataStream)
         
         /// nid (4 bytes): This is the corresponding NID of the underlying node that represents the object.
         /// The corresponding NID of an EntryID can be directly extracted from the EntryID structure. In addition,

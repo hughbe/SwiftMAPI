@@ -5,7 +5,7 @@
 //  Created by Hugh Bellamy on 28/09/2020.
 //
 
-import Foundation
+import WindowsDataTypes
 
 public protocol MessageStorage {
     func getProperty<T>(id: UInt16) -> T?
@@ -17,7 +17,7 @@ public extension MessageStorage {
         return getProperty(id: id.rawValue)
     }
     
-    func getProperty<T>(guid: UUID, lid: UInt32) -> T? {
+    func getProperty<T>(guid: GUID, lid: UInt32) -> T? {
         return getProperty(name: NamedProperty(guid: guid, lid: lid))
     }
     
@@ -25,7 +25,7 @@ public extension MessageStorage {
         return getProperty(name: NamedProperty(set: set, lid: lid))
     }
     
-    func getProperty<T>(guid: UUID, name: String) -> T? {
+    func getProperty<T>(guid: GUID, name: String) -> T? {
         return getProperty(name: NamedProperty(guid: guid, name: name))
     }
     

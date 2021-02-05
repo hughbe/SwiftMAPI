@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXOABK] 2.2 Message Syntax
 /// The properties used by this protocol are maintained on an address book server. The properties are
@@ -462,13 +463,13 @@ public extension MessageStorage {
     /// Data type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagAddressBookObjectGuid property<16> ([MS-OXPROPS] section 2.549) contains a GUID that uniquely identifies an
     /// Address Book object.
-    var addressBookObjectGuid: UUID? {
+    var addressBookObjectGuid: GUID? {
         guard let data: Data = getProperty(id: .tagAddressBookObjectGuid) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXOABK] 2.2.3.26 PidTagAddressBookSenderHintTranslations

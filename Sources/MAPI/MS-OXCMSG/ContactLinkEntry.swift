@@ -29,7 +29,7 @@ public struct ContactLinkEntry {
         var addrBookEntryIdData: [EntryID] = []
         addrBookEntryIdData.reserveCapacity(Int(self.addrBookEntryIdCount))
         for _ in 0..<self.addrBookEntryIdCount {
-            let entryId = try GeneralEntryID(dataStream: &dataStream)
+            let entryId = try getEntryID(dataStream: &dataStream, size: Int(self.fieldSize))
             addrBookEntryIdData.append(entryId)
         }
         

@@ -7,6 +7,7 @@
 
 import DataStream
 import Foundation
+import WindowsDataTypes
 
 /// [MS-OXORULE] 2.2 Message Syntax
 /// Standard rules are the most common and typical way of specifying rules (2) for a folder. Sections
@@ -449,13 +450,13 @@ public extension MessageStorage {
     /// [MS-OXORULE] 2.2.9.2 PidTagReplyTemplateId Property
     /// Type: PtypBinary ([MS-OXCDATA] section 2.11.1)
     /// The PidTagReplyTemplateId property ([MS-OXPROPS] section 2.914) specifies the GUID for the reply template.
-    var replyTemplateId: UUID? {
+    var replyTemplateId: GUID? {
         guard let data: Data = getProperty(id: .tagReplyTemplateId) else {
             return nil
         }
         
         var dataStream = DataStream(data)
-        return try? dataStream.readGUID(endianess: .littleEndian)
+        return try? GUID(dataStream: &dataStream)
     }
     
     /// [MS-OXORULE] 2.2.9.3 PidTagRwRulesStream Property

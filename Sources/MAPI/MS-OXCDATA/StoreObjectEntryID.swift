@@ -6,28 +6,28 @@
 //
 
 import DataStream
-import Foundation
+import WindowsDataTypes
 
 /// [MS-OXCDATA] 2.2.4.3 Store Object EntryID Structure
 /// A Store Object EntryID structure specifies a mailbox Store object or a public folder Store object itself, rather than a Message object or Folder
 /// object residing in such a database. It is used in certain property values.
 public struct StoreObjectEntryID: EntryID {
     public let flags: UInt32
-    public let providerUid: UUID
+    public let providerUid: GUID
     public let version: UInt8
     public let flag: UInt8
     public let dllFileName: String
     public let wrappedFlags: UInt32
-    public let wrappedProviderUid: UUID
+    public let wrappedProviderUid: GUID
     public let wrappedType: OpenStoreFlags
     public let serverShortName: String
     public let mailboxDN: String?
     public let entryIdV2: EntryIDV2?
     public let entryIdV3: EntryIDV3?
     
-    public static let providerUid = UUID(uuid: uuid_t(0x38, 0xA1, 0xBB, 0x10, 0x05, 0xE5, 0x10, 0x1A, 0xA1, 0xBB, 0x08, 0x00, 0x2B, 0x2A, 0x56, 0xC2))
-    public static let mailboxStoreObject = UUID(uuid: uuid_t(0x1B, 0x55, 0xFA, 0x20, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
-    public static let publicFolderStoreObject = UUID(uuid: uuid_t(0x1C, 0x83, 0x02, 0x10, 0xAA, 0x66, 0x11, 0xCD, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A))
+    public static let providerUid = GUID(0x10BBA138, 0xE505, 0x1A10, 0xa1, 0xbb, 0x08, 0x00, 0x2b, 0x2a, 0x56, 0xc2)
+    public static let mailboxStoreObject = GUID(0x20FA551B, 0x66AA, 0xCD11, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A)
+    public static let publicFolderStoreObject = GUID(0x1002831C, 0x66AA, 0xCD11, 0x9B, 0xC8, 0x00, 0xAA, 0x00, 0x2F, 0xC4, 0x5A)
     
     public init(dataStream: inout DataStream, size: Int) throws {
         let position = dataStream.position
@@ -35,33 +35,33 @@ public struct StoreObjectEntryID: EntryID {
         /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what circumstances a short-term EntryID is
         /// valid. However, in any EntryID stored in a property value, these 4 bytes MUST be zero, indicating a long-term EntryID.
         self.flags = try dataStream.read(endianess: .littleEndian)
-        if self.flags != 0x00000000 {
+        guard self.flags == 0x00000000 else {
             throw MAPIError.corrupted
         }
         
         /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used to route EntryIDs to the correct
         /// provider and MUST be set to %x38.A1.BB.10.05.E5.10.1A.A1.BB.08.00.2B.2A.56.C2.
-        self.providerUid = try dataStream.read(type: UUID.self)
-        if self.providerUid != StoreObjectEntryID.providerUid {
+        self.providerUid = try GUID(dataStream: &dataStream)
+        guard self.providerUid == StoreObjectEntryID.providerUid else {
             throw MAPIError.corrupted
         }
         
         /// Version (1 byte): This value MUST be set to zero.
         self.version = try dataStream.read()
-        if self.version != 0x00 {
+        guard self.version == 0x00 else {
             throw MAPIError.corrupted
         }
         
         /// Flag (1 byte): This value MUST be set to zero.
         self.flag = try dataStream.read()
-        if self.flag != 0x00 {
+        guard self.flag == 0x00 else {
             throw MAPIError.corrupted
         }
         
         /// DLLFileName (14 bytes): This field MUST be set to the following value, which represents
         /// "emsmdb.dll": %x45.4D.53.4D.44.42.2E.44.4C.4C.00.00.00.00.
-        let dllFileName = try dataStream.readString(count: 14, encoding: .ascii)!
-        if dllFileName != "emsmdb.dll\0\0\0\0" && dllFileName != "EMSMDB.DLL\0\0\0\0" {
+        let dllFileName = try dataStream.readString(count: 14, encoding: .ascii)!.trimmingCharacters(in: ["\0"])
+        guard dllFileName == "emsmdb.dll" || dllFileName == "EMSMDB.DLL" else {
             throw MAPIError.corrupted
         }
         
@@ -69,12 +69,12 @@ public struct StoreObjectEntryID: EntryID {
         
         /// WrappedFlags (4 bytes): This value MUST be set to 0x00000000.
         self.wrappedFlags = try dataStream.read(endianess: .littleEndian)
-        if self.wrappedFlags != 0x00000000 {
+        guard self.wrappedFlags == 0x00000000 else {
             throw MAPIError.corrupted
         }
         
         /// WrappedProvider UID (16 bytes): This field MUST be set to one of the values in the following table.
-        self.wrappedProviderUid = try dataStream.read(type: UUID.self)
+        self.wrappedProviderUid = try GUID(dataStream: &dataStream)
 
         let mailboxStore = self.wrappedProviderUid == StoreObjectEntryID.mailboxStoreObject
         let publicFolderStore = self.wrappedProviderUid == StoreObjectEntryID.publicFolderStoreObject
@@ -133,7 +133,7 @@ public struct StoreObjectEntryID: EntryID {
             self.entryIdV3 = nil
         }
 
-        if dataStream.position - position != size {
+        guard dataStream.position - position == size else {
             throw MAPIError.corrupted
         }
     }
@@ -164,7 +164,7 @@ public struct StoreObjectEntryID: EntryID {
             
             /// Version (4 bytes): MUST be 0x00000001.
             self.version = try dataStream.read(endianess: .littleEndian)
-            if self.version != 0x00000001 {
+            guard self.version == 0x00000001 else {
                 throw MAPIError.corrupted
             }
             
