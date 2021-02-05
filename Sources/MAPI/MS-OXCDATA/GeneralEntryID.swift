@@ -16,14 +16,17 @@ public struct GeneralEntryID: EntryID {
     public var providerUid: UUID
     public var providerData: [UInt8]
 
-    public init(dataStream: inout DataStream) throws {
+    public init(dataStream: inout DataStream, size: Int) throws {
+        let startPosition = dataStream.position
+
+        guard size >= 20 else {
+            throw MAPIError.corrupted
+        }
+        
         /// Flags (4 bytes): This value MUST be set to 0x00000000. Bits in this field indicate under what
         /// circumstances a short-term EntryID is valid. However, in any EntryID stored in a property value,
         /// these 4 bytes MUST be zero, indicating a long-term EntryID.
-        self.flags = try dataStream.read()
-        if self.flags != 0x00000000 {
-            //throw MAPIError.corrupted
-        }
+        self.flags = try dataStream.read(endianess: .littleEndian)
         
         /// ProviderUID (16 bytes): The identifier for the provider that created the EntryID. This value is used
         /// to route EntryIDs to the correct provider. Values for this field appear in the following table.
@@ -37,6 +40,10 @@ public struct GeneralEntryID: EntryID {
         self.providerUid = try dataStream.read(type: UUID.self)
         
         /// ProviderData (variable): Provider-specific data further specified in section 2.2.4.1, section 2.2.4.2, and section 2.2.4.3.
-        self.providerData = try dataStream.readBytes(count: dataStream.remainingCount)
+        self.providerData = try dataStream.readBytes(count: Int(size - 20))
+        
+        guard dataStream.position - startPosition == size else {
+            throw MAPIError.corrupted
+        }
     }
 }

@@ -70,6 +70,6 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
             }
         }
 
-        return try GeneralEntryID(dataStream: &dataStream)
+        return try GeneralEntryID(dataStream: &dataStream, size: size)
     }
 }
