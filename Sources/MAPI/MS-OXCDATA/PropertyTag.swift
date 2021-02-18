@@ -37,6 +37,15 @@ public struct PropertyTag: CustomStringConvertible {
     }
     
     public var description: String {
-        return "PstPropertyId.\(idString) (\(type))"
+        return "PropertyId.\(idString) (\(type))"
+    }
+    
+    public var dataSize: UInt32 {
+        return 4
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(type.rawValue, endianess: .littleEndian)
+        dataStream.write(id, endianess: .littleEndian)
     }
 }
