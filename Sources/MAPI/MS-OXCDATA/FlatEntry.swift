@@ -17,6 +17,9 @@ public struct FlatEntry {
     public init(dataStream: inout DataStream) throws {
         /// Size (4 bytes): An unsigned integer giving the size of the following EntryID field, not including the Size field.
         self.size = try dataStream.read(endianess: .littleEndian)
+        guard self.size <= dataStream.remainingCount else {
+            throw MAPIError.corrupted
+        }
         
         let position = dataStream.position
         
@@ -26,5 +29,14 @@ public struct FlatEntry {
         guard dataStream.position - position == size else {
             throw MAPIError.corrupted
         }
+    }
+    
+    public var dataSize: Int {
+        return 4 + entryID.dataSize
+    }
+    
+    public func write(to dataStream: inout OutputDataStream) {
+        dataStream.write(size, endianess: .littleEndian)
+        entryID.write(to: &dataStream)
     }
 }

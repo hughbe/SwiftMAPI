@@ -40,7 +40,7 @@ public struct PropertyTag: CustomStringConvertible {
         return "PropertyId.\(idString) (\(type))"
     }
     
-    public var dataSize: UInt32 {
+    public var dataSize: Int {
         return 4
     }
     
