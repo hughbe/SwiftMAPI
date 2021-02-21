@@ -51,7 +51,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                 return true
             }
             
-            let remainingCount = (size - (dataStream.position - startPosition))
+            let remainingCount = size - (dataStream.position - startPosition)
             if remainingCount < 4 {
                 return true
             }

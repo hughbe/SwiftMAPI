@@ -321,10 +321,6 @@ private func entryIdAssert(value: Any?, accessor: String, name: String) -> Strin
         s += "XCTAssertEqual(\(contactAddressEntryID.flags.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.flags)\n"
         s += "XCTAssertEqual(\(guidString(value: contactAddressEntryID.providerUid)),(\(accessor).\(name) as? ContactAddressEntryID)!.providerUid)\n"
         s += "XCTAssertEqual(\(contactAddressEntryID.version.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.version)\n"
-        s += "XCTAssertEqual(\(contactAddressEntryID.type.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.type)\n"
-        s += "XCTAssertEqual(\(contactAddressEntryID.index.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.index)\n"
-        s += "XCTAssertEqual(\(contactAddressEntryID.entryIdCount.hexString), (\(accessor).\(name) as? ContactAddressEntryID)!.entryIdCount)\n"
-        s += entryIdAssert(value: contactAddressEntryID.entryIdBytes, accessor: "(\(accessor).\(name) as? ContactAddressEntryID)!", name: "entryIdBytes")
 
         return s
     } else if let wrappedEntryID = actual as? WrappedEntryId {

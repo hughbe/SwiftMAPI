@@ -59,7 +59,7 @@ public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryI
         if flags == 0x00000000 {
             if size == 46 {
                 return try FolderEntryID(dataStream: &dataStream, size: size)
-            } else if size == 72 {
+            } else if size == 70 {
                 return try MessageEntryID(dataStream: &dataStream, size: size)
             }
         }
