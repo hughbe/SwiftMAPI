@@ -14,6 +14,16 @@ public struct FlatEntry {
     public let size: UInt32
     public let entryID: EntryID
     
+    public init(entryID: EntryID) {
+        self.size = UInt32(entryID.dataSize)
+        self.entryID = entryID
+    }
+    
+    public init(size: UInt32, entryID: EntryID) {
+        self.size = size
+        self.entryID = entryID
+    }
+    
     public init(dataStream: inout DataStream) throws {
         /// Size (4 bytes): An unsigned integer giving the size of the following EntryID field, not including the Size field.
         self.size = try dataStream.read(endianess: .littleEndian)
