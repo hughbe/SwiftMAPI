@@ -6,6 +6,7 @@
 //
 
 import DataStream
+import Foundation
 import WindowsDataTypes
 
 /// [MS-OXCDATA] 2.2.4.3 Store Object EntryID Structure
@@ -77,18 +78,21 @@ public struct StoreEntryID: EntryID {
     }
 
     public var dataSize: Int {
-        /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (1 byte) + Flag (1 byte) + WrappedFlags (4 bytes) + WrappedProviderUid (16 bytes) + WrappedType (4 bytes)
-        var baseSize = 4 + 16 + 1 + 1 + 4 + 16 + 4
-        baseSize += dllFileName.count
-        baseSize += wrappedProviderData.dataSize
-        return baseSize
+        /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (1 byte) + Flag (1 byte) + DLLFileName (14 bytes) + WrappedProviderData (variable)
+        return 4 + 16 + 1 + 1 + 14 + wrappedProviderData.dataSize
     }
     
     public func write(to dataStream: inout OutputDataStream) {
         dataStream.write(flags, endianess: .littleEndian)
         providerUid.write(to: &dataStream)
+        dataStream.write(version, endianess: .littleEndian)
         dataStream.write(flag, endianess: .littleEndian)
-        dataStream.write(dllFileName, encoding: .ascii)
+        
+        /// DLLFileName (14 bytes): The file name is padded with zero bytes to 14 bytes.
+        var dllFileNameBytes = Array(dllFileName.utf8.prefix(14))
+        dllFileNameBytes.append(contentsOf: [UInt8](repeating: 0, count: 14 - dllFileNameBytes.count))
+        dataStream.write(Data(dllFileNameBytes))
+        
         wrappedProviderData.write(to: &dataStream)
     }
 }

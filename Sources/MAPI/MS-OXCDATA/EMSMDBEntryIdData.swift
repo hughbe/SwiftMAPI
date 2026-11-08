@@ -6,6 +6,7 @@
 //
 
 import DataStream
+import Foundation
 import WindowsDataTypes
 
 public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
@@ -166,6 +167,21 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                 throw MAPIError.corrupted
             }
         }
+
+        
+        public func write(to dataStream: inout OutputDataStream) {
+            // The ServerDN and ServerFQDN are stored at their offsets, followed by the reserved field.
+            var buffer = OutputDataStream()
+            buffer.write(magic, endianess: .littleEndian)
+            buffer.write(size, endianess: .littleEndian)
+            buffer.write(version, endianess: .littleEndian)
+            buffer.write(offsetDN, endianess: .littleEndian)
+            buffer.write(offsetFQDN, endianess: .littleEndian)
+            EntryIDHelpers.writeUnicodeString(serverDN, atOffset: Int(offsetDN), to: &buffer)
+            EntryIDHelpers.writeUnicodeString(serverFQDN, atOffset: Int(offsetFQDN), to: &buffer)
+            buffer.write(reserved, endianess: .littleEndian)
+            dataStream.write(buffer.data)
+        }
     }
     
     public struct EntryIDV3 {
@@ -221,13 +237,67 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                 throw MAPIError.corrupted
             }
         }
+        
+        public func write(to dataStream: inout OutputDataStream) {
+            // The SmtpAddress is stored at its offset, followed by the reserved field.
+            var buffer = OutputDataStream()
+            buffer.write(magic, endianess: .littleEndian)
+            buffer.write(size, endianess: .littleEndian)
+            buffer.write(version, endianess: .littleEndian)
+            buffer.write(offsetSmtpAddress, endianess: .littleEndian)
+            EntryIDHelpers.writeUnicodeString(smtpAddress, atOffset: Int(offsetSmtpAddress), to: &buffer)
+            buffer.write(reserved, endianess: .littleEndian)
+            dataStream.write(buffer.data)
+        }
     }
     
     public var dataSize: Int {
-        fatalError("NYI")
+        /// WrappedFlags (4 bytes) + WrappedProviderUid (16 bytes) + WrappedType (4 bytes) + ServerShortName (variable) + MailboxDN (variable, optional) + EntryID (variable, optional)
+        var baseSize = 4 + 16 + 4
+        baseSize += serverShortName.utf8.count + 1
+        if let mailboxDN = mailboxDN {
+            baseSize += mailboxDN.utf8.count + 1
+        }
+        if let entryIdV2 = entryIdV2 {
+            baseSize += Int(entryIdV2.size)
+        }
+        if let entryIdV3 = entryIdV3 {
+            baseSize += Int(entryIdV3.size)
+        }
+        
+        return baseSize
     }
     
     public func write(to dataStream: inout OutputDataStream) {
-        fatalError("NYI")
+        dataStream.write(flags, endianess: .littleEndian)
+        providerUid.write(to: &dataStream)
+        dataStream.write(wrappedType.rawValue, endianess: .littleEndian)
+        dataStream.write(serverShortName + "\0", encoding: .ascii)
+        if let mailboxDN = mailboxDN {
+            dataStream.write(mailboxDN + "\0", encoding: .ascii)
+        }
+        if let entryIdV2 = entryIdV2 {
+            entryIdV2.write(to: &dataStream)
+        }
+        if let entryIdV3 = entryIdV3 {
+            entryIdV3.write(to: &dataStream)
+        }
+    }
+}
+
+fileprivate enum EntryIDHelpers {
+    /// Writes a null-terminated Unicode string at the specified offset from the start of the structure,
+    /// padding any gap with zero bytes. Does nothing if the string is not present.
+    static func writeUnicodeString(_ value: String?, atOffset offset: Int, to dataStream: inout OutputDataStream) {
+        guard let value = value, offset != 0 else {
+            return
+        }
+        
+        let padding = offset - dataStream.data.count
+        if padding > 0 {
+            dataStream.write(Data(repeating: 0, count: padding))
+        }
+        
+        dataStream.write(value + "\0", encoding: .utf16LittleEndian)
     }
 }
