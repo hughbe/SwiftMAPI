@@ -37,7 +37,7 @@ public struct MSPSTEntryIdData: StoreEntryIDWrappedProviderData {
     
     public var dataSize: Int {
         /// ProviderUid (16 bytes) + bReserved (1 byte) + PathAscii (variable) + PathUnicode (variable, optional)
-        var baseSize = 16
+        var baseSize = 16 + 1
         baseSize += pathAscii.count + 1
         if let pathUnicode = pathUnicode {
             baseSize += (pathUnicode.count + 1) * 2
@@ -48,6 +48,7 @@ public struct MSPSTEntryIdData: StoreEntryIDWrappedProviderData {
     
     public func write(to dataStream: inout OutputDataStream) {
         providerUid.write(to: &dataStream)
+        dataStream.write(bReserved)
         dataStream.write(pathAscii + "\0", encoding: .ascii)
         if let pathUnicode = pathUnicode {
             dataStream.write(pathUnicode + "\0", encoding: .utf16LittleEndian)
