@@ -43,7 +43,5 @@ public struct ENTRYID {
         /// Conversely, the procedure for converting an NID to an EntryID simply involves constructing the
         /// ENTRYID structure from the NID and the PST Provider UID (PidTagRecordKey).
         self.nid = try NID(dataStream: &dataStream)
-
-        assert(dataStream.remainingCount == 0)
     }
 }

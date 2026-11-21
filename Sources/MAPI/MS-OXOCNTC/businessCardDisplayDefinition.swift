@@ -110,13 +110,11 @@ public struct BusinessCardDisplayDefinition {
         var extraInfo: [String] = []
         let position = dataStream.position
         while dataStream.position - position < self.extraInfoSize {
-            let string = try dataStream.readUnicodeString(endianess: .littleEndian)!
+            let string = try dataStream.readNullTerminatedUTF16String()
             extraInfo.append(string)
         }
         
         self.extraInfo = extraInfo
-        
-        assert(dataStream.remainingCount == 0)
     }
     
     /// TemplateID (1 byte): An 8-bit value that specifies the layout of the business card. The valid values

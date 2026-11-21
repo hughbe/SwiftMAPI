@@ -64,7 +64,7 @@ public struct ExceptionInfo {
         /// Embedded Message object. *This field is present only when the ARO_SUBJECT flag is set in the
         /// OverrideFlags field.
         if self.overrideFlags.contains(.subject) {
-            self.subject = try dataStream.readString(count: Int(self.subjectLength!) - 1, encoding: .ascii)!
+            self.subject = try dataStream.readString8(count: Int(self.subjectLength!) - 1)
         } else {
             self.subject = nil
         }
@@ -117,7 +117,7 @@ public struct ExceptionInfo {
         /// (section 2.2.1.4) in the Exception Embedded Message object. *This field is present only when the
         /// ARO_LOCATION flag is set in the OverrideFlags field.
         if self.overrideFlags.contains(.location) {
-            self.location = try dataStream.readString(count: Int(self.locationLength!) - 1, encoding: .ascii)!
+            self.location = try dataStream.readString8(count: Int(self.locationLength!) - 1)
         } else {
             self.location = nil
         }

@@ -96,7 +96,7 @@ public struct ExtendedException {
         /// associated ExceptionInfo structure. For details, see the description of the OverrideFlags field in
         /// section 2.2.1.44.2.
         if overrideFlags.contains(.subject) {
-            self.wideCharSubject = try dataStream.readString(count: Int(self.wideCharSubjectLength!), encoding: .utf16LittleEndian)
+            self.wideCharSubject = try dataStream.readUTF16String(byteCount: Int(self.wideCharSubjectLength!) * 2)
         } else {
             self.wideCharSubject = nil
         }
@@ -105,7 +105,7 @@ public struct ExtendedException {
         /// WideCharLocation field. *This field is present only when the ARO_LOCATION flag is set in the
         /// OverrideFlags field of the ExtendedException structure's associated ExceptionInfo structure.
         /// For details, see the description of the OverrideFlags field in section 2.2.1.44.2.
-        if overrideFlags.contains(.subject) {
+        if overrideFlags.contains(.location) {
             self.wideCharLocationLength = try dataStream.read(endianess: .littleEndian)
         } else {
             self.wideCharLocationLength = nil
@@ -117,7 +117,7 @@ public struct ExtendedException {
         /// OverrideFlags field of the ExtendedException structure's associated ExceptionInfo structure.
         /// For details, see the description of the OverrideFlags field in section 2.2.1.44.2.
         if overrideFlags.contains(.location) {
-            self.wideCharLocation = try dataStream.readString(count: Int(self.wideCharLocationLength!), encoding: .utf16LittleEndian)
+            self.wideCharLocation = try dataStream.readUTF16String(byteCount: Int(self.wideCharLocationLength!) * 2)
         } else {
             self.wideCharLocation = nil
         }

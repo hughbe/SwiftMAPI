@@ -16,6 +16,6 @@ internal extension DataStream {
         let b5: UInt8 = try read()
         let b6: UInt8 = try read()
         
-        return UInt64(b1) | (UInt64(b2) << 8) | (UInt64(b2) << 16) | (UInt64(b3) << 24) | (UInt64(b4) << 32) | (UInt64(b5) << 40) | (UInt64(b6) << 48)
+        return UInt64(b1) | (UInt64(b2) << 8) | (UInt64(b3) << 16) | (UInt64(b4) << 24) | (UInt64(b5) << 32) | (UInt64(b6) << 40)
     }
 }

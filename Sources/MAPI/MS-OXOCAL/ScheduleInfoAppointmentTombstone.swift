@@ -57,7 +57,5 @@ public struct ScheduleInfoAppointmentTombstone {
         }
         
         self.records = records
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

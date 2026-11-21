@@ -34,7 +34,5 @@ public struct ExtendedRuleMessageActions {
         /// be executed when the condition for the rule (2) to which these actions (2) apply evaluates to "TRUE". All string
         /// values contained in any part of the RuleAction structure MUST be in Unicode format.
         self.ruleActionsBuffer = try RuleAction(dataStream: &dataStream, standard: false)
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

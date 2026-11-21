@@ -42,7 +42,7 @@ public struct VoteOption {
         
         /// DisplayName (variable): The localized display name of the voting option (for example, "Yes") as
         /// an ANSI string, without the null terminating character.
-        self.displayName = try dataStream.readString(count: Int(self.displayNameCount), encoding: .ascii)!
+        self.displayName = try dataStream.readString8(count: Int(self.displayNameCount))
         
         /// MsgClsNameCount (1 byte): The count of characters in the MsgClsName field. Set to 8 (0x08).
         self.msgClsNameCount = try dataStream.read()
@@ -51,19 +51,19 @@ public struct VoteOption {
         }
         
         /// MsgClsName (variable): Set to "IPM.Note", without the null terminating character.
-        self.msgClsName = try dataStream.readString(count: Int(self.msgClsNameCount), encoding: .ascii)!
+        self.msgClsName = try dataStream.readString8(count: Int(self.msgClsNameCount))
         
         /// Internal1StringCount (1 byte): The count of characters in the following string. Set to 0x00 for voting options.
         self.internal1StringCount = try dataStream.read()
         
         /// Internal1String (variable): MUST NOT be present, as Internal1StringCount is 0x00 for a voting option.
-        self.internal1String = try dataStream.readString(count: Int(self.internal1StringCount), encoding: .ascii)!
+        self.internal1String = try dataStream.readString8(count: Int(self.internal1StringCount))
         
         /// DisplayNameCountRepeat (1 byte): MUST have the same value as the DisplayNameCount field.
         self.displayNameCountRepeat = try dataStream.read()
         
         /// DisplayNameRepeat (variable): MUST have the same value as the DisplayName field.
-        self.displayNameRepeat = try dataStream.readString(count: Int(self.displayNameCountRepeat), encoding: .ascii)!
+        self.displayNameRepeat = try dataStream.readString8(count: Int(self.displayNameCountRepeat))
         
         /// Internal2 (DWORD): Set to 0x00000000.
         self.internal2 = try dataStream.read(endianess: .littleEndian)

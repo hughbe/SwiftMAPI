@@ -58,7 +58,7 @@ public struct AppointmentTimeZoneDefinition {
         /// KeyName (variable): A Unicode string that identifies the associated time zone. The string is not
         /// localized but instead is set to the unique name of the desired time zone. This string has a
         /// maximum length of 260 characters, and it is not null-terminated.
-        self.keyName = try dataStream.readString(count: Int(self.cchKeyName) * 2, encoding: .utf16LittleEndian)!
+        self.keyName = try dataStream.readUTF16String(byteCount: Int(self.cchKeyName) * 2)
         
         /// cRules (2 bytes): An integer that specifies the number of TZRule structures in the TZRules field.
         /// The minimum is 1; the maximum is 1024.
@@ -84,7 +84,5 @@ public struct AppointmentTimeZoneDefinition {
         }
         
         self.rules = rules
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

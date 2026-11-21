@@ -24,14 +24,14 @@ public struct PSTPRXEntryIdData: StoreEntryIDWrappedProviderData {
         
         self.bReserved = try dataStream.read()
         
-        self.pathAscii = try dataStream.readAsciiString()!
+        self.pathAscii = try dataStream.readNullTerminatedString8()
         
         if dataStream.position - startPosition == size {
             self.pathUnicode = nil
             return
         }
         
-        self.pathUnicode = try dataStream.readUnicodeString(endianess: .littleEndian)!
+        self.pathUnicode = try dataStream.readNullTerminatedUTF16String()
         
         guard dataStream.position - startPosition == size else {
             throw MAPIError.corrupted
@@ -41,9 +41,9 @@ public struct PSTPRXEntryIdData: StoreEntryIDWrappedProviderData {
     public var dataSize: Int {
         /// Flags (4 bytes) + ProviderUid (16 bytes) + bReserved (1 byte) + PathAscii (variable) + PathUnicode (variable, optional)
         var baseSize = 4 + 16 + 1
-        baseSize += pathAscii.count + 1
+        baseSize += ANSIEncoding.byteCount(pathAscii) + 1
         if let pathUnicode = pathUnicode {
-            baseSize += (pathUnicode.count + 1) * 2
+            baseSize += UTF16LEEncoding.byteCount(pathUnicode) + 2
         }
         
         return baseSize
@@ -53,9 +53,9 @@ public struct PSTPRXEntryIdData: StoreEntryIDWrappedProviderData {
         dataStream.write(flags, endianess: .littleEndian)
         providerUid.write(to: &dataStream)
         dataStream.write(bReserved)
-        dataStream.write(pathAscii + "\0", encoding: .ascii)
+        dataStream.writeNullTerminatedString8(pathAscii)
         if let pathUnicode = pathUnicode {
-            dataStream.write(pathUnicode + "\0", encoding: .utf16LittleEndian)
+            dataStream.writeNullTerminatedUTF16String(pathUnicode)
         }
     }
 }

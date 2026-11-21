@@ -224,7 +224,7 @@ public struct ActionBlock {
             if self.folderInThisStore == 0x00 {
                 self.storeEID = try StoreEntryID(dataStream: &dataStream, size: Int(self.storeEIDSize))
             } else {
-                dataStream.position += Int(self.storeEIDSize)
+                try dataStream.skipChecked(count: Int(self.storeEIDSize))
                 self.storeEID = nil
             }
             
@@ -271,7 +271,7 @@ public struct ActionBlock {
             /// StoreEID (variable): This field is not used and can be set to any non-null value by the client and the
             /// server. This field MUST be ignored when received by either the client or the server.
             self.storeEID = nil
-            dataStream.position += Int(self.storeEIDSize)
+            try dataStream.skipChecked(count: Int(self.storeEIDSize))
             
             /// FolderEIDSize (4 bytes): An integer that specifies the size, in bytes, of the FolderEID field.
             self.folderEIDSize = try dataStream.read(endianess: .littleEndian)

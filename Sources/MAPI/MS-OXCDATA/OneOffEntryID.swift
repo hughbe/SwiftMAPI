@@ -75,34 +75,38 @@ public struct OneOffEntryID: EntryID {
         /// DisplayName (variable): The recipient's display name (in the recipient table, the PidTagDisplayName property ([MS-OXCFOLD]
         /// section 2.2.2.2.2.5)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.displayName = try dataStream.readUnicodeString(endianess: .littleEndian)!
+            self.displayName = try dataStream.readNullTerminatedUTF16String()
         } else {
-            self.displayName = try dataStream.readAsciiString()!
+            self.displayName = try dataStream.readNullTerminatedString8()
         }
 
         /// AddressType (variable): The recipient's email address type (in the recipient table, the PidTagAddressType property ([MS-OXOABK]
         /// section 2.2.3.13)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.addressType = try dataStream.readUnicodeString(endianess: .littleEndian)!
+            self.addressType = try dataStream.readNullTerminatedUTF16String()
         } else {
-            self.addressType = try dataStream.readAsciiString()!
+            self.addressType = try dataStream.readNullTerminatedString8()
         }
 
         /// EmailAddress (variable): The recipient's email address (in the recipient table, the PidTagEmailAddress property ([MS-OXOABK]
         /// section 2.2.3.14)) as a null-terminated string. If the U field is b'1', the terminating null character is 2 bytes long; otherwise, 1 byte.
         if self.entryFlags.contains(.unicode) {
-            self.emailAddress = try dataStream.readUnicodeString(endianess: .littleEndian)!
+            self.emailAddress = try dataStream.readNullTerminatedUTF16String()
         } else {
-            self.emailAddress = try dataStream.readAsciiString()!
+            self.emailAddress = try dataStream.readNullTerminatedString8()
         }
     }
     
     public var dataSize: Int {
         /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (2 bytes) + Entry Flags (2 bytes) + Display Name (variable) + Address Type (variable) + Email Address (variable)
         var baseSize = 4 + 16 + 2 + 2
-        baseSize += (displayName.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
-        baseSize += (addressType.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
-        baseSize += (emailAddress.count + 1) * (entryFlags.contains(.unicode) ? 2 : 1)
+        for string in [displayName, addressType, emailAddress] {
+            if entryFlags.contains(.unicode) {
+                baseSize += UTF16LEEncoding.byteCount(string) + 2
+            } else {
+                baseSize += ANSIEncoding.byteCount(string) + 1
+            }
+        }
         return baseSize
     }
     
@@ -113,21 +117,21 @@ public struct OneOffEntryID: EntryID {
         dataStream.write(entryFlags.rawValue, endianess: .littleEndian)
         
         if entryFlags.contains(.unicode) {
-            dataStream.write(displayName + "\0", encoding: .utf16LittleEndian)
+            dataStream.writeNullTerminatedUTF16String(displayName)
         } else {
-            dataStream.write(displayName + "\0", encoding: .ascii)
+            dataStream.writeNullTerminatedString8(displayName)
         }
         
         if entryFlags.contains(.unicode) {
-            dataStream.write(addressType + "\0", encoding: .utf16LittleEndian)
+            dataStream.writeNullTerminatedUTF16String(addressType)
         } else {
-            dataStream.write(addressType + "\0", encoding: .ascii)
+            dataStream.writeNullTerminatedString8(addressType)
         }
         
         if entryFlags.contains(.unicode) {
-            dataStream.write(emailAddress + "\0", encoding: .utf16LittleEndian)
+            dataStream.writeNullTerminatedUTF16String(emailAddress)
         } else {
-            dataStream.write(emailAddress + "\0", encoding: .ascii)
+            dataStream.writeNullTerminatedString8(emailAddress)
         }
     }
 }

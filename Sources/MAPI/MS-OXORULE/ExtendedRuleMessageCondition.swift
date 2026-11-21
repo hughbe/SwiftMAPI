@@ -29,7 +29,5 @@ public struct ExtendedRuleMessageCondition {
         /// RuleRestriction (variable): A structure containing the condition to be evaluated. The condition is expressed as a restriction,
         /// as specified in [MS-OXCDATA] section 2.12.
         self.ruleRestriction = try Restriction(dataStream: &dataStream, standard: false)
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

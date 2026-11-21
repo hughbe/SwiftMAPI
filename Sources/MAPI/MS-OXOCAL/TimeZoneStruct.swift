@@ -49,7 +49,5 @@ public struct TimeZoneStruct {
         /// stDaylightDate (16 bytes): A SYSTEMTIME structure. This field contains the date and local time that indicate when to begin using the value specified in the
         /// lDaylightBias field. This field has the same format and constraints as the stStandardDate field.
         self.stDaylightDate = try SYSTEMTIME(dataStream: &dataStream)
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

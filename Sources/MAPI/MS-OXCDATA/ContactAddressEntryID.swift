@@ -152,7 +152,7 @@ public struct ContactAddressEntryID: EntryID {
             
             /// EntryIdCount (4 bytes): An unsigned integer value representing the count of bytes in the EntryIdBytes field.
             self.entryIdCount = try dataStream.read(endianess: .littleEndian)
-            guard 8 + self.entryIdCount <= size else {
+            guard Int(self.entryIdCount) <= size - 8 else {
                 throw MAPIError.corrupted
             }
             

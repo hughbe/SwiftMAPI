@@ -39,7 +39,7 @@ public struct VerbStream {
             let voteOption = try VoteOption(dataStream: &dataStream)
             voteOptions.append(voteOption)
 
-            dataStream.position += 2
+            try dataStream.skipChecked(count: 2)
         }
         
         self.voteOptions = voteOptions
@@ -61,7 +61,5 @@ public struct VerbStream {
         }
         
         self.voteOptionsExtras = voteOptionsExtras
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

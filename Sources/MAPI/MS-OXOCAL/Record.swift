@@ -36,6 +36,6 @@ public struct Record {
         
         /// Username (variable): A non-Unicode string. The value of the Username field is equal to the value of the PidTagDisplayName property ([MS-OXCFOLD] section 2.2.2.2.2.5)
         /// of the Address Book object of the user who added the tombstone.
-        self.username = try dataStream.readString(count: Int(self.usernameSize), encoding: .ascii)!
+        self.username = try dataStream.readString8(count: Int(self.usernameSize))
     }
 }

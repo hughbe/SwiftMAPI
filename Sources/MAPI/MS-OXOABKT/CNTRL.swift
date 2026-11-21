@@ -97,8 +97,8 @@ public struct CNTRL {
         self.ulString = try dataStream.read(endianess: .littleEndian)
         
         let position = dataStream.position
-        dataStream.position = rowSetBasePosition + Int(self.ulString)
-        self.string = try dataStream.readAsciiString()
+        try dataStream.seek(to: rowSetBasePosition + Int(self.ulString))
+        self.string = try dataStream.readNullTerminatedString8()
         dataStream.position = position
     }
 }
