@@ -43,7 +43,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
         
         /// ServerShortname (variable): A string of single-byte characters terminated by a single zero byte, indicating the short name or NetBIOS
         /// name of the server.
-        self.serverShortName = try dataStream.readAsciiString()!
+        self.serverShortName = try dataStream.readNullTerminatedString8()
         
         /// MailboxDN (variable): A string of single-byte characters terminated by a single zero byte and representing the X500 DN of the mailbox
         /// as specified in [MS-OXOAB]. This field is present only for mailbox databases.
@@ -61,7 +61,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
             return magic != EntryIDV2.magic && magic != EntryIDV3.magic
         }
         if try hasMailboxDN(wrappedType: self.wrappedType) {
-            self.mailboxDN = try dataStream.readAsciiString()!
+            self.mailboxDN = try dataStream.readNullTerminatedString8()
         } else {
             self.mailboxDN = nil
         }
@@ -136,7 +136,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                     dataStream.position = dataPosition
                 }
 
-                self.serverDN = try dataStream.readUnicodeString(endianess: .littleEndian)
+                self.serverDN = try dataStream.readNullTerminatedUTF16String()
             } else {
                 self.serverDN = nil
             }
@@ -152,7 +152,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                     dataStream.position = dataPosition
                 }
 
-                self.serverFQDN = try dataStream.readUnicodeString(endianess: .littleEndian)
+                self.serverFQDN = try dataStream.readNullTerminatedUTF16String()
             } else {
                 self.serverFQDN = nil
             }
@@ -226,7 +226,7 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
                     dataStream.position = dataPosition
                 }
 
-                self.smtpAddress = try dataStream.readUnicodeString(endianess: .littleEndian)
+                self.smtpAddress = try dataStream.readNullTerminatedUTF16String()
             } else {
                 self.smtpAddress = nil
             }
@@ -234,6 +234,10 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
             /// Reserved (2 bytes): MUST be set to 0x0000.
             self.reserved = try dataStream.read(endianess: .littleEndian)
             if self.reserved != 0x0000 {
+                throw MAPIError.corrupted
+            }
+            
+            if dataStream.position - position != size {
                 throw MAPIError.corrupted
             }
         }
@@ -254,9 +258,9 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
     public var dataSize: Int {
         /// WrappedFlags (4 bytes) + WrappedProviderUid (16 bytes) + WrappedType (4 bytes) + ServerShortName (variable) + MailboxDN (variable, optional) + EntryID (variable, optional)
         var baseSize = 4 + 16 + 4
-        baseSize += serverShortName.utf8.count + 1
+        baseSize += ANSIEncoding.byteCount(serverShortName) + 1
         if let mailboxDN = mailboxDN {
-            baseSize += mailboxDN.utf8.count + 1
+            baseSize += ANSIEncoding.byteCount(mailboxDN) + 1
         }
         if let entryIdV2 = entryIdV2 {
             baseSize += Int(entryIdV2.size)
@@ -272,9 +276,9 @@ public struct EMSMDBEntryIdData: StoreEntryIDWrappedProviderData {
         dataStream.write(flags, endianess: .littleEndian)
         providerUid.write(to: &dataStream)
         dataStream.write(wrappedType.rawValue, endianess: .littleEndian)
-        dataStream.write(serverShortName + "\0", encoding: .ascii)
+        dataStream.writeNullTerminatedString8(serverShortName)
         if let mailboxDN = mailboxDN {
-            dataStream.write(mailboxDN + "\0", encoding: .ascii)
+            dataStream.writeNullTerminatedString8(mailboxDN)
         }
         if let entryIdV2 = entryIdV2 {
             entryIdV2.write(to: &dataStream)
@@ -298,6 +302,6 @@ fileprivate enum EntryIDHelpers {
             dataStream.write(Data(repeating: 0, count: padding))
         }
         
-        dataStream.write(value + "\0", encoding: .utf16LittleEndian)
+        dataStream.writeNullTerminatedUTF16String(value)
     }
 }

@@ -58,7 +58,7 @@ public struct StoreEntryID: EntryID {
         
         /// DLLFileName (14 bytes): This field MUST be set to the following value, which represents
         /// "emsmdb.dll": %x45.4D.53.4D.44.42.2E.44.4C.4C.00.00.00.00.
-        self.dllFileName = try dataStream.readString(count: 14, encoding: .ascii)!.trimmingCharacters(in: ["\0"])
+        self.dllFileName = try dataStream.readString8(count: 14).trimmingCharacters(in: ["\0"])
         
         let remainingCount = size - (dataStream.position - startPosition)
         switch self.dllFileName.lowercased() {

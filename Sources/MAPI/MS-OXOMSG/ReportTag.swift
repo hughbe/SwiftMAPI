@@ -33,7 +33,7 @@ public struct ReportTag {
     
     public init(dataStream: inout DataStream) throws {
         /// Cookie (9 bytes): A null-terminated string of nine characters used for validation; set to "PCDFEB09".
-        self.cookie = try dataStream.readString(count: 9, encoding: .ascii)!
+        self.cookie = try dataStream.readString8(count: 9)
         if self.cookie != "PCDFEB09\0" {
             throw MAPIError.corrupted
         }
@@ -105,11 +105,9 @@ public struct ReportTag {
         /// ANSIText (variable): The subject of the original message. If the value of the ANSITextSize field is 0x00000000, this field is omitted. If the value is not zero,
         /// the field is filled with the number of bytes specified by the ANSITextSize field.
         if self.ansiTextSize != 0x00000000 {
-            self.ansiText = try dataStream.readString(count: Int(self.ansiTextSize), encoding: .ascii)
+            self.ansiText = try dataStream.readString8(count: Int(self.ansiTextSize))
         } else {
             self.ansiText = nil
         }
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

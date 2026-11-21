@@ -53,27 +53,25 @@ public struct AddressBookEntryID: EntryID {
         self.type = type
         
         /// X500DN (variable): The X500 DN of the Address Book object. The X500DN field is a null-terminated string of 8-bit characters.
-        guard let x500DN = try dataStream.readAsciiString() else {
+        self.x500DN = try dataStream.readNullTerminatedString8()
+        
+        guard dataStream.position - position == size else {
             throw MAPIError.corrupted
         }
-
-        self.x500DN = x500DN
-        
-        assert(dataStream.position - position == size)
     }
     
     public var dataSize: Int {
         /// Flags (4 bytes) + ProviderUid (16 bytes) + Version (4 bytes) + Type (4 bytes) + x500DN (variable)
-        var baseSize = 4 + 16 + 4
-        baseSize += x500DN.count + 1
+        var baseSize = 4 + 16 + 4 + 4
+        baseSize += ANSIEncoding.byteCount(x500DN) + 1
         return baseSize
     }
     
     public func write(to dataStream: inout OutputDataStream) {
         dataStream.write(flags, endianess: .littleEndian)
         providerUid.write(to: &dataStream)
-        dataStream.write(type.rawValue, endianess: .littleEndian)
         dataStream.write(version, endianess: .littleEndian)
-        dataStream.write(x500DN + "\0", encoding: .ascii)
+        dataStream.write(type.rawValue, endianess: .littleEndian)
+        dataStream.writeNullTerminatedString8(x500DN)
     }
 }

@@ -24,8 +24,6 @@ public struct PredecessorChangeList: Collection, CustomStringConvertible {
             let sizedXid = try SizedXid(dataStream: &dataStream)
             values.append(sizedXid.xid)
         }
-        
-        assert(dataStream.remainingCount == 0, "Expected to read everything")
     }
     
     public func makeIterator() -> IndexingIterator<[XID]> {

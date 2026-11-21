@@ -57,13 +57,13 @@ public struct PropertyValue {
         case .boolean:
             self.propertyValue = try dataStream.read(endianess: .littleEndian) as UInt8 != 0
         case .objectOrEmbeddedTable:
-            fatalError("NYI: PTypObjectOrEmbeddedTable")
+            throw MAPIError.corrupted
         case .integer64:
             self.propertyValue = try dataStream.read(endianess: .littleEndian) as UInt64
         case .string8:
-            self.propertyValue = try dataStream.readAsciiString()
+            self.propertyValue = try dataStream.readNullTerminatedString8()
         case .string:
-            self.propertyValue = try dataStream.readUnicodeString(endianess: .littleEndian)
+            self.propertyValue = try dataStream.readNullTerminatedUTF16String()
         case .time:
             self.propertyValue = try FILETIME(dataStream: &dataStream).date
         case .guid:
@@ -93,9 +93,9 @@ public struct PropertyValue {
         case .multipleInteger64:
             self.propertyValue = try readMultipleValues { try $0.read(endianess: .littleEndian) as UInt64 }
         case .multipleString8:
-            self.propertyValue = try readMultipleValues { try $0.readAsciiString() }
+            self.propertyValue = try readMultipleValues { try $0.readNullTerminatedString8() }
         case .multipleString:
-            self.propertyValue = try readMultipleValues { try $0.readUnicodeString(endianess: .littleEndian) }
+            self.propertyValue = try readMultipleValues { try $0.readNullTerminatedUTF16String() }
         case .multipleTime:
             self.propertyValue = try readMultipleValues { try FILETIME(dataStream: &$0).date }
         case .multipleGuid:

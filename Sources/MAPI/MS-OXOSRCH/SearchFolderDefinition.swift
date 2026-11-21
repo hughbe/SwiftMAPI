@@ -84,9 +84,9 @@ public struct SearchFolderDefinition {
         /// be longer than 65,535 characters. If the G field is set to zero (0), this field MUST NOT be present.
         if self.flags.contains(.G) {
             if let textSearchExtendedLength = self.textSearchExtendedLength {
-                self.textSearch = try dataStream.readString(count: Int(textSearchExtendedLength) * 2, encoding: .utf16LittleEndian)
+                self.textSearch = try dataStream.readUTF16String(byteCount: Int(textSearchExtendedLength) * 2)
             } else {
-                self.textSearch = try dataStream.readString(count: Int(self.textSearchLength) * 2, encoding: .utf16LittleEndian)
+                self.textSearch = try dataStream.readUTF16String(byteCount: Int(self.textSearchLength) * 2)
             }
         } else {
             self.textSearch = nil
@@ -128,9 +128,9 @@ public struct SearchFolderDefinition {
         /// the C field is set to zero (0), this field MUST NOT be present.
         if self.folderList1Length != 0 {
             if let folderList1ExtendedLength = self.folderList1ExtendedLength {
-                self.folderList1 = try dataStream.readString(count: Int(folderList1ExtendedLength) * 2, encoding: .utf16LittleEndian)
+                self.folderList1 = try dataStream.readUTF16String(byteCount: Int(folderList1ExtendedLength) * 2)
             } else {
-                self.folderList1 = try dataStream.readString(count: Int(self.folderList1Length) * 2, encoding: .utf16LittleEndian)
+                self.folderList1 = try dataStream.readUTF16String(byteCount: Int(self.folderList1Length) * 2)
             }
         } else {
             self.folderList1 = nil
@@ -221,8 +221,6 @@ public struct SearchFolderDefinition {
         } else {
             self.skipBlock3 = []
         }
-        
-        assert(dataStream.remainingCount == 0)
     }
     
     /// [MS-OXOSRCH] 2.2.1.2.8.1 AddressList
@@ -312,12 +310,12 @@ public struct SearchFolderDefinition {
                 self.value = (try dataStream.read(endianess: .littleEndian) as UInt16) != 0
             case .string:
                 let count: UInt16 = try dataStream.read(endianess: .littleEndian)
-                self.value = try dataStream.readString(count: Int(count) - 2, encoding: .utf16LittleEndian)!
-                dataStream.position += 2 // Skip null terminator
+                self.value = try dataStream.readUTF16String(byteCount: Int(count) - 2)
+                try dataStream.skipChecked(count: 2) // Skip null terminator
             case .string8:
                 let count: UInt16 = try dataStream.read(endianess: .littleEndian)
-                self.value = try dataStream.readString(count: Int(count) - 1, encoding: .ascii)!
-                dataStream.position += 1 // Skip null terminator
+                self.value = try dataStream.readString8(count: Int(count) - 1)
+                try dataStream.skipChecked(count: 1) // Skip null terminator
             case .time:
                 self.value = try FILETIME(dataStream: &dataStream).date
             case .binary:
@@ -328,7 +326,7 @@ public struct SearchFolderDefinition {
                 var results: [String] = []
                 results.reserveCapacity(Int(count))
                 for _ in 0..<count {
-                    let result = try dataStream.readAsciiString()!
+                    let result = try dataStream.readNullTerminatedString8()
                     results.append(result)
                 }
                 

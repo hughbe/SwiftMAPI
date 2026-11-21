@@ -35,7 +35,7 @@ public struct FlatEntryList {
             
             // Align to 4 byte boundary.
             if dataStream.remainingCount > 0 {
-                dataStream.position += Int(flatEntry.size) % 4
+                try dataStream.skipChecked(count: Int(flatEntry.size) % 4)
             }
         }
         

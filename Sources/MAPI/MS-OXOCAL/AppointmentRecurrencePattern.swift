@@ -104,7 +104,5 @@ public struct AppointmentRecurrencePattern {
 
         /// ReservedBlock2 (variable): This field is reserved and MUST be zero-length.
         self.reservedBlock2 = try dataStream.readBytes(count: Int(self.reservedBlock2Size))
-        
-        assert(dataStream.remainingCount == 0)
     }
 }

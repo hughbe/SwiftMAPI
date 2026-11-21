@@ -23,7 +23,7 @@ public struct VoteOptionExtra {
         
         /// DisplayName (variable): The display name of this voting option, as a Unicode string without a null
         /// terminator.
-        self.displayName = try dataStream.readString(count: Int(self.displayNameCount) * 2, encoding: .utf16LittleEndian)!
+        self.displayName = try dataStream.readUTF16String(byteCount: Int(self.displayNameCount) * 2)
         
         /// DisplayNameCountRepeat (1 byte): The COUNT of characters in the DisplayNameRepeat field.
         /// MUST have the same value as the DisplayNameCount field.
@@ -31,6 +31,6 @@ public struct VoteOptionExtra {
         
         /// DisplayNameRepeat (variable): A duplicate instance of the display name, as a Unicode string
         /// without a null terminator. MUST have the same value as the DisplayName field.
-        self.displayNameRepeat = try dataStream.readString(count: Int(self.displayNameCountRepeat) * 2, encoding: .utf16LittleEndian)!
+        self.displayNameRepeat = try dataStream.readUTF16String(byteCount: Int(self.displayNameCountRepeat) * 2)
     }
 }

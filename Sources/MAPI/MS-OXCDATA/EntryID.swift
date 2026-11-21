@@ -19,7 +19,8 @@ public protocol EntryID {
 
 public func getEntryID(dataStream: inout DataStream, size: Int) throws -> EntryID {
     let position = dataStream.position
-    guard size <= dataStream.remainingCount else {
+    /// Every EntryID starts with Flags (4 bytes) and ProviderUID (16 bytes).
+    guard size >= 20 && size <= dataStream.remainingCount else {
         throw MAPIError.corrupted
     }
 

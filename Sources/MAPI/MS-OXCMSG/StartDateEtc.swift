@@ -22,7 +22,5 @@ public struct StartDateEtc {
         
         /// 8 Start date The date, in UTC, from which the age of the Message object is calculated.
         self.startDate = try FILETIME(dataStream: &dataStream).date
-        
-        assert(dataStream.remainingCount == 0)
     }
 }
